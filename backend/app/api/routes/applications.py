@@ -28,6 +28,14 @@ def submit_application(
     return ApplicationOut.model_validate(application)
 
 
+@router.get("")
+def list_my_applications(auth: BorrowerAuth, db: DbSession) -> list[ApplicationOut]:
+    """Borrower's own applications, newest first, so they can return to the tracker."""
+    return [
+        ApplicationOut.model_validate(a) for a in application_service.list_mine(db, user=auth.user)
+    ]
+
+
 @router.get("/{application_id}")
 def get_application(
     application_id: uuid.UUID, auth: CurrentAuth, db: DbSession, clock: Now, ip: ClientIp
