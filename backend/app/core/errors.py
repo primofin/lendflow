@@ -1,6 +1,7 @@
 """Domain errors mapped to HTTP responses with specific, actionable messages."""
 
 from fastapi import FastAPI, Request
+from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
 
 
@@ -52,9 +53,20 @@ class Conflict(AppError):
     status_code = 409
 
 
+class UnprocessableEntity(AppError):
+    status_code = 422
+
+
 def register_error_handlers(app: FastAPI) -> None:
     @app.exception_handler(AppError)
     async def _handle(_: Request, exc: AppError) -> JSONResponse:
         return JSONResponse(
             {"detail": exc.detail}, status_code=exc.status_code, headers=exc.headers
         )
+
+    @app.exception_handler(RequestValidationError)
+    async def _handle_validation(_: Request, exc: RequestValidationError) -> JSONResponse:
+        # FastAPI's default body echoes the submitted input, which can hold personal data
+        # (national ID, name, address). Report only where and why a field is invalid.
+        errors = [{"loc": list(e["loc"]), "msg": e["msg"]} for e in exc.errors()]
+        return JSONResponse({"detail": errors}, status_code=422)

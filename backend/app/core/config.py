@@ -25,6 +25,16 @@ class Settings(BaseSettings):
     # LF-002 / BR-10: officers need a supervisor at or above this amount (illustrative, docs/02)
     officer_approval_limit_vnd: int = 200_000_000
 
+    # LF-004 application rules (BR-01..BR-03, BR-23); illustrative and configurable (docs/02)
+    amount_min_vnd: int = 1_000_000
+    amount_max_vnd: int = 500_000_000
+    allowed_terms_months: list[int] = [6, 12, 24, 36, 60]
+    purpose_required_from_vnd: int = 100_000_000  # simplified small-loan rule below this
+    min_age_at_application: int = 18
+    max_age_at_application: int = 60
+    max_age_at_maturity: int = 65
+    consent_retention_months: int = 12
+
     ai_mode: str = "mock"
 
 

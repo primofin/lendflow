@@ -1,14 +1,23 @@
-"""Application endpoints. LF-002: read with ownership check; LF-004 adds create/edit."""
+"""Application endpoints. LF-002: read with ownership check; LF-004: submit with consent."""
 
 import uuid
 
-from fastapi import APIRouter
+from fastapi import APIRouter, status
 
-from app.api.deps import ClientIp, CurrentAuth, DbSession, Now
-from app.schemas.application import ApplicationOut
+from app.api.deps import BorrowerAuth, ClientIp, CurrentAuth, DbSession, Now
+from app.schemas.application import ApplicationOut, ApplicationSubmitIn
 from app.services import application_service
 
 router = APIRouter(prefix="/applications", tags=["applications"])
+
+
+@router.post("", status_code=status.HTTP_201_CREATED)
+def submit_application(
+    body: ApplicationSubmitIn, auth: BorrowerAuth, db: DbSession, clock: Now, ip: ClientIp
+) -> ApplicationOut:
+    """LF-004: borrower submits with consent; nothing is saved unless every rule passes."""
+    application = application_service.submit(db, user=auth.user, data=body, now=clock(), ip=ip)
+    return ApplicationOut.model_validate(application)
 
 
 @router.get("/{application_id}")
