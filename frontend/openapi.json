@@ -1030,6 +1030,55 @@
         }
       }
     },
+    "/applications/{application_id}/review": {
+      "get": {
+        "tags": [
+          "applications"
+        ],
+        "summary": "Review Application",
+        "description": "F4: the file view for staff: loan, applicant (ID masked), flags and who holds it.",
+        "operationId": "review_application_applications__application_id__review_get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "application_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Application Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReviewOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/applications/{application_id}/claim": {
       "post": {
         "tags": [
@@ -1459,6 +1508,99 @@
   },
   "components": {
     "schemas": {
+      "ApplicantOut": {
+        "properties": {
+          "full_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Full Name"
+          },
+          "date_of_birth": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Date Of Birth"
+          },
+          "national_id_masked": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "National Id Masked"
+          },
+          "address": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Address"
+          },
+          "income_type": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Income Type"
+          },
+          "monthly_income_vnd": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Monthly Income Vnd"
+          },
+          "existing_debt_payment_vnd": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Existing Debt Payment Vnd"
+          }
+        },
+        "type": "object",
+        "required": [
+          "full_name",
+          "date_of_birth",
+          "national_id_masked",
+          "address",
+          "income_type",
+          "monthly_income_vnd",
+          "existing_debt_payment_vnd"
+        ],
+        "title": "ApplicantOut"
+      },
       "ApplicationOut": {
         "properties": {
           "id": {
@@ -2653,6 +2795,104 @@
           "doc_types"
         ],
         "title": "RequirementOut"
+      },
+      "ReviewOut": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "status": {
+            "type": "string",
+            "title": "Status"
+          },
+          "amount_vnd": {
+            "type": "integer",
+            "title": "Amount Vnd"
+          },
+          "term_months": {
+            "type": "integer",
+            "title": "Term Months"
+          },
+          "purpose": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Purpose"
+          },
+          "annual_rate_percent": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Annual Rate Percent"
+          },
+          "submitted_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Submitted At"
+          },
+          "flags": {
+            "items": {
+              "type": "string",
+              "enum": [
+                "exception",
+                "high_dti",
+                "fast_track"
+              ]
+            },
+            "type": "array",
+            "title": "Flags"
+          },
+          "assigned_to_me": {
+            "type": "boolean",
+            "title": "Assigned To Me"
+          },
+          "assigned": {
+            "type": "boolean",
+            "title": "Assigned"
+          },
+          "supervisor_assigned": {
+            "type": "boolean",
+            "title": "Supervisor Assigned"
+          },
+          "applicant": {
+            "$ref": "#/components/schemas/ApplicantOut"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "status",
+          "amount_vnd",
+          "term_months",
+          "purpose",
+          "annual_rate_percent",
+          "submitted_at",
+          "flags",
+          "assigned_to_me",
+          "assigned",
+          "supervisor_assigned",
+          "applicant"
+        ],
+        "title": "ReviewOut"
       },
       "Role": {
         "type": "string",

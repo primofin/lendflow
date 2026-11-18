@@ -262,6 +262,21 @@ Short records of choices, so a reader can see *why*, not just *what*. Format: co
   - A missing-items list in the needs-info panel covers mandatory items only, as the API computes it.
   - Email notifications have no screen; they are backend-only (outbox).
 
+## D-024: Officer queue, file view and claim (F4a; LF-010, LF-011, LF-007 officer side)
+- **Context:** Staff had no API that returned the applicant's details, so a file view could not show the income, date of birth or address a decision depends on.
+- **Decision:**
+  - New staff-only `GET /applications/{id}/review` returns the loan, the applicant's profile, flags and whether the file is held. It uses the same access rules and read audit as the application endpoint: an officer cannot open a colleague's file (403, audited) and a borrower gets 403.
+  - The **national ID is masked** to its last four digits. Staff confirm identity from the documents; the full number is not needed on screen.
+  - Who holds the file is shown as "You", "Another officer" or "Nobody yet" (and whether a supervisor is assigned), not a name.
+  - `/queue` (officer, supervisor): status and flag filters, oldest or newest first, paging by 50, "No applications waiting" when empty, a Refresh button. There is no live refresh.
+  - `/review/[id]` (staff): loan, applicant, flags, claim (officers, unassigned IN_REVIEW files), the checklist with "No <document> available" (officers, missing mandatory items), and documents. Supervisors see the file but cannot claim or declare exceptions.
+  - A document opens through an authorised request, not a link, because the file endpoint needs the login header. The new tab is opened inside the click (so a pop-up blocker allows it) and pointed at the file once the request returns; on failure the tab is closed and the server's message is shown.
+  - The requirements panel endpoint is not used: the checklist already lists mandatory and optional items for the applicant's income type.
+- **Consequences:**
+  - Decisions, the decision history and corrections are F4b.
+  - Queue rows and the file view show personal data to staff; every read is audited.
+  - Browser tests wait for the checklist to render before counting items. Two tests had counted too early and failed intermittently; they now pass on repeated runs.
+
 ## Open items
 
 | # | Question | Owner (simulated) | Needed by | Status |

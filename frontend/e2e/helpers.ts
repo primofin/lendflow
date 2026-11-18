@@ -68,14 +68,49 @@ export async function registerBorrower(page: Page): Promise<void> {
 
 export async function fillApplication(
   page: Page,
-  { amount, term = "12" }: { amount: string; term?: string },
+  {
+    amount,
+    term = "12",
+    name = "Nguyen Test",
+    incomeType = "salaried",
+  }: { amount: string; term?: string; name?: string; incomeType?: string },
 ): Promise<void> {
   await page.getByLabel(/Loan amount/).fill(amount);
   await page.getByLabel("Term").selectOption(term);
-  await page.getByLabel("Full name").fill("Nguyen Test");
+  await page.getByLabel("Full name").fill(name);
   await page.getByLabel("Date of birth").fill("1990-05-01");
   await page.getByLabel("National ID").fill("012345678901");
   await page.getByLabel("Address").fill("1 Example Street, Hanoi");
-  await page.getByLabel("Income type").selectOption("salaried");
+  await page.getByLabel("Income type").selectOption(incomeType);
   await page.getByLabel(/Monthly income/).fill("30000000");
+}
+
+/** Synthetic files with real magic bytes (the server checks content, not names). */
+export function jpeg(seed: number) {
+  return {
+    name: `scan-${seed}.jpg`,
+    mimeType: "image/jpeg",
+    buffer: Buffer.concat([Buffer.from([0xff, 0xd8, 0xff, 0xe0]), Buffer.alloc(200, seed)]),
+  };
+}
+
+export async function submitSmallLoan(
+  page: Page,
+  opts: { name?: string; incomeType?: string; amount?: string } = {},
+): Promise<string> {
+  await registerBorrower(page);
+  await page.getByRole("link", { name: "Apply", exact: true }).click();
+  await fillApplication(page, { amount: opts.amount ?? "50000000", ...opts });
+  await page.getByRole("checkbox").check();
+  await page.getByRole("button", { name: "Submit application" }).click();
+  await expect(page).toHaveURL(/\/applications\/[0-9a-f-]{36}$/);
+  return page.url().split("/").pop() as string;
+}
+
+export const missingItems = (page: Page) => page.locator('li[data-state="missing"]');
+
+export async function uploadFirstMissing(page: Page, seed: number) {
+  const item = missingItems(page).first();
+  await item.locator('input[type="file"]').setInputFiles(jpeg(seed));
+  await item.getByRole("button", { name: /Upload/ }).click();
 }

@@ -47,6 +47,8 @@ export type RequestOptions = {
   json?: unknown;
   form?: FormData;
   signal?: AbortSignal;
+  /** "blob" returns the raw response body (for files); the default parses JSON. */
+  as?: "json" | "blob";
 };
 
 function send(
@@ -83,6 +85,7 @@ export async function apiRequest<T>(
   }
   if (!response.ok) throw await errorFromResponse(response);
   if (response.status === 204) return undefined as T;
+  if (options.as === "blob") return (await response.blob()) as T;
   return (await response.json()) as T;
 }
 

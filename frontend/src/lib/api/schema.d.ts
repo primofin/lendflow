@@ -396,6 +396,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/applications/{application_id}/review": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Review Application
+         * @description F4: the file view for staff: loan, applicant (ID masked), flags and who holds it.
+         */
+        get: operations["review_application_applications__application_id__review_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/applications/{application_id}/claim": {
         parameters: {
             query?: never;
@@ -557,6 +577,23 @@ export interface paths {
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
+        /** ApplicantOut */
+        ApplicantOut: {
+            /** Full Name */
+            full_name: string | null;
+            /** Date Of Birth */
+            date_of_birth: string | null;
+            /** National Id Masked */
+            national_id_masked: string | null;
+            /** Address */
+            address: string | null;
+            /** Income Type */
+            income_type: string | null;
+            /** Monthly Income Vnd */
+            monthly_income_vnd: number | null;
+            /** Existing Debt Payment Vnd */
+            existing_debt_payment_vnd: number | null;
+        };
         /** ApplicationOut */
         ApplicationOut: {
             /**
@@ -992,6 +1029,35 @@ export interface components {
             label: string;
             /** Doc Types */
             doc_types: string[];
+        };
+        /** ReviewOut */
+        ReviewOut: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Status */
+            status: string;
+            /** Amount Vnd */
+            amount_vnd: number;
+            /** Term Months */
+            term_months: number;
+            /** Purpose */
+            purpose: string | null;
+            /** Annual Rate Percent */
+            annual_rate_percent: number | null;
+            /** Submitted At */
+            submitted_at: string | null;
+            /** Flags */
+            flags: ("exception" | "high_dti" | "fast_track")[];
+            /** Assigned To Me */
+            assigned_to_me: boolean;
+            /** Assigned */
+            assigned: boolean;
+            /** Supervisor Assigned */
+            supervisor_assigned: boolean;
+            applicant: components["schemas"]["ApplicantOut"];
         };
         /**
          * Role
@@ -1732,6 +1798,37 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["ApplicationOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    review_application_applications__application_id__review_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                application_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ReviewOut"];
                 };
             };
             /** @description Validation Error */

@@ -50,3 +50,13 @@ export const DOC_TYPE_LABELS: Record<DocType, string> = {
 export function docTypeLabel(type: string): string {
   return DOC_TYPE_LABELS[type as DocType] ?? type;
 }
+
+export type QueuePage = Schemas["QueuePageOut"];
+export type QueueItem = Schemas["QueueItemOut"];
+export type Review = Schemas["ReviewOut"];
+
+export const FLAG_LABELS: Record<string, string> = {
+  exception: "Exception",
+  high_dti: "High DTI",
+  fast_track: "Fast-track",
+};
