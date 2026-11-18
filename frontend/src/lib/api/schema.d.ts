@@ -188,6 +188,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/loan-terms": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Loan Terms
+         * @description Allowed terms, amount range and the amount from which a purpose is required.
+         */
+        get: operations["loan_terms_loan_terms_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/documents/notice": {
         parameters: {
             query?: never;
@@ -817,6 +837,17 @@ export interface components {
          * @enum {string}
          */
         IncomeType: "salaried" | "freelance" | "self_employed" | "rental" | "other";
+        /** LoanTermsOut */
+        LoanTermsOut: {
+            /** Allowed Terms Months */
+            allowed_terms_months: number[];
+            /** Amount Min Vnd */
+            amount_min_vnd: number;
+            /** Amount Max Vnd */
+            amount_max_vnd: number;
+            /** Purpose Required From Vnd */
+            purpose_required_from_vnd: number;
+        };
         /** LoginIn */
         LoginIn: {
             /**
@@ -1350,6 +1381,26 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    loan_terms_loan_terms_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["LoanTermsOut"];
                 };
             };
         };

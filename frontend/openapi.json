@@ -387,6 +387,28 @@
         }
       }
     },
+    "/loan-terms": {
+      "get": {
+        "tags": [
+          "calculator"
+        ],
+        "summary": "Loan Terms",
+        "description": "Allowed terms, amount range and the amount from which a purpose is required.",
+        "operationId": "loan_terms_loan_terms_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LoanTermsOut"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/documents/notice": {
       "get": {
         "tags": [
@@ -2181,6 +2203,37 @@
         ],
         "title": "IncomeType",
         "description": "Income types from docs/02 section 3."
+      },
+      "LoanTermsOut": {
+        "properties": {
+          "allowed_terms_months": {
+            "items": {
+              "type": "integer"
+            },
+            "type": "array",
+            "title": "Allowed Terms Months"
+          },
+          "amount_min_vnd": {
+            "type": "integer",
+            "title": "Amount Min Vnd"
+          },
+          "amount_max_vnd": {
+            "type": "integer",
+            "title": "Amount Max Vnd"
+          },
+          "purpose_required_from_vnd": {
+            "type": "integer",
+            "title": "Purpose Required From Vnd"
+          }
+        },
+        "type": "object",
+        "required": [
+          "allowed_terms_months",
+          "amount_min_vnd",
+          "amount_max_vnd",
+          "purpose_required_from_vnd"
+        ],
+        "title": "LoanTermsOut"
       },
       "LoginIn": {
         "properties": {
