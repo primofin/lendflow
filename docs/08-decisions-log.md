@@ -47,6 +47,16 @@ Short records of choices, so a reader can see *why*, not just *what*. Format: co
   - Two browser tabs refreshing with the same token at the same moment will log the user out. Accepted as the safer side.
   - Only the immediately previous refresh token is checked for reuse; older tokens are simply rejected without revoking the session.
 
+## D-009: Application submission and consent (LF-004)
+- **Context:** BR-21 forbids processing personal data before explicit consent; LF-004 requires consent to be recorded with a version and timestamp.
+- **Decision:**
+  - Submission is one atomic request containing the loan, the profile and the consent. There are no server-side drafts yet, so no personal data is stored before consent. Every rule is checked before anything is saved.
+  - The consent text is versioned in code. A submission with a missing or out-of-date version is refused, and a consent record is created once per user and version.
+  - Legacy 9-digit national IDs are **rejected** with "National ID must be 12 digits" until Compliance resolves open item Q2.
+  - `annual_rate` stays empty on the application until the calculator (LF-003) supplies it.
+  - Validation error responses report only the field and the reason, never the submitted values, so personal data is not echoed back.
+- **Consequences:** The frontend must keep form state until the user submits. Server-side drafts, officer-created applications and consent withdrawal (LF-018) are later stories.
+
 ## Open items
 
 | # | Question | Owner (simulated) | Needed by |

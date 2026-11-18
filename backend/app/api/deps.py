@@ -64,3 +64,4 @@ def require_roles(*allowed: Role) -> Callable[..., AuthContext]:
 
 
 SupervisorAuth = Annotated[AuthContext, Depends(require_roles(Role.SUPERVISOR))]
+BorrowerAuth = Annotated[AuthContext, Depends(require_roles(Role.BORROWER))]
