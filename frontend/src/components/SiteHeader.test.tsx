@@ -116,4 +116,16 @@ describe("SiteHeader (LF-002 AC3: only supervisors see user management)", () => 
     render(<SiteHeader />);
     expect(screen.getByRole("link", { name: "Import" })).toBeInTheDocument();
   });
+
+  it("shows Dashboard to supervisors only (LF-019)", () => {
+    auth.status = "authenticated";
+    auth.user = user("officer");
+    const first = render(<SiteHeader />);
+    expect(screen.queryByRole("link", { name: "Dashboard" })).not.toBeInTheDocument();
+    first.unmount();
+
+    auth.user = user("supervisor");
+    render(<SiteHeader />);
+    expect(screen.getByRole("link", { name: "Dashboard" })).toBeInTheDocument();
+  });
 });

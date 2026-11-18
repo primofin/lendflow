@@ -700,6 +700,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/dashboard": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Dashboard
+         * @description LF-019: counts by status, approval rate, average decision time and open SLA breaches.
+         */
+        get: operations["get_dashboard_dashboard_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/health": {
         parameters: {
             query?: never;
@@ -994,6 +1014,35 @@ export interface components {
             purposes: components["schemas"]["PurposeOut"][];
             /** Retention Months */
             retention_months: number;
+        };
+        /** DashboardOut */
+        DashboardOut: {
+            /**
+             * Date From
+             * Format: date
+             */
+            date_from: string;
+            /**
+             * Date To
+             * Format: date
+             */
+            date_to: string;
+            /** Total Applications */
+            total_applications: number;
+            /** By Status */
+            by_status: components["schemas"]["StatusCount"][];
+            /** Decided */
+            decided: number;
+            /** Approved */
+            approved: number;
+            /** Rejected */
+            rejected: number;
+            /** Approval Rate Percent */
+            approval_rate_percent: number | null;
+            /** Avg Decision Hours */
+            avg_decision_hours: number | null;
+            /** Overdue Now */
+            overdue_now: number;
         };
         /** DecisionData */
         DecisionData: {
@@ -1461,6 +1510,13 @@ export interface components {
         /** RoleChangeIn */
         RoleChangeIn: {
             role: components["schemas"]["Role"];
+        };
+        /** StatusCount */
+        StatusCount: {
+            /** Status */
+            status: string;
+            /** Count */
+            count: number;
         };
         /** TokenPair */
         TokenPair: {
@@ -2632,6 +2688,38 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["ImportResultOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_dashboard_dashboard_get: {
+        parameters: {
+            query?: {
+                from?: string | null;
+                to?: string | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DashboardOut"];
                 };
             };
             /** @description Validation Error */

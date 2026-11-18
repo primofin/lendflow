@@ -92,6 +92,8 @@ export const CIC_FLAG_LABELS: Record<NonNullable<CicCheck["flag"]>, string> = {
 export type ImportResult = Schemas["ImportResultOut"];
 export type ImportIssue = Schemas["ImportRowIssue"];
 
+export type Dashboard = Schemas["DashboardOut"];
+
 export type MyData = Schemas["MyDataOut"];
 export type DeletionRequest = Schemas["DeletionRequestOut"];
 export type DeletionRequestAdmin = Schemas["DeletionRequestAdminOut"];

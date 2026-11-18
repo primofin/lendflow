@@ -25,7 +25,7 @@ Each story traces back to a pain point or source story (column "Source") and for
 | LF-016 | Audit log | New (C-01, Audit) | **Must** | 5 | Done |
 | LF-017 | SLA escalation | US-005 | Could | 3 | Done |
 | LF-018 | Data-subject rights | New (C-08) | Should | 5 | Done |
-| LF-019 | Operations dashboard | Giao an (NPL report) | Could | 5 | To do |
+| LF-019 | Operations dashboard | Giao an (NPL report) | Could | 5 | Done |
 | LF-020 | Biometric step simulation | New (C-07) | Could | 3 | To do |
 
 **Status** is updated as each story is merged to `main`; decisions behind the built stories are in the [decisions log](08-decisions-log.md).
@@ -204,7 +204,7 @@ Each story traces back to a pain point or source story (column "Source") and for
 |---|---|---|
 | LF-014 | Repayment schedule and email reminders | Schedule shows due date, principal, interest; reminder emails 7 and 1 days before; opt-out in settings |
 | LF-017 | SLA escalation | Applications waiting > 24 h at supervisor move to "overdue" and notify the admin; breach is logged |
-| LF-019 | Operations dashboard | Applications by status, average decision time, approval rate, AI cost per application; filter by date range |
+| LF-019 | Operations dashboard | Applications by status, average decision time, approval rate, ~~AI cost per application~~ (deferred with the AI, D-026); filter by date range |
 | LF-020 | Biometric step simulation | Disbursement over 10M VND requires a (simulated) face match; failure blocks the action and logs it |
 | LF-015 | **E-signature (Won't, this release)** | Documented in the compliance matrix; revisit with a certified provider |
 
