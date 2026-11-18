@@ -84,14 +84,18 @@ def login(db: Session, *, email: str, password: str, now: datetime, ip: str | No
     return tokens
 
 
-def refresh(db: Session, *, refresh_token: str, now: datetime) -> TokenPair:
-    """Rotate the refresh token; the presented one stops working (LF-001 notes)."""
+def refresh(db: Session, *, refresh_token: str, now: datetime, ip: str | None) -> TokenPair:
+    """Rotate the refresh token; the presented one stops working (LF-001 notes).
+
+    Presenting the token that was just rotated out means two parties hold it, so the
+    whole session is revoked (OAuth refresh-token reuse detection).
+    """
+    token_hash = security.hash_refresh_token(refresh_token)
     session = db.scalar(
-        select(AuthSession)
-        .where(AuthSession.refresh_token_hash == security.hash_refresh_token(refresh_token))
-        .with_for_update()
+        select(AuthSession).where(AuthSession.refresh_token_hash == token_hash).with_for_update()
     )
     if session is None:
+        _revoke_on_reuse(db, token_hash, now, ip)
         raise NotAuthenticated()
     _ensure_session_usable(db, session, now)
     user = db.get(User, session.user_id)
@@ -99,6 +103,7 @@ def refresh(db: Session, *, refresh_token: str, now: datetime) -> TokenPair:
         raise NotAuthenticated()
 
     new_token = security.new_refresh_token()
+    session.previous_refresh_token_hash = token_hash
     session.refresh_token_hash = security.hash_refresh_token(new_token)
     session.last_activity_at = now
     db.commit()
@@ -160,6 +165,27 @@ def _ensure_session_usable(db: Session, session: AuthSession, now: datetime) -> 
         session.revoked_at = now
         db.commit()
         raise NotAuthenticated("Session expired after inactivity. Log in again.")
+
+
+def _revoke_on_reuse(db: Session, token_hash: str, now: datetime, ip: str | None) -> None:
+    session = db.scalar(
+        select(AuthSession)
+        .where(AuthSession.previous_refresh_token_hash == token_hash)
+        .with_for_update()
+    )
+    if session is None or session.revoked_at is not None:
+        return
+    session.revoked_at = now
+    audit_service.record(
+        db,
+        action="auth.refresh_reuse",
+        now=now,
+        actor_id=session.user_id,
+        target_type="auth_session",
+        target_id=session.id,
+        ip_address=ip,
+    )
+    db.commit()
 
 
 def _register_failure(db: Session, user: User, now: datetime, ip: str | None) -> None:

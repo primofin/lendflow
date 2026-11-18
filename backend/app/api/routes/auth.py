@@ -22,9 +22,9 @@ def login(body: LoginIn, db: DbSession, clock: Now, ip: ClientIp) -> TokenPair:
 
 
 @router.post("/refresh")
-def refresh(body: RefreshIn, db: DbSession, clock: Now) -> TokenPair:
-    """LF-001: exchange a refresh token for a new pair (rotation)."""
-    return auth_service.refresh(db, refresh_token=body.refresh_token, now=clock())
+def refresh(body: RefreshIn, db: DbSession, clock: Now, ip: ClientIp) -> TokenPair:
+    """LF-001: exchange a refresh token for a new pair (rotation with reuse detection)."""
+    return auth_service.refresh(db, refresh_token=body.refresh_token, now=clock(), ip=ip)
 
 
 @router.post("/logout", status_code=status.HTTP_204_NO_CONTENT)

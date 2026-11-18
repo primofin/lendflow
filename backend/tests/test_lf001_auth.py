@@ -184,6 +184,22 @@ def test_lf001_refresh_rotates_and_old_token_rejected(client):
     assert reused.status_code == 401
 
 
+def test_lf001_refresh_token_reuse_revokes_whole_session_and_audits(client, db):
+    tokens = register(client).json()
+    rotated = client.post("/auth/refresh", json={"refresh_token": tokens["refresh_token"]}).json()
+
+    # Someone replays the already-rotated token (e.g. it was stolen).
+    replay = client.post("/auth/refresh", json={"refresh_token": tokens["refresh_token"]})
+
+    assert replay.status_code == 401
+    # The legitimate holder's newer tokens are now dead too.
+    newer = client.post("/auth/refresh", json={"refresh_token": rotated["refresh_token"]})
+    assert newer.status_code == 401
+    me = client.get("/auth/me", headers=bearer(rotated["access_token"]))
+    assert me.status_code == 401
+    assert db.scalar(select(AuditLog).where(AuditLog.action == "auth.refresh_reuse")) is not None
+
+
 def test_lf001_logout_revokes_session(client):
     tokens = register(client).json()
     headers = bearer(tokens["access_token"])
