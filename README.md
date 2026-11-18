@@ -2,7 +2,7 @@
 
 > A digital lending application with an AI document-review agent, built as an end-to-end portfolio project: **business analysis + fullstack engineering + applied AI**, designed around Vietnamese lending and data-protection rules.
 
-**Status:** Documentation complete (v0.1). Backend implementation in progress; per-story status is in the [backlog](docs/04-user-stories-backlog.md#1-backlog-overview-moscow), and the reasons behind each choice are in the [decisions log](docs/08-decisions-log.md). No frontend yet.
+**Status:** Documentation complete (v0.1). Backend implementation in progress; per-story status is in the [backlog](docs/04-user-stories-backlog.md#1-backlog-overview-moscow), and the reasons behind each choice are in the [decisions log](docs/08-decisions-log.md). The frontend is set up (Next.js shell, API proxy, login session handling); screens are built story by story.
 **Live demo:** _coming soon_ · **Demo video:** _coming soon_
 
 > LendFlow is a **fictional lender** for educational purposes. It uses **synthetic data only** and is not a financial product or legal advice.

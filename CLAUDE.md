@@ -40,9 +40,12 @@ cd backend && uv run alembic upgrade head
 cd backend && uv run fastapi dev app/main.py
 
 # frontend
+# (first time: cd frontend && npm install && cp .env.example .env.local; the backend must be running)
 cd frontend && npm run dev
 cd frontend && npm test
 cd frontend && npm run lint
+cd frontend && npm run typecheck
+cd frontend && npm run gen:api           # regenerate API types after the backend schema changes
 
 # AI evals
 cd evals && uv run python run_evals.py --mode mock
