@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { ApiError, errorFromResponse, formatDetail } from "./errors";
+import { ApiError, errorFromResponse, fieldIssues, formatDetail } from "./errors";
 
 describe("formatDetail", () => {
   it("returns a string detail unchanged", () => {
@@ -40,5 +40,21 @@ describe("errorFromResponse", () => {
     expect(error.status).toBe(502);
     expect(error.message).toContain("502");
     expect(error.message).toContain("Try again");
+  });
+});
+
+describe("LF-004 fieldIssues", () => {
+  it("keys messages by field path and drops body and query prefixes", () => {
+    expect(
+      fieldIssues([
+        { loc: ["body", "profile", "national_id"], msg: "Value error, bad id" },
+        { loc: ["body", "amount_vnd"], msg: "too small" },
+        { loc: ["body"], msg: "whole body problem" },
+      ]),
+    ).toEqual({ "profile.national_id": "bad id", amount_vnd: "too small" });
+  });
+
+  it("is empty for a plain string detail", () => {
+    expect(fieldIssues("nope")).toEqual({});
   });
 });

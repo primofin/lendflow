@@ -233,6 +233,20 @@ Short records of choices, so a reader can see *why*, not just *what*. Format: co
   - Playwright needs a Chromium download (about 100 MB) and `uv` on the PATH.
   - Borrower and staff home pages show a "coming next" note until the application, tracker and queue screens exist.
 
+## D-022: Calculator and application screens (F2; LF-003, LF-004)
+- **Context:** The terms, amount range and purpose threshold are configurable backend settings, but the API did not expose them, so a browser form would have had to copy them.
+- **Decision:**
+  - New public `GET /loan-terms` returns the allowed terms, amount range and the amount from which a purpose is required. Both forms read it, so the screens follow the configuration.
+  - `/calculator` (public) recalculates as the user types (300 ms debounce, stale requests cancelled) and has a Calculate button for keyboard and screen-reader users. Non-numeric or out-of-range amounts show a message under the field and call nothing. The result states the method and the rate. "Apply with these terms" passes only amount and term in the URL.
+  - `/apply` (borrower) has loan, about-you and consent sections. All state stays in the form until the single submit request (D-009). Personal data is never put in the URL or browser storage and is cleared after a successful submit (Next keeps the page alive, hidden).
+  - Unticked consent blocks submission, highlights the checkbox and moves focus to it. The consent text lists every purpose and the retention period. If the server says the consent text changed, the form reloads it and unticks the box.
+  - Client checks (amount range, purpose threshold, 12-digit ID, required fields) only save a round trip. Server field errors are mapped under their inputs; other server messages (age rules) show as a form message with the data kept. Age rules are not copied into the browser.
+  - `/applications/[id]` is a minimal confirmation (status, amount, term, purpose). F3 grows it into the tracker.
+- **Consequences:**
+  - A second application overwrites the stored profile (D-009).
+  - Borrowers have no list of their applications yet; they reach one only after submitting.
+  - A server-side age failure is shown as a general message because the API returns it without a field name.
+
 ## Open items
 
 | # | Question | Owner (simulated) | Needed by | Status |

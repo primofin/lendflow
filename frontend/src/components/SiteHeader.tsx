@@ -25,6 +25,14 @@ export function SiteHeader() {
         <Link href="/" className="mr-auto text-lg font-semibold">
           LendFlow
         </Link>
+        <Link href="/calculator" className={link}>
+          Calculator
+        </Link>
+        {user?.role === "borrower" && (
+          <Link href="/apply" className={link}>
+            Apply
+          </Link>
+        )}
         {status === "anonymous" && (
           <>
             <Link href="/login" className={link}>
