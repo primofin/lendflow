@@ -22,6 +22,9 @@ class Settings(BaseSettings):
     login_max_failures: int = 5
     lockout_minutes: int = 15
 
+    # LF-002 / BR-10: officers need a supervisor at or above this amount (illustrative, docs/02)
+    officer_approval_limit_vnd: int = 200_000_000
+
     ai_mode: str = "mock"
 
 

@@ -34,6 +34,24 @@ class AccountLocked(AppError):
     status_code = 423
 
 
+class Forbidden(AppError):
+    status_code = 403
+    detail = "You do not have permission to perform this action"
+
+
+class SupervisorApprovalRequired(Forbidden):
+    detail = "Supervisor approval required"
+
+
+class NotFound(AppError):
+    status_code = 404
+    detail = "Not found"
+
+
+class Conflict(AppError):
+    status_code = 409
+
+
 def register_error_handlers(app: FastAPI) -> None:
     @app.exception_handler(AppError)
     async def _handle(_: Request, exc: AppError) -> JSONResponse:

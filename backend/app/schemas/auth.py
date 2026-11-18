@@ -9,18 +9,20 @@ from app.core.config import get_settings
 from app.models.user import Role
 
 
+def check_password_policy(value: str) -> str:
+    """LF-001 password policy, shared by self-registration and staff-created accounts."""
+    minimum = get_settings().password_min_length
+    if len(value) < minimum:
+        raise ValueError(f"Password must be at least {minimum} characters")
+    return value
+
+
 class RegisterIn(BaseModel):
     # Extra fields such as "role" are ignored: self-registration is always a borrower.
     email: EmailStr
     password: str = Field(max_length=256)
 
-    @field_validator("password")
-    @classmethod
-    def _password_policy(cls, value: str) -> str:
-        minimum = get_settings().password_min_length
-        if len(value) < minimum:
-            raise ValueError(f"Password must be at least {minimum} characters")
-        return value
+    _password_policy = field_validator("password")(check_password_policy)
 
 
 class LoginIn(BaseModel):
