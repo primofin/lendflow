@@ -1,5 +1,5 @@
 import { expect } from "@playwright/test";
-import type { Page } from "@playwright/test";
+import type { Browser, Page } from "@playwright/test";
 
 export const STAFF_PASSWORD = process.env.E2E_PASSWORD ?? "e2e-password-123";
 export const SUPERVISOR = "e2e-supervisor@lendflow.example.com";
@@ -73,7 +73,8 @@ export async function fillApplication(
     term = "12",
     name = "Nguyen Test",
     incomeType = "salaried",
-  }: { amount: string; term?: string; name?: string; incomeType?: string },
+    purpose,
+  }: { amount: string; term?: string; name?: string; incomeType?: string; purpose?: string },
 ): Promise<void> {
   await page.getByLabel(/Loan amount/).fill(amount);
   await page.getByLabel("Term").selectOption(term);
@@ -83,6 +84,7 @@ export async function fillApplication(
   await page.getByLabel("Address").fill("1 Example Street, Hanoi");
   await page.getByLabel("Income type").selectOption(incomeType);
   await page.getByLabel(/Monthly income/).fill("30000000");
+  if (purpose) await page.getByLabel(/Purpose of the loan/).fill(purpose);
 }
 
 /** Synthetic files with real magic bytes (the server checks content, not names). */
@@ -96,7 +98,7 @@ export function jpeg(seed: number) {
 
 export async function submitSmallLoan(
   page: Page,
-  opts: { name?: string; incomeType?: string; amount?: string } = {},
+  opts: { name?: string; incomeType?: string; amount?: string; purpose?: string } = {},
 ): Promise<string> {
   await registerBorrower(page);
   await page.getByRole("link", { name: "Apply", exact: true }).click();
@@ -114,3 +116,41 @@ export async function uploadFirstMissing(page: Page, seed: number) {
   await item.locator('input[type="file"]').setInputFiles(jpeg(seed));
   await item.getByRole("button", { name: /Upload/ }).click();
 }
+
+export const applicantName = (prefix: string) => `${prefix} ${Date.now()}${(counter += 1)}`;
+
+/** Upload every missing document except those whose label matches `skip`. */
+export async function uploadAll(page: Page, seed: number, skip?: RegExp) {
+  // The checklist loads after the page; counting before it renders would find nothing.
+  await expect(missingItems(page).first()).toBeVisible();
+  const wanted = skip ? missingItems(page).filter({ hasNotText: skip }) : missingItems(page);
+  const count = await wanted.count();
+  for (let i = 0; i < count; i += 1) {
+    const before = await missingItems(page).count();
+    const item = wanted.first();
+    await item.locator('input[type="file"]').setInputFiles({
+      name: `s${seed + i}.jpg`,
+      mimeType: "image/jpeg",
+      buffer: Buffer.concat([Buffer.from([0xff, 0xd8, 0xff, 0xe0]), Buffer.alloc(200, seed + i)]),
+    });
+    await item.getByRole("button", { name: /Upload/ }).click();
+    await expect(missingItems(page)).toHaveCount(before - 1);
+  }
+}
+
+export async function staffPage(browser: Browser, email: string, password: string): Promise<Page> {
+  const context = await browser.newContext({ baseURL: "http://localhost:3100" });
+  const page = await context.newPage();
+  await signIn(page, email, password);
+  return page;
+}
+
+export async function openFromQueue(page: Page, name: string, status = "IN_REVIEW") {
+  await page.getByRole("link", { name: "Queue", exact: true }).click();
+  await expect(page.getByRole("heading", { name: "Review queue" })).toBeVisible();
+  await page.getByLabel("Status").selectOption(status);
+  await page.getByLabel("Order").selectOption("newest");
+  await page.getByRole("link", { name }).click();
+  await expect(page.getByRole("heading", { name: "Review application" })).toBeVisible();
+}
+

@@ -68,6 +68,7 @@ beforeEach(() => {
     if (init?.method === "POST") return Response.json({});
     if (url.endsWith("/review")) return Response.json(review);
     if (url.endsWith("/checklist")) return Response.json(checklist);
+    if (url.endsWith("/decisions") || url.endsWith("/reason-codes")) return Response.json([]);
     if (url.endsWith("/file")) return new Response(new Blob(["%PDF-1.7"], { type: "application/pdf" }));
     if (url.endsWith("/documents"))
       return Response.json([{ id: "d1", doc_type: "national_id", uploaded_at: "2026-01-02T00:00:00Z" }]);
