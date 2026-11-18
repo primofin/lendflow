@@ -108,6 +108,18 @@ def _check_age(born: date, term_months: int, *, today: date) -> None:
         )
 
 
+def list_mine(db: Session, *, user: User) -> list[Application]:
+    """F3: the borrower's own applications, newest first. Others' files never appear."""
+    return list(
+        db.scalars(
+            select(Application)
+            .join(BorrowerProfile, BorrowerProfile.id == Application.borrower_profile_id)
+            .where(BorrowerProfile.user_id == user.id)
+            .order_by(Application.submitted_at.desc().nulls_last(), Application.id)
+        )
+    )
+
+
 def get_for_user(
     db: Session,
     *,

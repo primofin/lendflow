@@ -247,6 +247,21 @@ Short records of choices, so a reader can see *why*, not just *what*. Format: co
   - Borrowers have no list of their applications yet; they reach one only after submitting.
   - A server-side age failure is shown as a general message because the API returns it without a field name.
 
+## D-023: Borrower application page: tracker, checklist, uploads (F3; LF-005, LF-007, LF-012)
+- **Context:** After submitting, a borrower needs one place to see progress, what is still required, and to add documents, and a way back to it later.
+- **Decision:**
+  - `/applications/[id]` is the borrower's single page: summary, progress (Received, Under assessment, Awaiting approval, Completed, each with its last update), a needs-info panel, the required-documents checklist, and the document list with the synthetic-data notice.
+  - A request for information shows the officer's words and the exact missing items, each with an upload control. "Resubmit for review" appears only when the API says `can_resubmit`. The decision box is shown for approvals and rejections only; a request is shown in the needs-info panel, so the message is not duplicated.
+  - The checklist is the borrower view of LF-007: each item is uploaded, not needed or not uploaded yet, with "Complete" in green. The officer's panel and the "No invoices available" exception stay with the officer screens (F4).
+  - Uploads check type and size in the browser for a specific message; the server still checks the real file content. Re-sending the same file is recognised ("already uploaded") and adds no row. A failed upload says a retry creates no duplicate.
+  - Upload controls are hidden once the status no longer accepts documents (mirrors `UPLOADABLE_STATUSES`; the API still refuses).
+  - New `GET /applications` (borrower only, newest first by submission time) feeds "Your applications" on the home page, so a borrower can return to the tracker after logging in again.
+  - Borrowers get no download or preview link; staff downloads are audited and belong to F4.
+- **Consequences:**
+  - The client keeps its own copy of the uploadable statuses; if the backend list changes, the screen shows controls the server then refuses (with the server's message).
+  - A missing-items list in the needs-info panel covers mandatory items only, as the API computes it.
+  - Email notifications have no screen; they are backend-only (outbox).
+
 ## Open items
 
 | # | Question | Owner (simulated) | Needed by | Status |

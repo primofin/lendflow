@@ -1,13 +1,13 @@
 import { Suspense } from "react";
 
-import { ApplicationSummary } from "@/components/ApplicationSummary";
+import { ApplicationDetail } from "@/components/ApplicationDetail";
 import { RequireRole } from "@/components/RequireRole";
 
 export const metadata = { title: "Your application · LendFlow" };
 
 async function Summary({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  return <ApplicationSummary id={id} />;
+  return <ApplicationDetail id={id} />;
 }
 
 export default function ApplicationPage({ params }: { params: Promise<{ id: string }> }) {

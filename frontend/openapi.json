@@ -906,6 +906,35 @@
       }
     },
     "/applications": {
+      "get": {
+        "tags": [
+          "applications"
+        ],
+        "summary": "List My Applications",
+        "description": "Borrower's own applications, newest first, so they can return to the tracker.",
+        "operationId": "list_my_applications_applications_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/ApplicationOut"
+                  },
+                  "type": "array",
+                  "title": "Response List My Applications Applications Get"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      },
       "post": {
         "tags": [
           "applications"
