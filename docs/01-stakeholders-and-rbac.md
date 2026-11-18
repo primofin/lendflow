@@ -56,6 +56,7 @@ Legend: **C** create, **R** read, **U** update, **D** delete, **-** no access, *
 | Own profile | CRU (own) | CRU (own) | CRU (own) |
 | Application (create / edit draft) | C, U (own, draft only) | C on behalf of a borrower | - |
 | Application (view) | R (own) | R (all assigned or in queue) | R (all) |
+| Officer queue (`GET /queue`) | - | R (unassigned and own) | R (all) |
 | Application documents (upload) | C (own) | C | - |
 | Application documents (view) | R (own) | R | R |
 | AI review summary | - | R | R |
@@ -77,4 +78,6 @@ Legend: **C** create, **R** read, **U** update, **D** delete, **-** no access, *
 4. Every read of a borrower's personal data by staff is logged.
 5. Staff sessions have a short idle timeout; sensitive actions require re-authentication (stretch goal).
 
-*Traceability: stories LF-001, LF-002, LF-016; compliance rows C-08 and C-12.*
+*Implementation note: the queue list is narrowed for officers (LF-010); `GET /applications/{id}` still lets officers read any file until LF-011 (decision D-016).*
+
+*Traceability: stories LF-001, LF-002, LF-010, LF-016; compliance rows C-08 and C-12.*
