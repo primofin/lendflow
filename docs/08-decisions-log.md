@@ -193,6 +193,15 @@ Short records of choices, so a reader can see *why*, not just *what*. Format: co
   - Withdrawal, reminders and SLA emails belong to LF-014 and LF-017.
   - Still API only; there is no frontend, so the progress bar and upload button are not drawn.
 
+## D-019: LF-009 AI review summary moved from Must to Should
+- **Context:** All other Must stories were built. LF-009 was Must because the AI review is the project's core AI feature. The product owner judged that the lending flow does not depend on it.
+- **Decision:** LF-009 is **Should**. The lending flow (apply, queue, decide, track, audit) works without it, and its own acceptance criteria require files to stay reviewable by hand when the AI is unavailable. The release plan builds the frontend first and returns to LF-009 afterwards.
+- **Consequences:**
+  - Must is now 9 of 20 (45%), under the 60% ceiling.
+  - Without LF-009 the release has no AI feature, which is the headline of the brief's AI scope. If time runs short, LF-009 is the first Should to protect, not to cut.
+  - The `high_dti` flag stays false until LF-008 or LF-009 computes it.
+  - The LF-009 plan (on-demand review, DTI as a rule, text eval fixtures, provider interface, cost cap) is unchanged and was approved in principle but not started.
+
 ## Open items
 
 | # | Question | Owner (simulated) | Needed by | Status |
