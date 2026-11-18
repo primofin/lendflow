@@ -60,6 +60,9 @@ export function SiteHeader() {
         )}
         {user?.role === "supervisor" && (
           <>
+            <Link href="/admin/dashboard" className={link}>
+              Dashboard
+            </Link>
             <Link href="/admin/users" className={link}>
               Users
             </Link>
