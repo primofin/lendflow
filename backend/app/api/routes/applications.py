@@ -9,7 +9,8 @@ from app.api.deps import BorrowerAuth, ClientIp, CurrentAuth, DbSession, Now, re
 from app.models.user import Role
 from app.schemas.application import ApplicationOut, ApplicationSubmitIn
 from app.schemas.decision import DecisionIn, DecisionOut
-from app.services import application_service, decision_service
+from app.schemas.tracker import TrackerOut
+from app.services import application_service, decision_service, tracker_service
 from app.services.auth_service import AuthContext
 
 router = APIRouter(prefix="/applications", tags=["applications"])
@@ -76,5 +77,26 @@ def list_decisions(
 ) -> list[DecisionOut]:
     """LF-011: every decision on the file, oldest first, corrected ones included (BR-14)."""
     return decision_service.list_decisions(
+        db, user=auth.user, application_id=application_id, now=clock(), ip=ip
+    )
+
+
+@router.get("/{application_id}/tracker")
+def get_tracker(
+    application_id: uuid.UUID, auth: CurrentAuth, db: DbSession, clock: Now, ip: ClientIp
+) -> TrackerOut:
+    """LF-012: where the application is, step by step, and what the borrower must do next."""
+    return tracker_service.tracker(
+        db, user=auth.user, application_id=application_id, now=clock(), ip=ip
+    )
+
+
+@router.post("/{application_id}/resubmit")
+def resubmit_application(
+    application_id: uuid.UUID, auth: BorrowerAuth, db: DbSession, clock: Now, ip: ClientIp
+) -> TrackerOut:
+    """LF-012: the borrower has added what was asked; the file returns to the officer."""
+    tracker_service.resubmit(db, user=auth.user, application_id=application_id, now=clock(), ip=ip)
+    return tracker_service.tracker(
         db, user=auth.user, application_id=application_id, now=clock(), ip=ip
     )

@@ -18,7 +18,7 @@ Each story traces back to a pain point or source story (column "Source") and for
 | LF-009 | AI review summary (advisory) | New (core AI) | **Must** | 8 | To do |
 | LF-010 | Officer queue | Elicitation (Gap 3) | **Must** | 5 | Done |
 | LF-011 | Decision with reason code | P2 / homework | **Must** | 5 | Done |
-| LF-012 | Borrower status tracker | LOAN-02 / P2 | **Must** | 5 | To do |
+| LF-012 | Borrower status tracker | LOAN-02 / P2 | **Must** | 5 | Done |
 | LF-013 | CSV bulk import | New (file import) | Should | 5 | To do |
 | LF-014 | Repayment schedule and email reminders | LOAN-04 / P4 | Could | 5 | To do |
 | LF-015 | E-signature of contract | LOAN-03 / P3 | Won't (this release) | n/a | Won't |

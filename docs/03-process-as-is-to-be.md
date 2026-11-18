@@ -143,6 +143,6 @@ stateDiagram-v2
   WITHDRAWN --> [*]
 ```
 
-**Built so far:** DRAFT, SUBMITTED, IN_REVIEW (LF-010), and APPROVED, REJECTED, NEEDS_INFO and REFERRED (LF-011). NEEDS_INFO → SUBMITTED (borrower resubmits) and WITHDRAWN are not built yet. Today SUBMITTED → IN_REVIEW happens when no mandatory document is missing; the CIC check (LF-008) will add its own condition. Resubmission arrives with LF-012.
+**Built so far:** DRAFT, SUBMITTED, IN_REVIEW (LF-010), and APPROVED, REJECTED, NEEDS_INFO and REFERRED (LF-011). Today the borrower resubmits from NEEDS_INFO straight back to IN_REVIEW (LF-012); the SUBMITTED route in the diagram and WITHDRAWN are not built. Today SUBMITTED → IN_REVIEW happens when no mandatory document is missing; the CIC check (LF-008) will add its own condition. 
 
 **Borrower-facing status mapping** (from LOAN-02): Received (SUBMITTED) → Under assessment (IN_REVIEW, NEEDS_INFO) → Awaiting approval (REFERRED) → Completed (APPROVED, REJECTED).

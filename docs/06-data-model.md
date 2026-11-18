@@ -11,6 +11,7 @@ erDiagram
   DOCUMENTS ||--o{ EXTRACTIONS : "analysed into"
   APPLICATIONS ||--o{ CIC_CHECKS : triggers
   APPLICATIONS ||--o{ AI_REVIEWS : receives
+  APPLICATIONS ||--o{ OUTBOX : "notifies about"
   APPLICATIONS ||--o{ DECISIONS : "ends with"
   APPLICATIONS ||--o{ STATUS_HISTORY : tracks
   USERS ||--o{ CONSENTS : gives
@@ -115,6 +116,15 @@ erDiagram
     string to_status
     uuid actor_id FK
     datetime changed_at
+  }
+  OUTBOX {
+    uuid id PK
+    uuid recipient_user_id FK "address is looked up by id, never stored here"
+    uuid application_id FK
+    string template "queued | info_requested | resubmitted | approved | rejected"
+    string subject
+    text body "status line and link only; no amounts, names or decision text"
+    datetime created_at
   }
   CONSENTS {
     uuid id PK

@@ -18,7 +18,12 @@ from app.models.decision import Decision, ReasonCode
 from app.models.status_history import StatusHistory
 from app.models.user import Role, User
 from app.schemas.decision import BorrowerDecisionOut, DecisionIn, DecisionOut
-from app.services import application_service, audit_service, escalation_service
+from app.services import (
+    application_service,
+    audit_service,
+    escalation_service,
+    notification_service,
+)
 
 S = ApplicationStatus
 
@@ -30,6 +35,7 @@ _TRANSITIONS: dict[str, tuple[frozenset[str], str]] = {
     "refer": (frozenset({S.IN_REVIEW}), S.REFERRED),
 }
 _FINAL_OUTCOMES = frozenset({"approve", "reject"})
+_EMAIL_EVENT = {"approve": "approved", "reject": "rejected", "request_info": "info_requested"}
 
 
 def list_reason_codes(db: Session) -> list[ReasonCode]:
@@ -106,6 +112,8 @@ def decide(
         application_id=application.id,
         ip_address=ip,
     )
+    if data.outcome != "refer":  # a referral is internal; the borrower is not told
+        notification_service.notify(db, application, _EMAIL_EVENT[data.outcome], now=now)
     db.commit()
     return decision
 

@@ -7,6 +7,7 @@ from app.models.borrower_profile import BorrowerProfile, IncomeType
 from app.models.consent import Consent
 from app.models.decision import Decision, DecisionImmutable, ReasonCode
 from app.models.document import DocType, Document
+from app.models.outbox import OutboxMessage
 from app.models.requirement_rules import (
     IncomeTypeRule,
     RequiredDocumentOption,
@@ -30,6 +31,7 @@ __all__ = [
     "Document",
     "IncomeType",
     "IncomeTypeRule",
+    "OutboxMessage",
     "ReasonCode",
     "RequiredDocumentOption",
     "RequiredDocumentRule",
