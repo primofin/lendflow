@@ -118,10 +118,12 @@ erDiagram
   }
   AUDIT_LOGS {
     uuid id PK
+    bigint seq UK "insertion order, assigned by the database"
     uuid actor_id FK
     string action
     string target_type
     uuid target_id
+    uuid application_id FK "the application the entry belongs to, if any"
     string ip_address
     datetime created_at
   }
