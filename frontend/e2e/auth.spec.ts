@@ -34,7 +34,7 @@ test.describe("LF-001 register and log in", () => {
     await expect(page).toHaveURL("/");
     await expectLoggedInAs(page, email, "borrower");
     await expect(
-      page.getByText("Coming next: Use the Apply page"),
+      page.getByText("You have no applications yet."),
     ).toBeVisible();
 
     await logOut(page);

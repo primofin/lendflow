@@ -56,3 +56,26 @@ export async function signIn(
     email.includes("supervisor") ? "supervisor" : "officer",
   );
 }
+
+export async function registerBorrower(page: Page): Promise<void> {
+  await page.goto("/register");
+  await page.getByLabel("Email").fill(uniqueEmail("applicant"));
+  await page.getByLabel("Password").fill(BORROWER_PASSWORD);
+  await page.getByRole("button", { name: "Create account" }).click();
+  await expect(page).toHaveURL("/");
+  await expect(page.getByText(/\(borrower\)/)).toBeVisible();
+}
+
+export async function fillApplication(
+  page: Page,
+  { amount, term = "12" }: { amount: string; term?: string },
+): Promise<void> {
+  await page.getByLabel(/Loan amount/).fill(amount);
+  await page.getByLabel("Term").selectOption(term);
+  await page.getByLabel("Full name").fill("Nguyen Test");
+  await page.getByLabel("Date of birth").fill("1990-05-01");
+  await page.getByLabel("National ID").fill("012345678901");
+  await page.getByLabel("Address").fill("1 Example Street, Hanoi");
+  await page.getByLabel("Income type").selectOption("salaried");
+  await page.getByLabel(/Monthly income/).fill("30000000");
+}

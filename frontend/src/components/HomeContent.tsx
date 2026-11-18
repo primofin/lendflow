@@ -4,6 +4,8 @@ import Link from "next/link";
 
 import { useAuth } from "@/lib/auth/AuthProvider";
 
+import { MyApplications } from "./MyApplications";
+
 const intro =
   "A fictional digital lending app. Borrowers apply online; loan officers and supervisors decide.";
 
@@ -31,9 +33,16 @@ export function HomeContent() {
     );
   }
 
+  if (user.role === "borrower") {
+    return (
+      <>
+        <p className="mt-3 text-slate-700">You are logged in as borrower.</p>
+        <MyApplications />
+      </>
+    );
+  }
+
   const next = {
-    borrower:
-      "Use the Apply page to start a loan application. Tracking your application is coming next.",
     officer: "Your queue of applications waiting for review will appear here.",
     supervisor:
       "The review queue will appear here. You can manage users from the Users page.",

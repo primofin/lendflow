@@ -1,30 +1,5 @@
 import { expect, test } from "@playwright/test";
-import type { Page } from "@playwright/test";
-
-import { appAlert, BORROWER_PASSWORD, uniqueEmail } from "./helpers";
-
-async function registerBorrower(page: Page): Promise<void> {
-  await page.goto("/register");
-  await page.getByLabel("Email").fill(uniqueEmail("applicant"));
-  await page.getByLabel("Password").fill(BORROWER_PASSWORD);
-  await page.getByRole("button", { name: "Create account" }).click();
-  await expect(page).toHaveURL("/");
-  await expect(page.getByText(/\(borrower\)/)).toBeVisible();
-}
-
-async function fillApplication(
-  page: Page,
-  { amount, term = "12" }: { amount: string; term?: string },
-): Promise<void> {
-  await page.getByLabel(/Loan amount/).fill(amount);
-  await page.getByLabel("Term").selectOption(term);
-  await page.getByLabel("Full name").fill("Nguyen Test");
-  await page.getByLabel("Date of birth").fill("1990-05-01");
-  await page.getByLabel("National ID").fill("012345678901");
-  await page.getByLabel("Address").fill("1 Example Street, Hanoi");
-  await page.getByLabel("Income type").selectOption("salaried");
-  await page.getByLabel(/Monthly income/).fill("30000000");
-}
+import { appAlert, fillApplication, registerBorrower } from "./helpers";
 
 test.describe("LF-003 loan calculator (public)", () => {
   test("shows the worked example without logging in", async ({ page }) => {
@@ -68,10 +43,10 @@ test.describe("LF-004 application with consent", () => {
     await page.getByRole("button", { name: "Submit application" }).click();
 
     await expect(page).toHaveURL(/\/applications\/[0-9a-f-]{36}$/);
-    await expect(page.getByRole("heading", { name: "Application submitted" })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Application summary" })).toBeVisible();
     await expect(page.getByTestId("status")).toHaveText(/SUBMITTED/i);
     // The hidden /apply page stays in the DOM, so look inside the summary only.
-    const summary = page.getByRole("region", { name: "Application submitted" });
+    const summary = page.getByRole("region", { name: "Application summary" });
     await expect(summary.getByText("150,000,000 VND")).toBeVisible();
     await expect(summary.getByText("24 months")).toBeVisible();
   });
