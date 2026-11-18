@@ -8,6 +8,7 @@ from app.api.routes import (
     auth,
     calculator,
     consent,
+    data_rights,
     decisions,
     documents,
     loan_terms,
@@ -34,6 +35,7 @@ def create_app() -> FastAPI:
     app.include_router(applications.router)
     app.include_router(queue.router)
     app.include_router(decisions.router)
+    app.include_router(data_rights.router)
 
     @app.get("/health", tags=["ops"])
     def health() -> dict[str, str]:

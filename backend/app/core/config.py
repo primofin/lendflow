@@ -36,6 +36,8 @@ class Settings(BaseSettings):
     max_age_at_application: int = 60
     max_age_at_maturity: int = 65
     consent_retention_months: int = 12
+    # LF-018 / BR-22: days to answer a deletion request (illustrative, docs/02; configurable)
+    deletion_request_due_days: int = 30
 
     # LF-003 / BR-05: annual rate by term, as (longest term in months, rate); illustrative.
     # Up to 12 months 14%, 13-36 months 16%, over 36 months 18%.
