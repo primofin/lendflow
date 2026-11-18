@@ -5,6 +5,12 @@ import { ApiError, errorFromResponse } from "./errors";
 
 let accessToken: string | null = null;
 let refreshing: Promise<string | null> | null = null;
+let onSessionExpired: (() => void) | null = null;
+
+/** Called when a signed-in user's session can no longer be renewed (idle timeout, revoked). */
+export function setSessionExpiredHandler(handler: (() => void) | null): void {
+  onSessionExpired = handler;
+}
 
 export function setAccessToken(token: string | null): void {
   accessToken = token;
@@ -43,7 +49,11 @@ export type RequestOptions = {
   signal?: AbortSignal;
 };
 
-function send(path: string, options: RequestOptions, token: string | null): Promise<Response> {
+function send(
+  path: string,
+  options: RequestOptions,
+  token: string | null,
+): Promise<Response> {
   const headers: Record<string, string> = {};
   if (token) headers.Authorization = `Bearer ${token}`;
   let body: BodyInit | undefined;
@@ -53,14 +63,23 @@ function send(path: string, options: RequestOptions, token: string | null): Prom
     headers["Content-Type"] = "application/json";
     body = JSON.stringify(options.json);
   }
-  return fetch(path, { method: options.method ?? "GET", headers, body, signal: options.signal });
+  return fetch(path, {
+    method: options.method ?? "GET",
+    headers,
+    body,
+    signal: options.signal,
+  });
 }
 
-export async function apiRequest<T>(path: string, options: RequestOptions = {}): Promise<T> {
+export async function apiRequest<T>(
+  path: string,
+  options: RequestOptions = {},
+): Promise<T> {
   let response = await send(path, options, accessToken);
   if (response.status === 401 && accessToken !== null) {
     const fresh = await refreshAccessToken();
     if (fresh) response = await send(path, options, fresh);
+    else onSessionExpired?.();
   }
   if (!response.ok) throw await errorFromResponse(response);
   if (response.status === 204) return undefined as T;

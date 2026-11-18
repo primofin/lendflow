@@ -8,6 +8,8 @@ npm install
 npm run dev                    # http://localhost:3000 (start the backend first, see ../CLAUDE.md)
 npm test                       # Vitest
 npm run lint && npm run typecheck
+npm run test:e2e               # Playwright; wipes and re-seeds lendflow_test. Needs Postgres, uv on PATH,
+                               # and once: npx playwright install chromium
 npm run gen:api                # regenerate src/lib/api/schema.d.ts from the backend OpenAPI schema
 ```
 

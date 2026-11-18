@@ -218,6 +218,21 @@ Short records of choices, so a reader can see *why*, not just *what*. Format: co
   - No GitHub Actions workflow exists for the backend or the frontend yet, although CLAUDE.md lists CI. That needs its own change.
   - Playwright is installed but has no tests until the first screens exist, and its browsers are not downloaded yet.
 
+## D-021: Login, register and role-aware navigation (F1; LF-001, LF-002)
+- **Context:** The first screens. They must show the API's exact messages, hide what a role may not use, and never keep secrets where page scripts or another page can reach them.
+- **Decision:**
+  - `/login` and `/register` share one form. Errors appear as the API wrote them (duplicate email, wrong credentials, the lockout text, the password-policy message). A labelled field, a password hint tied to the field with `aria-describedby`, and a disabled button while sending.
+  - The header shows Log in and Register to visitors, and the user's email and role with Log out otherwise. The **Users** link is shown only to supervisors, and `RequireRole` shows "You do not have access to this page" to others and sends visitors to log in. This is a courtesy; the API still refuses the call.
+  - `/admin/users` (supervisor): list users, create a user with a role, change a role. A refused change (for example a supervisor changing their own role) shows the message and the list is reloaded, so the select shows what the server holds.
+  - **Idle sign-out:** the server enforces the 30-minute timeout. When a signed-in user's session can no longer be renewed, the client signs them out and the login page says "You were signed out after being idle." There is no client timer.
+  - Next.js keeps a page it left alive but hidden, so the login form (and its state) stays in memory after login. The password field is therefore emptied on success.
+  - Browser tests (Playwright, Chromium) run the real backend on port 8100 against `lendflow_test`. `backend/scripts/e2e_reset.py` wipes and re-seeds it and refuses any database whose name does not end in `_test`. The suite shares one database, so it runs one worker.
+- **Consequences:**
+  - The five-failed-logins lock is tested end to end, but not the 15-minute unlock (backend tests cover it) and not the real 30-minute idle timeout (simulated by a 401 plus a cleared cookie).
+  - Running `npm run test:e2e` wipes `lendflow_test`, which `pytest` also resets, so the two cannot run at the same time.
+  - Playwright needs a Chromium download (about 100 MB) and `uv` on the PATH.
+  - Borrower and staff home pages show a "coming next" note until the application, tracker and queue screens exist.
+
 ## Open items
 
 | # | Question | Owner (simulated) | Needed by | Status |
