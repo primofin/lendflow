@@ -10,6 +10,7 @@ from app.api.routes import (
     consent,
     decisions,
     documents,
+    loan_terms,
     queue,
     requirements,
     users,
@@ -26,6 +27,7 @@ def create_app() -> FastAPI:
     app.include_router(users.router)
     app.include_router(consent.router)
     app.include_router(calculator.router)
+    app.include_router(loan_terms.router)
     app.include_router(documents.router)
     app.include_router(audit.router)
     app.include_router(requirements.router)
