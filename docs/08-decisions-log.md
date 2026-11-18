@@ -57,6 +57,15 @@ Short records of choices, so a reader can see *why*, not just *what*. Format: co
   - Validation error responses report only the field and the reason, never the submitted values, so personal data is not echoed back.
 - **Consequences:** The frontend must keep form state until the user submits. Server-side drafts, officer-created applications and consent withdrawal (LF-018) are later stories.
 
+## D-010: Loan calculator rounding and rates (LF-003)
+- **Context:** The worked example in `docs/02` gives a monthly payment of 4,896,311 VND and a total repaid of 117,511,465 VND. Multiplying the rounded payment by 24 gives 117,511,464, so the documented total was rounded from the exact figures.
+- **Decision:**
+  - The monthly payment and the total repaid are each rounded once (half up) from the exact figures. Total interest is the total minus the principal. This reproduces the documented example, and the code states the rule.
+  - All money uses `Decimal` and whole VND, never float.
+  - Rates are the illustrative tiers of BR-05 (up to 12 months 14%, 13 to 36 months 16%, over 36 months 18%), held in settings. A 0% rate falls back to amount divided by term.
+  - A submitted application stores the rate quoted for its term in `annual_rate`.
+- **Consequences:** The borrower's real instalments would sum to 1 VND less than the quoted total in the worked example, and by up to a few VND for other loans. A repayment schedule, in a later story, will decide how the last instalment is adjusted. The calculator and the application share one set of amount and term validators, so they cannot disagree.
+
 ## Open items
 
 | # | Question | Owner (simulated) | Needed by |

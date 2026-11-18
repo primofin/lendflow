@@ -2,7 +2,7 @@
 
 from fastapi import FastAPI
 
-from app.api.routes import applications, auth, consent, users
+from app.api.routes import applications, auth, calculator, consent, users
 from app.core.errors import register_error_handlers
 
 
@@ -12,6 +12,7 @@ def create_app() -> FastAPI:
     app.include_router(auth.router)
     app.include_router(users.router)
     app.include_router(consent.router)
+    app.include_router(calculator.router)
     app.include_router(applications.router)
 
     @app.get("/health", tags=["ops"])
