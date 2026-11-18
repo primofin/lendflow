@@ -31,7 +31,11 @@ class Application(Base):
     annual_rate: Mapped[Decimal | None] = mapped_column(Numeric(7, 4))  # set by LF-003
     purpose: Mapped[str | None] = mapped_column(Text)
     status: Mapped[str] = mapped_column(String(30), default=ApplicationStatus.DRAFT.value)
+    # Snapshot of the borrower's income type at submission: the profile is overwritten by later
+    # applications, but this application's document requirements must not change (LF-007).
+    income_type: Mapped[str | None] = mapped_column(String(20))
     exception_flag: Mapped[bool] = mapped_column(default=False)
     assigned_officer: Mapped[uuid.UUID | None] = mapped_column(ForeignKey("users.id"))
+    assigned_supervisor: Mapped[uuid.UUID | None] = mapped_column(ForeignKey("users.id"))
     submitted_at: Mapped[datetime | None]
     created_at: Mapped[datetime] = mapped_column(server_default=func.now())

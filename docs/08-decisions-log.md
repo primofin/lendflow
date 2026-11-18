@@ -96,6 +96,22 @@ Short records of choices, so a reader can see *why*, not just *what*. Format: co
 - **Before any real deployment:** run the app as a database role that can only `INSERT` and `SELECT` on `audit_logs`, separate from the role that owns the tables and runs migrations.
 - **Open for LF-018:** audit entries hold actor ids and IP addresses, which are personal data, and they can no longer be changed. Decide how data-subject deletion requests treat them (for example, anonymising the user record while the entries keep a non-identifying actor id).
 
+## D-013: Required documents by income type (LF-007)
+- **Context:** BR-06 ties the required documents to the income type, and several requirements are alternatives ("payslips or bank statements"). The rules must be changeable without code, and the freelance and self-employed acceptance rule is still open (Q1).
+- **Decision:**
+  - Rules are data: `income_type_rules`, `required_document_rules` and `required_document_options`, seeded by migration from `docs/02` section 3. A requirement is met by **any one** of its options, which the single `doc_type` column in the first draft of the data model could not express.
+  - The checklist is a pure function of the rules, the documents on file and the requirements waived. A document beats a waiver. Only mandatory requirements decide the status: `complete`, `exception` (everything satisfied or waived, at least one waived) or `incomplete`.
+  - An officer can declare a **mandatory, still-missing** requirement unavailable. The request carries only the requirement, with no free text, so no personal data can slip in. The file is flagged as an exception and assigned to the active supervisor with the fewest open exception files (oldest account on ties). With no active supervisor the exception is still recorded, unassigned.
+  - The existing officer-limit check (BR-10) already refuses an officer on an exception file, so only a supervisor can decide it.
+  - Income type "Other" always goes to a supervisor, so it is flagged and assigned at submission.
+  - Each application stores a **snapshot of its income type**. The borrower profile is overwritten by later applications, and an earlier application's requirements must not change.
+  - The rules are read-only through the API for now (officers and supervisors). Borrowers can read the checklist of their own application, which is derived from their own uploads, but not the rules panel.
+- **Consequences:**
+  - The checklist checks the document **type** only. Whether "3 months of payslips" really covers three months is for a human or the AI review (LF-009).
+  - A requirement declared unavailable stays flagged even if the document is uploaded later. The checklist shows it satisfied, and the exception remains for a supervisor to decide.
+  - Supervisor editing of rules is a later story. Changing rules while files are in flight needs its own design for audit and for what happens to those files.
+  - Assignment is by simple load. LF-010 (queues) and LF-017 (escalation) can replace it.
+
 ## Open items
 
 | # | Question | Owner (simulated) | Needed by |

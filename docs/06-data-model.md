@@ -17,6 +17,9 @@ erDiagram
   USERS ||--o{ AUDIT_LOGS : "performs"
   USERS ||--o{ DATA_REQUESTS : files
   INCOME_TYPE_RULES ||--o{ REQUIRED_DOCUMENT_RULES : defines
+  REQUIRED_DOCUMENT_RULES ||--|{ REQUIRED_DOCUMENT_OPTIONS : "satisfied by any of"
+  APPLICATIONS ||--o{ APPLICATION_EXCEPTIONS : "has declared"
+  REQUIRED_DOCUMENT_RULES ||--o{ APPLICATION_EXCEPTIONS : "waived by"
   IMPORT_JOBS ||--o{ APPLICATIONS : creates
 
   USERS {
@@ -46,10 +49,12 @@ erDiagram
     int term_months
     numeric annual_rate
     string purpose
+    string income_type "snapshot at submission; drives the document checklist"
     string status "see state machine"
     bool fast_track
     bool exception_flag
     uuid assigned_officer FK
+    uuid assigned_supervisor FK "set automatically for exception files"
     datetime submitted_at
   }
   DOCUMENTS {
@@ -135,15 +140,28 @@ erDiagram
     date due_date
   }
   INCOME_TYPE_RULES {
-    uuid id PK
-    string income_type
-    bool needs_supervisor_if_missing
+    string income_type PK "salaried | freelance | self_employed | rental | other"
+    string label
+    bool needs_supervisor_if_missing "a mandatory document declared unavailable makes the file an exception"
+    bool supervisor_always "Other: always assigned to a supervisor"
   }
   REQUIRED_DOCUMENT_RULES {
     uuid id PK
-    uuid income_type_rule_id FK
-    string doc_type
+    string income_type FK
+    string label "e.g. Labour contract or employer confirmation"
     bool mandatory
+    int sort_order
+  }
+  REQUIRED_DOCUMENT_OPTIONS {
+    uuid rule_id PK, FK
+    string doc_type PK "any ONE of a requirement's options satisfies it"
+  }
+  APPLICATION_EXCEPTIONS {
+    uuid id PK
+    uuid application_id FK
+    uuid requirement_id FK
+    uuid declared_by FK
+    datetime declared_at
   }
   IMPORT_JOBS {
     uuid id PK

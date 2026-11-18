@@ -2,7 +2,16 @@
 
 from fastapi import FastAPI
 
-from app.api.routes import applications, audit, auth, calculator, consent, documents, users
+from app.api.routes import (
+    applications,
+    audit,
+    auth,
+    calculator,
+    consent,
+    documents,
+    requirements,
+    users,
+)
 from app.core.errors import register_error_handlers
 from app.core.request_limits import RequestSizeLimitMiddleware
 
@@ -17,6 +26,7 @@ def create_app() -> FastAPI:
     app.include_router(calculator.router)
     app.include_router(documents.router)
     app.include_router(audit.router)
+    app.include_router(requirements.router)
     app.include_router(applications.router)
 
     @app.get("/health", tags=["ops"])
