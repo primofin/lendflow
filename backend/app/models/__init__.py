@@ -7,6 +7,7 @@ from app.models.borrower_profile import BorrowerProfile, IncomeType
 from app.models.cic_check import CicCheck
 from app.models.consent import Consent
 from app.models.decision import Decision, DecisionImmutable, ReasonCode
+from app.models.deletion_request import DeletionRequest
 from app.models.document import DocType, Document
 from app.models.outbox import OutboxMessage
 from app.models.requirement_rules import (
@@ -29,6 +30,7 @@ __all__ = [
     "Consent",
     "Decision",
     "DecisionImmutable",
+    "DeletionRequest",
     "DocType",
     "Document",
     "IncomeType",

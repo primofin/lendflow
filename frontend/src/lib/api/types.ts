@@ -87,3 +87,7 @@ export const CIC_FLAG_LABELS: Record<NonNullable<CicCheck["flag"]>, string> = {
   attention: "Needs attention",
   recommend_reject: "Recommend reject (a person decides)",
 };
+
+export type MyData = Schemas["MyDataOut"];
+export type DeletionRequest = Schemas["DeletionRequestOut"];
+export type DeletionRequestAdmin = Schemas["DeletionRequestAdminOut"];

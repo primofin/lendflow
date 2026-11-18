@@ -1584,6 +1584,116 @@
         ]
       }
     },
+    "/me/data": {
+      "get": {
+        "tags": [
+          "data-rights"
+        ],
+        "summary": "Get My Data",
+        "description": "LF-018: all personal data held about the caller, the purposes and any deletion request.",
+        "operationId": "get_my_data_me_data_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MyDataOut"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/me/data/export": {
+      "get": {
+        "tags": [
+          "data-rights"
+        ],
+        "summary": "Export My Data",
+        "description": "LF-018: the same data as a downloadable JSON file.",
+        "operationId": "export_my_data_me_data_export_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/me/data/deletion-request": {
+      "post": {
+        "tags": [
+          "data-rights"
+        ],
+        "summary": "Request Deletion",
+        "description": "LF-018: record a deletion request with a due date; says what must be retained.",
+        "operationId": "request_deletion_me_data_deletion_request_post",
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DeletionRequestOut"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/data-requests": {
+      "get": {
+        "tags": [
+          "data-rights"
+        ],
+        "summary": "List Data Requests",
+        "description": "LF-018: open and resolved deletion requests with their due dates.",
+        "operationId": "list_data_requests_data_requests_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/DeletionRequestAdminOut"
+                  },
+                  "type": "array",
+                  "title": "Response List Data Requests Data Requests Get"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
     "/health": {
       "get": {
         "tags": [
@@ -1612,6 +1722,25 @@
   },
   "components": {
     "schemas": {
+      "AccountData": {
+        "properties": {
+          "email": {
+            "type": "string",
+            "title": "Email"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "email",
+          "created_at"
+        ],
+        "title": "AccountData"
+      },
       "ApplicantOut": {
         "properties": {
           "full_name": {
@@ -1704,6 +1833,76 @@
           "existing_debt_payment_vnd"
         ],
         "title": "ApplicantOut"
+      },
+      "ApplicationData": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "status": {
+            "type": "string",
+            "title": "Status"
+          },
+          "amount_vnd": {
+            "type": "integer",
+            "title": "Amount Vnd"
+          },
+          "term_months": {
+            "type": "integer",
+            "title": "Term Months"
+          },
+          "purpose": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Purpose"
+          },
+          "submitted_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Submitted At"
+          },
+          "documents": {
+            "items": {
+              "$ref": "#/components/schemas/DocumentData"
+            },
+            "type": "array",
+            "title": "Documents"
+          },
+          "decisions": {
+            "items": {
+              "$ref": "#/components/schemas/DecisionData"
+            },
+            "type": "array",
+            "title": "Decisions"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "status",
+          "amount_vnd",
+          "term_months",
+          "purpose",
+          "submitted_at",
+          "documents",
+          "decisions"
+        ],
+        "title": "ApplicationData"
       },
       "ApplicationOut": {
         "properties": {
@@ -2286,6 +2485,46 @@
         ],
         "title": "CicCheckOut"
       },
+      "ConsentData": {
+        "properties": {
+          "version": {
+            "type": "string",
+            "title": "Version"
+          },
+          "purposes": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Purposes"
+          },
+          "given_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Given At"
+          },
+          "withdrawn_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Withdrawn At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "version",
+          "purposes",
+          "given_at",
+          "withdrawn_at"
+        ],
+        "title": "ConsentData"
+      },
       "ConsentOut": {
         "properties": {
           "version": {
@@ -2316,6 +2555,61 @@
           "retention_months"
         ],
         "title": "ConsentOut"
+      },
+      "DecisionData": {
+        "properties": {
+          "outcome": {
+            "type": "string",
+            "title": "Outcome"
+          },
+          "reason_code": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reason Code"
+          },
+          "explanation": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Explanation"
+          },
+          "conditions": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Conditions"
+          },
+          "decided_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Decided At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "outcome",
+          "reason_code",
+          "explanation",
+          "conditions",
+          "decided_at"
+        ],
+        "title": "DecisionData"
       },
       "DecisionIn": {
         "properties": {
@@ -2490,6 +2784,92 @@
         "title": "DecisionOut",
         "description": "Staff view of one entry. `superseded_by` shows a correction without hiding the original."
       },
+      "DeletionRequestAdminOut": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "user_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "User Id"
+          },
+          "email": {
+            "type": "string",
+            "title": "Email"
+          },
+          "status": {
+            "type": "string",
+            "title": "Status"
+          },
+          "requested_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Requested At"
+          },
+          "due_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Due At"
+          },
+          "overdue": {
+            "type": "boolean",
+            "title": "Overdue"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "user_id",
+          "email",
+          "status",
+          "requested_at",
+          "due_at",
+          "overdue"
+        ],
+        "title": "DeletionRequestAdminOut"
+      },
+      "DeletionRequestOut": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "status": {
+            "type": "string",
+            "title": "Status"
+          },
+          "requested_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Requested At"
+          },
+          "due_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Due At"
+          },
+          "retained": {
+            "items": {
+              "$ref": "#/components/schemas/RetainedItem"
+            },
+            "type": "array",
+            "title": "Retained"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "status",
+          "requested_at",
+          "due_at",
+          "retained"
+        ],
+        "title": "DeletionRequestOut"
+      },
       "DocType": {
         "type": "string",
         "enum": [
@@ -2507,6 +2887,43 @@
         ],
         "title": "DocType",
         "description": "Document kinds from docs/02 section 3 (required documents by income type)."
+      },
+      "DocumentData": {
+        "properties": {
+          "doc_type": {
+            "type": "string",
+            "title": "Doc Type"
+          },
+          "size_bytes": {
+            "type": "integer",
+            "title": "Size Bytes"
+          },
+          "uploaded_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Uploaded At"
+          },
+          "delete_after": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Delete After"
+          }
+        },
+        "type": "object",
+        "required": [
+          "doc_type",
+          "size_bytes",
+          "uploaded_at",
+          "delete_after"
+        ],
+        "title": "DocumentData"
       },
       "DocumentOut": {
         "properties": {
@@ -2661,6 +3078,69 @@
         ],
         "title": "MissingItemOut"
       },
+      "MyDataOut": {
+        "properties": {
+          "account": {
+            "$ref": "#/components/schemas/AccountData"
+          },
+          "profile": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ProfileData"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "applications": {
+            "items": {
+              "$ref": "#/components/schemas/ApplicationData"
+            },
+            "type": "array",
+            "title": "Applications"
+          },
+          "consents": {
+            "items": {
+              "$ref": "#/components/schemas/ConsentData"
+            },
+            "type": "array",
+            "title": "Consents"
+          },
+          "purposes": {
+            "items": {
+              "$ref": "#/components/schemas/PurposeData"
+            },
+            "type": "array",
+            "title": "Purposes"
+          },
+          "retention_months": {
+            "type": "integer",
+            "title": "Retention Months"
+          },
+          "deletion_request": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/DeletionRequestOut"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "type": "object",
+        "required": [
+          "account",
+          "profile",
+          "applications",
+          "consents",
+          "purposes",
+          "retention_months",
+          "deletion_request"
+        ],
+        "title": "MyDataOut"
+      },
       "NeedsInfoOut": {
         "properties": {
           "message": {
@@ -2743,6 +3223,99 @@
         ],
         "title": "PanelOut"
       },
+      "ProfileData": {
+        "properties": {
+          "full_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Full Name"
+          },
+          "date_of_birth": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Date Of Birth"
+          },
+          "national_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "National Id"
+          },
+          "address": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Address"
+          },
+          "income_type": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Income Type"
+          },
+          "monthly_income_vnd": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Monthly Income Vnd"
+          },
+          "existing_debt_payment_vnd": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Existing Debt Payment Vnd"
+          }
+        },
+        "type": "object",
+        "required": [
+          "full_name",
+          "date_of_birth",
+          "national_id",
+          "address",
+          "income_type",
+          "monthly_income_vnd",
+          "existing_debt_payment_vnd"
+        ],
+        "title": "ProfileData"
+      },
       "ProfileIn": {
         "properties": {
           "full_name": {
@@ -2791,6 +3364,24 @@
           "monthly_income_vnd"
         ],
         "title": "ProfileIn"
+      },
+      "PurposeData": {
+        "properties": {
+          "code": {
+            "type": "string",
+            "title": "Code"
+          },
+          "label": {
+            "type": "string",
+            "title": "Label"
+          }
+        },
+        "type": "object",
+        "required": [
+          "code",
+          "label"
+        ],
+        "title": "PurposeData"
       },
       "PurposeOut": {
         "properties": {
@@ -3009,6 +3600,24 @@
           "doc_types"
         ],
         "title": "RequirementOut"
+      },
+      "RetainedItem": {
+        "properties": {
+          "what": {
+            "type": "string",
+            "title": "What"
+          },
+          "reason": {
+            "type": "string",
+            "title": "Reason"
+          }
+        },
+        "type": "object",
+        "required": [
+          "what",
+          "reason"
+        ],
+        "title": "RetainedItem"
       },
       "ReviewOut": {
         "properties": {
