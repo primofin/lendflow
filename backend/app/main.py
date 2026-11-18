@@ -11,6 +11,7 @@ from app.api.routes import (
     data_rights,
     decisions,
     documents,
+    imports,
     loan_terms,
     queue,
     requirements,
@@ -36,6 +37,7 @@ def create_app() -> FastAPI:
     app.include_router(queue.router)
     app.include_router(decisions.router)
     app.include_router(data_rights.router)
+    app.include_router(imports.router)
 
     @app.get("/health", tags=["ops"])
     def health() -> dict[str, str]:

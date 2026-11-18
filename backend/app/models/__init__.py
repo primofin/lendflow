@@ -9,6 +9,7 @@ from app.models.consent import Consent
 from app.models.decision import Decision, DecisionImmutable, ReasonCode
 from app.models.deletion_request import DeletionRequest
 from app.models.document import DocType, Document
+from app.models.import_job import ImportJob
 from app.models.outbox import OutboxMessage
 from app.models.requirement_rules import (
     IncomeTypeRule,
@@ -33,6 +34,7 @@ __all__ = [
     "DeletionRequest",
     "DocType",
     "Document",
+    "ImportJob",
     "IncomeType",
     "IncomeTypeRule",
     "OutboxMessage",
