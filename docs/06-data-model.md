@@ -80,10 +80,12 @@ erDiagram
   CIC_CHECKS {
     uuid id PK
     uuid application_id FK
-    int debt_group "1-5"
+    uuid started_by FK
+    int debt_group "1-5; null until done"
     string status "running | done | timeout"
-    int progress_pct
+    int attempt "1 to CIC_MAX_ATTEMPTS"
     datetime started_at
+    datetime attempt_started_at "progress is worked out from this and the clock"
     datetime finished_at
   }
   AI_REVIEWS {
