@@ -51,7 +51,8 @@ erDiagram
     string purpose
     string income_type "snapshot at submission; drives the document checklist"
     string status "see state machine"
-    bool fast_track
+    bool fast_track "BR-09; false until LF-008/LF-009 compute it"
+    bool high_dti "BR-07; false until LF-008/LF-009 compute it"
     bool exception_flag
     uuid assigned_officer FK
     uuid assigned_supervisor FK "set automatically for exception files"
@@ -189,5 +190,6 @@ erDiagram
 | `national_id` | National citizen ID number (synthetic) | 12 digits (BR-04) |
 | `income_type` | Salaried, Freelance, Self-employed, Rental, Other | Drives required documents (BR-06) |
 | `debt_group` | Credit-bureau debt classification | 1 = standard, 5 = loss; groups 3 to 5 = bad debt |
-| `fast_track` | Routing flag | Computed from BR-09 |
+| `fast_track` | Routing flag | Computed from BR-09 (not yet computed; false) |
+| `high_dti` | Routing flag | Computed from BR-07 (not yet computed; false) |
 | `exception_flag` | Needs supervisor | Missing mandatory document, or BR-10 |
