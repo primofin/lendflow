@@ -178,6 +178,21 @@ Short records of choices, so a reader can see *why*, not just *what*. Format: co
   - Fast-track approval is tested with the flag set directly, since LF-008 and LF-009 compute it.
   - Dev decision rows cannot be deleted; the database-reset note in CLAUDE.md covers this.
 
+## D-018: Borrower status tracker and mock email (LF-012)
+- **Context:** The borrower needs to see where the file is, what to do when information is requested, and be told when the status changes. LF-011 left `NEEDS_INFO` as a dead end, and the project has no mail provider and may not send real personal data.
+- **Decision:**
+  - `GET /applications/{id}/tracker` returns the four steps from docs/03 (Received, Under assessment, Awaiting approval, Completed) with a state (`done`, `current`, `upcoming`, `skipped`) and the time of the last update, taken from the status history. A step that was never entered, such as Awaiting approval on a direct approval, is `skipped` with no time. A referral shows as "Awaiting approval"; the word "referred" and the supervisor are never shown.
+  - In `NEEDS_INFO` the tracker adds the officer's request in their words, the mandatory documents still missing (label and accepted types), the existing upload URL, and whether the file can be resubmitted.
+  - Borrowers can upload in `NEEDS_INFO`. `POST /applications/{id}/resubmit` (owner only) is allowed only from `NEEDS_INFO` and only when no mandatory document is missing, and returns the file to `IN_REVIEW` with the same officer. It does not require a new upload, because the borrower has no other way to answer a request that is not about a document.
+  - **Email is a mock.** A message is a row in `outbox`, written in the same transaction as the status change, so a refused or rolled-back change sends nothing. It names the recipient by user id, holds a status line and a link, and never contains amounts, names, identity numbers or decision text. A real sender is a later, separate change. Emails go out when the file is queued, when information is requested, on resubmission, and on approval or rejection (including corrections). A referral sends nothing.
+  - Each queued message is audited (`notification.queued`) with the outbox id and no text.
+- **Consequences:**
+  - "I receive an email" is verified only as a row in the outbox, not delivery to a mailbox.
+  - Borrowers cannot yet read their own notifications through the API.
+  - Status history has no sequence number, so two changes with the same timestamp have no defined order. Real requests differ by microseconds; tests advance the clock. If this ever matters, add a database sequence as for `decisions`.
+  - Withdrawal, reminders and SLA emails belong to LF-014 and LF-017.
+  - Still API only; there is no frontend, so the progress bar and upload button are not drawn.
+
 ## Open items
 
 | # | Question | Owner (simulated) | Needed by | Status |

@@ -51,6 +51,9 @@ class Settings(BaseSettings):
     max_request_overhead_bytes: int = 64 * 1024  # multipart framing around the file
     max_documents_per_application: int = 20
 
+    # LF-012: where links in notification emails point (the borrower-facing app)
+    app_base_url: str = "http://localhost:3000"
+
     ai_mode: str = "mock"
 
 

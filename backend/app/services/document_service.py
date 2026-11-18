@@ -29,10 +29,14 @@ from app.schemas.document import UploadNoticeOut
 from app.services import application_service, audit_service, file_storage, queue_service
 from app.services.file_sniffing import ALLOWED_MIME_TYPES, EXTENSIONS, detect_mime
 
-# NEEDS_INFO joins this set when that status exists (docs/03 state machine). IN_REVIEW stays
-# open so a borrower can still add optional documents once the file is queued (LF-010).
+# IN_REVIEW stays open so a borrower can still add optional documents once the file is queued
+# (LF-010); NEEDS_INFO is where the borrower answers a request for information (LF-012).
 UPLOADABLE_STATUSES = frozenset(
-    {ApplicationStatus.SUBMITTED.value, ApplicationStatus.IN_REVIEW.value}
+    {
+        ApplicationStatus.SUBMITTED.value,
+        ApplicationStatus.IN_REVIEW.value,
+        ApplicationStatus.NEEDS_INFO.value,
+    }
 )
 
 SYNTHETIC_NOTICE = (

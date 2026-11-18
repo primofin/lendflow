@@ -15,7 +15,7 @@ from app.models.borrower_profile import BorrowerProfile
 from app.models.status_history import StatusHistory
 from app.models.user import Role, User
 from app.schemas.queue import QueueFlag, QueueItemOut, QueuePageOut, QueueParams
-from app.services import audit_service, requirements_service
+from app.services import audit_service, notification_service, requirements_service
 
 EMPTY_MESSAGE = "No applications waiting"
 
@@ -54,6 +54,7 @@ def promote_if_ready(
         application_id=application.id,
         ip_address=ip,
     )
+    notification_service.notify(db, application, "queued", now=now)
     return True
 
 
