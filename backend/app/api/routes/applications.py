@@ -1,14 +1,21 @@
 """Application endpoints. LF-002: read with ownership check; LF-004: submit with consent."""
 
 import uuid
+from typing import Annotated
 
-from fastapi import APIRouter, status
+from fastapi import APIRouter, Depends, status
 
-from app.api.deps import BorrowerAuth, ClientIp, CurrentAuth, DbSession, Now
+from app.api.deps import BorrowerAuth, ClientIp, CurrentAuth, DbSession, Now, require_roles
+from app.models.user import Role
 from app.schemas.application import ApplicationOut, ApplicationSubmitIn
-from app.services import application_service
+from app.schemas.decision import DecisionIn, DecisionOut
+from app.services import application_service, decision_service
+from app.services.auth_service import AuthContext
 
 router = APIRouter(prefix="/applications", tags=["applications"])
+
+StaffAuth = Annotated[AuthContext, Depends(require_roles(Role.OFFICER, Role.SUPERVISOR))]
+OfficerAuth = Annotated[AuthContext, Depends(require_roles(Role.OFFICER))]
 
 
 @router.post("", status_code=status.HTTP_201_CREATED)
@@ -28,4 +35,46 @@ def get_application(
     application = application_service.get_for_user(
         db, user=auth.user, application_id=application_id, now=clock(), ip=ip
     )
+    out = ApplicationOut.model_validate(application)
+    out.decision = decision_service.borrower_view(db, application)  # LF-011, BR-13
+    return out
+
+
+@router.post("/{application_id}/claim")
+def claim_application(
+    application_id: uuid.UUID, auth: OfficerAuth, db: DbSession, clock: Now, ip: ClientIp
+) -> ApplicationOut:
+    """LF-011: an officer takes a queued file; other officers then no longer see it."""
+    application = decision_service.claim(
+        db, officer=auth.user, application_id=application_id, now=clock(), ip=ip
+    )
     return ApplicationOut.model_validate(application)
+
+
+@router.post("/{application_id}/decision", status_code=status.HTTP_201_CREATED)
+def record_decision(
+    application_id: uuid.UUID,
+    body: DecisionIn,
+    auth: StaffAuth,
+    db: DbSession,
+    clock: Now,
+    ip: ClientIp,
+) -> DecisionOut:
+    """LF-011: approve, reject, request information or refer. A human decision (BR-15)."""
+    decision = decision_service.decide(
+        db, user=auth.user, application_id=application_id, data=body, now=clock(), ip=ip
+    )
+    entries = decision_service.list_decisions(
+        db, user=auth.user, application_id=application_id, now=clock(), ip=ip, audit_read=False
+    )
+    return next(entry for entry in entries if entry.id == decision.id)
+
+
+@router.get("/{application_id}/decisions")
+def list_decisions(
+    application_id: uuid.UUID, auth: StaffAuth, db: DbSession, clock: Now, ip: ClientIp
+) -> list[DecisionOut]:
+    """LF-011: every decision on the file, oldest first, corrected ones included (BR-14)."""
+    return decision_service.list_decisions(
+        db, user=auth.user, application_id=application_id, now=clock(), ip=ip
+    )

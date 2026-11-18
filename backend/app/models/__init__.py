@@ -5,6 +5,7 @@ from app.models.application_exception import ApplicationException
 from app.models.audit_log import AuditLog
 from app.models.borrower_profile import BorrowerProfile, IncomeType
 from app.models.consent import Consent
+from app.models.decision import Decision, DecisionImmutable, ReasonCode
 from app.models.document import DocType, Document
 from app.models.requirement_rules import (
     IncomeTypeRule,
@@ -23,10 +24,13 @@ __all__ = [
     "AuthSession",
     "BorrowerProfile",
     "Consent",
+    "Decision",
+    "DecisionImmutable",
     "DocType",
     "Document",
     "IncomeType",
     "IncomeTypeRule",
+    "ReasonCode",
     "RequiredDocumentOption",
     "RequiredDocumentRule",
     "Role",

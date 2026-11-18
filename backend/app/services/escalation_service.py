@@ -15,7 +15,11 @@ from app.models.requirement_rules import IncomeTypeRule
 from app.models.user import Role, User
 from app.services import audit_service
 
-OPEN_STATUSES = (ApplicationStatus.SUBMITTED.value, ApplicationStatus.IN_REVIEW.value)
+OPEN_STATUSES = (
+    ApplicationStatus.SUBMITTED.value,
+    ApplicationStatus.IN_REVIEW.value,
+    ApplicationStatus.REFERRED.value,
+)
 
 
 def pick_supervisor(db: Session) -> uuid.UUID | None:
@@ -43,6 +47,13 @@ def flag_and_assign(
 ) -> None:
     """Mark the file as an exception and, if it has none yet, assign a supervisor."""
     application.exception_flag = True
+    assign_supervisor(db, application, actor_id=actor_id, now=now, ip=ip)
+
+
+def assign_supervisor(
+    db: Session, application: Application, *, actor_id: uuid.UUID, now: datetime, ip: str | None
+) -> None:
+    """Give the file a supervisor if it has none. Also used when an officer refers a file."""
     if application.assigned_supervisor is not None:
         return
     supervisor_id = pick_supervisor(db)

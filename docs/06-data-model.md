@@ -99,10 +99,12 @@ erDiagram
   DECISIONS {
     uuid id PK
     uuid application_id FK
+    bigint seq "database insertion order; defines the latest decision"
     uuid decided_by FK
     string outcome "approve | reject | request_info | refer"
     string reason_code
     text explanation
+    text conditions "documents or conditions that could change a rejection (BR-13)"
     uuid supersedes_id FK
     datetime decided_at
   }
