@@ -15,6 +15,7 @@ class DocType(enum.StrEnum):
 
     NATIONAL_ID = "national_id"
     LABOUR_CONTRACT = "labour_contract"
+    EMPLOYER_CONFIRMATION = "employer_confirmation"
     PAYSLIPS = "payslips"
     BANK_STATEMENTS = "bank_statements"
     TAX_RETURN = "tax_return"

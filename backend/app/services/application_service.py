@@ -15,7 +15,7 @@ from app.models.borrower_profile import BorrowerProfile
 from app.models.status_history import StatusHistory
 from app.models.user import Role, User
 from app.schemas.application import ApplicationSubmitIn, ProfileIn
-from app.services import audit_service, consent_service
+from app.services import audit_service, consent_service, escalation_service
 from app.services.calculator_service import rate_for_term
 
 
@@ -38,6 +38,7 @@ def submit(
         amount_vnd=Decimal(data.amount_vnd),
         term_months=data.term_months,
         annual_rate=rate_for_term(data.term_months),  # LF-003: rate quoted at submission
+        income_type=data.profile.income_type.value,  # LF-007: snapshot for the checklist
         purpose=(data.purpose or "").strip() or None,
         status=ApplicationStatus.SUBMITTED.value,
         submitted_at=now,
@@ -56,6 +57,7 @@ def submit(
     if consent_given:
         _audit(db, user, "consent.give", application.id, now, ip, target_type="application")
     _audit(db, user, "application.submit", application.id, now, ip)
+    escalation_service.escalate_on_submit(db, application, actor_id=user.id, now=now, ip=ip)
     db.commit()
     return application
 
