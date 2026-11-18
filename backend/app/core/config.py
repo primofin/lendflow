@@ -39,6 +39,9 @@ class Settings(BaseSettings):
     # LF-018 / BR-22: days to answer a deletion request (illustrative, docs/02; configurable)
     deletion_request_due_days: int = 30
 
+    # LF-017 / BR-11: hours a supervisor may take before a file is overdue (illustrative, docs/02)
+    supervisor_sla_hours: float = 24
+
     # LF-003 / BR-05: annual rate by term, as (longest term in months, rate); illustrative.
     # Up to 12 months 14%, 13-36 months 16%, over 36 months 18%.
     rate_tiers: list[tuple[int, Decimal]] = [

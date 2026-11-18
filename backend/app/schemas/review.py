@@ -6,7 +6,7 @@ from typing import Literal
 
 from pydantic import BaseModel
 
-Flag = Literal["exception", "high_dti", "fast_track"]
+Flag = Literal["exception", "high_dti", "fast_track", "overdue"]
 
 
 class ApplicantOut(BaseModel):

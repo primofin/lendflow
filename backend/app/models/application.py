@@ -47,5 +47,8 @@ class Application(Base):
     fast_track: Mapped[bool] = mapped_column(default=False)  # BR-09
     assigned_officer: Mapped[uuid.UUID | None] = mapped_column(ForeignKey("users.id"))
     assigned_supervisor: Mapped[uuid.UUID | None] = mapped_column(ForeignKey("users.id"))
+    # LF-017 / BR-11: when the file started waiting at a supervisor, and when the SLA was missed.
+    assigned_supervisor_at: Mapped[datetime | None]
+    sla_breached_at: Mapped[datetime | None]
     submitted_at: Mapped[datetime | None]
     created_at: Mapped[datetime] = mapped_column(server_default=func.now())

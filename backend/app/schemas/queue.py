@@ -6,8 +6,8 @@ from typing import Literal
 
 from pydantic import BaseModel, Field
 
-QueueStatus = Literal["IN_REVIEW", "SUBMITTED"]
-QueueFlag = Literal["exception", "high_dti", "fast_track"]
+QueueStatus = Literal["IN_REVIEW", "SUBMITTED", "REFERRED"]
+QueueFlag = Literal["exception", "high_dti", "fast_track", "overdue"]
 QueueSort = Literal["oldest", "newest"]
 
 

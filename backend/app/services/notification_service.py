@@ -40,6 +40,38 @@ _EVENTS: dict[str, tuple[str, str]] = {
 }
 
 
+def notify_staff(
+    db: Session,
+    application: Application,
+    *,
+    recipient_id: uuid.UUID,
+    template: str,
+    subject: str,
+    message: str,
+    now: datetime,
+) -> None:
+    """Queue one email to a staff member about a file. The body holds a step and a link only."""
+    link = f"{get_settings().app_base_url}/review/{application.id}"
+    row = OutboxMessage(
+        recipient_user_id=recipient_id,
+        application_id=application.id,
+        template=template,
+        subject=subject,
+        body=f"{message}\n\nStatus: {step_label(application.status)}\nFile: {link}\n",
+        created_at=now,
+    )
+    db.add(row)
+    db.flush()
+    audit_service.record(
+        db,
+        action="notification.queued",
+        now=now,
+        target_type="outbox",
+        target_id=row.id,
+        application_id=application.id,
+    )
+
+
 def notify(db: Session, application: Application, event: str, *, now: datetime) -> uuid.UUID | None:
     """Queue one email to the application's owner. Returns the message id, or None if the
     owner cannot be found."""
