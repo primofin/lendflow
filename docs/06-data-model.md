@@ -29,7 +29,15 @@ erDiagram
     string password_hash
     string role "borrower | officer | supervisor"
     bool is_active
+    bool repayment_reminders "LF-014 opt-out; on by default"
     datetime created_at
+  }
+  REMINDER_LOG {
+    uuid id PK
+    uuid application_id FK
+    int instalment_number
+    string kind "week | day; unique per application, instalment and kind"
+    datetime sent_at
   }
   BORROWER_PROFILES {
     uuid id PK
