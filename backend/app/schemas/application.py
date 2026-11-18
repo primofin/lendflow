@@ -2,6 +2,7 @@
 
 import uuid
 from datetime import date, datetime
+from decimal import Decimal
 from typing import Annotated, Self
 
 from pydantic import (
@@ -9,12 +10,14 @@ from pydantic import (
     ConfigDict,
     Field,
     StringConstraints,
+    computed_field,
     field_validator,
     model_validator,
 )
 
 from app.core.config import get_settings
 from app.models.borrower_profile import IncomeType
+from app.schemas.loan_terms import check_amount, check_term
 
 NationalId = Annotated[str, StringConstraints(strip_whitespace=True)]
 
@@ -45,22 +48,8 @@ class ApplicationSubmitIn(BaseModel):
     consent_accepted: bool
     consent_version: str = Field(max_length=32)
 
-    @field_validator("amount_vnd")
-    @classmethod
-    def _amount_in_range(cls, value: int) -> int:
-        settings = get_settings()
-        low, high = settings.amount_min_vnd, settings.amount_max_vnd
-        if not low <= value <= high:
-            raise ValueError(f"Amount must be between {low:,} and {high:,} VND")
-        return value
-
-    @field_validator("term_months")
-    @classmethod
-    def _term_allowed(cls, value: int) -> int:
-        allowed = get_settings().allowed_terms_months
-        if value not in allowed:
-            raise ValueError(f"Term must be one of {', '.join(map(str, allowed))} months")
-        return value
+    _amount_in_range = field_validator("amount_vnd")(check_amount)
+    _term_allowed = field_validator("term_months")(check_term)
 
     @model_validator(mode="after")
     def _purpose_and_consent(self) -> Self:
@@ -79,6 +68,13 @@ class ApplicationOut(BaseModel):
     status: str
     amount_vnd: int  # whole VND
     term_months: int
+    annual_rate: Decimal | None = Field(default=None, exclude=True)
     purpose: str | None
     submitted_at: datetime | None
     created_at: datetime
+
+    @computed_field  # type: ignore[prop-decorator]
+    @property
+    def annual_rate_percent(self) -> float | None:
+        """Display value only (e.g. 16.0); the exact rate is stored as a Decimal fraction."""
+        return None if self.annual_rate is None else float(self.annual_rate * 100)

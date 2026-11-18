@@ -16,6 +16,7 @@ from app.models.status_history import StatusHistory
 from app.models.user import Role, User
 from app.schemas.application import ApplicationSubmitIn, ProfileIn
 from app.services import audit_service, consent_service
+from app.services.calculator_service import rate_for_term
 
 
 def submit(
@@ -36,6 +37,7 @@ def submit(
         created_by=user.id,
         amount_vnd=Decimal(data.amount_vnd),
         term_months=data.term_months,
+        annual_rate=rate_for_term(data.term_months),  # LF-003: rate quoted at submission
         purpose=(data.purpose or "").strip() or None,
         status=ApplicationStatus.SUBMITTED.value,
         submitted_at=now,

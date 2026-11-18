@@ -1,5 +1,6 @@
 """Application settings. All business and security limits are configurable (see docs/02)."""
 
+from decimal import Decimal
 from functools import lru_cache
 
 from pydantic import Field
@@ -34,6 +35,14 @@ class Settings(BaseSettings):
     max_age_at_application: int = 60
     max_age_at_maturity: int = 65
     consent_retention_months: int = 12
+
+    # LF-003 / BR-05: annual rate by term, as (longest term in months, rate); illustrative.
+    # Up to 12 months 14%, 13-36 months 16%, over 36 months 18%.
+    rate_tiers: list[tuple[int, Decimal]] = [
+        (12, Decimal("0.14")),
+        (36, Decimal("0.16")),
+        (60, Decimal("0.18")),
+    ]
 
     ai_mode: str = "mock"
 
