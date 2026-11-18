@@ -16,7 +16,7 @@ erDiagram
   APPLICATIONS ||--o{ STATUS_HISTORY : tracks
   USERS ||--o{ CONSENTS : gives
   USERS ||--o{ AUDIT_LOGS : "performs"
-  USERS ||--o{ DATA_REQUESTS : files
+  USERS ||--o{ DELETION_REQUESTS : files
   INCOME_TYPE_RULES ||--o{ REQUIRED_DOCUMENT_RULES : defines
   REQUIRED_DOCUMENT_RULES ||--|{ REQUIRED_DOCUMENT_OPTIONS : "satisfied by any of"
   APPLICATIONS ||--o{ APPLICATION_EXCEPTIONS : "has declared"
@@ -147,12 +147,13 @@ erDiagram
     string ip_address
     datetime created_at
   }
-  DATA_REQUESTS {
+  DELETION_REQUESTS {
     uuid id PK
     uuid user_id FK
-    string type "export | correct | delete"
-    string status
-    date due_date
+    string status "open | resolved; one open per user"
+    datetime requested_at
+    datetime due_at "requested_at + DELETION_REQUEST_DUE_DAYS"
+    datetime resolved_at "no resolve step is built yet"
   }
   INCOME_TYPE_RULES {
     string income_type PK "salaried | freelance | self_employed | rental | other"

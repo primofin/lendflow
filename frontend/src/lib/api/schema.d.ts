@@ -580,6 +580,86 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/me/data": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get My Data
+         * @description LF-018: all personal data held about the caller, the purposes and any deletion request.
+         */
+        get: operations["get_my_data_me_data_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/me/data/export": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Export My Data
+         * @description LF-018: the same data as a downloadable JSON file.
+         */
+        get: operations["export_my_data_me_data_export_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/me/data/deletion-request": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Request Deletion
+         * @description LF-018: record a deletion request with a due date; says what must be retained.
+         */
+        post: operations["request_deletion_me_data_deletion_request_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/data-requests": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List Data Requests
+         * @description LF-018: open and resolved deletion requests with their due dates.
+         */
+        get: operations["list_data_requests_data_requests_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/health": {
         parameters: {
             query?: never;
@@ -601,6 +681,16 @@ export interface paths {
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
+        /** AccountData */
+        AccountData: {
+            /** Email */
+            email: string;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+        };
         /** ApplicantOut */
         ApplicantOut: {
             /** Full Name */
@@ -617,6 +707,28 @@ export interface components {
             monthly_income_vnd: number | null;
             /** Existing Debt Payment Vnd */
             existing_debt_payment_vnd: number | null;
+        };
+        /** ApplicationData */
+        ApplicationData: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Status */
+            status: string;
+            /** Amount Vnd */
+            amount_vnd: number;
+            /** Term Months */
+            term_months: number;
+            /** Purpose */
+            purpose: string | null;
+            /** Submitted At */
+            submitted_at: string | null;
+            /** Documents */
+            documents: components["schemas"]["DocumentData"][];
+            /** Decisions */
+            decisions: components["schemas"]["DecisionData"][];
         };
         /** ApplicationOut */
         ApplicationOut: {
@@ -813,6 +925,20 @@ export interface components {
             /** Finished At */
             finished_at: string | null;
         };
+        /** ConsentData */
+        ConsentData: {
+            /** Version */
+            version: string;
+            /** Purposes */
+            purposes: string[];
+            /**
+             * Given At
+             * Format: date-time
+             */
+            given_at: string;
+            /** Withdrawn At */
+            withdrawn_at: string | null;
+        };
         /** ConsentOut */
         ConsentOut: {
             /** Version */
@@ -823,6 +949,22 @@ export interface components {
             purposes: components["schemas"]["PurposeOut"][];
             /** Retention Months */
             retention_months: number;
+        };
+        /** DecisionData */
+        DecisionData: {
+            /** Outcome */
+            outcome: string;
+            /** Reason Code */
+            reason_code: string | null;
+            /** Explanation */
+            explanation: string | null;
+            /** Conditions */
+            conditions: string | null;
+            /**
+             * Decided At
+             * Format: date-time
+             */
+            decided_at: string;
         };
         /** DecisionIn */
         DecisionIn: {
@@ -881,12 +1023,77 @@ export interface components {
              */
             decided_at: string;
         };
+        /** DeletionRequestAdminOut */
+        DeletionRequestAdminOut: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /**
+             * User Id
+             * Format: uuid
+             */
+            user_id: string;
+            /** Email */
+            email: string;
+            /** Status */
+            status: string;
+            /**
+             * Requested At
+             * Format: date-time
+             */
+            requested_at: string;
+            /**
+             * Due At
+             * Format: date-time
+             */
+            due_at: string;
+            /** Overdue */
+            overdue: boolean;
+        };
+        /** DeletionRequestOut */
+        DeletionRequestOut: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Status */
+            status: string;
+            /**
+             * Requested At
+             * Format: date-time
+             */
+            requested_at: string;
+            /**
+             * Due At
+             * Format: date-time
+             */
+            due_at: string;
+            /** Retained */
+            retained: components["schemas"]["RetainedItem"][];
+        };
         /**
          * DocType
          * @description Document kinds from docs/02 section 3 (required documents by income type).
          * @enum {string}
          */
         DocType: "national_id" | "labour_contract" | "employer_confirmation" | "payslips" | "bank_statements" | "tax_return" | "invoices_contracts" | "business_licence" | "rental_contract" | "proof_of_ownership" | "other";
+        /** DocumentData */
+        DocumentData: {
+            /** Doc Type */
+            doc_type: string;
+            /** Size Bytes */
+            size_bytes: number;
+            /**
+             * Uploaded At
+             * Format: date-time
+             */
+            uploaded_at: string;
+            /** Delete After */
+            delete_after: string | null;
+        };
         /** DocumentOut */
         DocumentOut: {
             /**
@@ -961,6 +1168,20 @@ export interface components {
             /** Accepted Types */
             accepted_types: string[];
         };
+        /** MyDataOut */
+        MyDataOut: {
+            account: components["schemas"]["AccountData"];
+            profile: components["schemas"]["ProfileData"] | null;
+            /** Applications */
+            applications: components["schemas"]["ApplicationData"][];
+            /** Consents */
+            consents: components["schemas"]["ConsentData"][];
+            /** Purposes */
+            purposes: components["schemas"]["PurposeData"][];
+            /** Retention Months */
+            retention_months: number;
+            deletion_request: components["schemas"]["DeletionRequestOut"] | null;
+        };
         /** NeedsInfoOut */
         NeedsInfoOut: {
             /** Message */
@@ -987,6 +1208,23 @@ export interface components {
             /** Optional */
             optional: components["schemas"]["RequirementOut"][];
         };
+        /** ProfileData */
+        ProfileData: {
+            /** Full Name */
+            full_name: string | null;
+            /** Date Of Birth */
+            date_of_birth: string | null;
+            /** National Id */
+            national_id: string | null;
+            /** Address */
+            address: string | null;
+            /** Income Type */
+            income_type: string | null;
+            /** Monthly Income Vnd */
+            monthly_income_vnd: number | null;
+            /** Existing Debt Payment Vnd */
+            existing_debt_payment_vnd: number | null;
+        };
         /** ProfileIn */
         ProfileIn: {
             /** Full Name */
@@ -1008,6 +1246,13 @@ export interface components {
              * @default 0
              */
             existing_debt_payment_vnd: number;
+        };
+        /** PurposeData */
+        PurposeData: {
+            /** Code */
+            code: string;
+            /** Label */
+            label: string;
         };
         /** PurposeOut */
         PurposeOut: {
@@ -1084,6 +1329,13 @@ export interface components {
             label: string;
             /** Doc Types */
             doc_types: string[];
+        };
+        /** RetainedItem */
+        RetainedItem: {
+            /** What */
+            what: string;
+            /** Reason */
+            reason: string;
         };
         /** ReviewOut */
         ReviewOut: {
@@ -2169,6 +2421,86 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["ReasonCodeOut"][];
+                };
+            };
+        };
+    };
+    get_my_data_me_data_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MyDataOut"];
+                };
+            };
+        };
+    };
+    export_my_data_me_data_export_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+        };
+    };
+    request_deletion_me_data_deletion_request_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeletionRequestOut"];
+                };
+            };
+        };
+    };
+    list_data_requests_data_requests_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeletionRequestAdminOut"][];
                 };
             };
         };

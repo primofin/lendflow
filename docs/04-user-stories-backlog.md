@@ -24,7 +24,7 @@ Each story traces back to a pain point or source story (column "Source") and for
 | LF-015 | E-signature of contract | LOAN-03 / P3 | Won't (this release) | n/a | Won't |
 | LF-016 | Audit log | New (C-01, Audit) | **Must** | 5 | Done |
 | LF-017 | SLA escalation | US-005 | Could | 3 | To do |
-| LF-018 | Data-subject rights | New (C-08) | Should | 5 | To do |
+| LF-018 | Data-subject rights | New (C-08) | Should | 5 | Done |
 | LF-019 | Operations dashboard | Giao an (NPL report) | Could | 5 | To do |
 | LF-020 | Biometric step simulation | New (C-07) | Could | 3 | To do |
 

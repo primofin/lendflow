@@ -80,4 +80,23 @@ describe("SiteHeader (LF-002 AC3: only supervisors see user management)", () => 
     expect(logout).toHaveBeenCalled();
     expect(replace).toHaveBeenCalledWith("/login");
   });
+
+  it("shows My data only to borrowers and Data requests only to supervisors (LF-018)", () => {
+    auth.status = "authenticated";
+    auth.user = user("borrower");
+    const first = render(<SiteHeader />);
+    expect(screen.getByRole("link", { name: "My data" })).toBeInTheDocument();
+    expect(screen.queryByRole("link", { name: "Data requests" })).not.toBeInTheDocument();
+    first.unmount();
+
+    auth.user = user("officer");
+    const second = render(<SiteHeader />);
+    expect(screen.queryByRole("link", { name: "My data" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("link", { name: "Data requests" })).not.toBeInTheDocument();
+    second.unmount();
+
+    auth.user = user("supervisor");
+    render(<SiteHeader />);
+    expect(screen.getByRole("link", { name: "Data requests" })).toBeInTheDocument();
+  });
 });

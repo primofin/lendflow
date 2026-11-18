@@ -322,3 +322,15 @@ Short records of choices, so a reader can see *why*, not just *what*. Format: co
   - Reading a check can write (state change and audit rows), which is why a `GET` locks the row.
   - C-11 (negative history older than 5 years is ignored) is **not built**: the mock has no credit history to age out. Compliance matrix row C-11 still needs a seed-data test.
   - The `cic.timeout` audit row is written when the stalled attempt is next read, not at the exact moment it expired.
+
+## D-028: Data-subject rights (LF-018)
+- **Context:** BR-22 and the story ask for view, export and deletion request, with due dates and a note on what must be kept. The story title also says "correct", but no acceptance criterion covers correction.
+- **Decision:**
+  - Borrower-only endpoints under `/me/data`: **view** (account, personal details in full because they are the borrower's own, applications with documents and decisions, consents, purposes, retention period), **export** (`/me/data/export`, the same data as a JSON download, never password hashes or sessions) and **deletion request** (`/me/data/deletion-request`). A supervisor-only `GET /data-requests` lists requests, oldest due date first, flagging overdue ones.
+  - A deletion request is **only recorded**. Nothing is deleted automatically (a person acts on it, as with decisions). It gets a due date from `DELETION_REQUEST_DUE_DAYS` (default 30, illustrative, configurable). One open request per borrower, enforced by a partial unique index.
+  - The response says **what must be kept and why**: files still being processed (until a final decision) and the audit log and decisions (append-only, BR-14). This is worked out from the borrower's files at the time, so it stays correct.
+  - Export and request are audited (`data.exported`, `data.deletion_requested`) with ids only. The data model's `DATA_REQUESTS` (export | correct | delete) is replaced by `DELETION_REQUESTS`, since an export is immediate and is audited instead.
+- **Consequences:**
+  - **Correction is not built.** A borrower can only change their profile by submitting a new application (D-009). Add a correction story if needed.
+  - There is **no "resolve" step** for supervisors yet, so requests stay open and become overdue. Actually erasing data (and deciding what the law lets us erase) is a later story; retention periods and legal bases are still open items in the compliance matrix and nothing here invents article numbers.
+  - Consent withdrawal (`consents.withdrawn_at`) is also not built.

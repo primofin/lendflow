@@ -43,15 +43,25 @@ export function SiteHeader() {
             </Link>
           </>
         )}
+        {user?.role === "borrower" && (
+          <Link href="/my-data" className={link}>
+            My data
+          </Link>
+        )}
         {(user?.role === "officer" || user?.role === "supervisor") && (
           <Link href="/queue" className={link}>
             Queue
           </Link>
         )}
         {user?.role === "supervisor" && (
-          <Link href="/admin/users" className={link}>
-            Users
-          </Link>
+          <>
+            <Link href="/admin/users" className={link}>
+              Users
+            </Link>
+            <Link href="/admin/data-requests" className={link}>
+              Data requests
+            </Link>
+          </>
         )}
         {user && (
           <>
