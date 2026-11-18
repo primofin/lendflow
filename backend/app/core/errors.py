@@ -57,6 +57,14 @@ class UnprocessableEntity(AppError):
     status_code = 422
 
 
+class PayloadTooLarge(AppError):
+    status_code = 413
+
+
+class UnsupportedMediaType(AppError):
+    status_code = 415
+
+
 def register_error_handlers(app: FastAPI) -> None:
     @app.exception_handler(AppError)
     async def _handle(_: Request, exc: AppError) -> JSONResponse:

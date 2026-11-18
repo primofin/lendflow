@@ -66,6 +66,21 @@ Short records of choices, so a reader can see *why*, not just *what*. Format: co
   - A submitted application stores the rate quoted for its term in `annual_rate`.
 - **Consequences:** The borrower's real instalments would sum to 1 VND less than the quoted total in the worked example, and by up to a few VND for other loans. A repayment schedule, in a later story, will decide how the last instalment is adjusted. The calculator and the application share one set of amount and term validators, so they cannot disagree.
 
+## D-011: Document upload (LF-005)
+- **Context:** Borrowers upload identity and income documents. These are sensitive, and the demo allows synthetic files only (BR-24).
+- **Decision:**
+  - The file type is decided from the file's first bytes (JPEG, PNG, PDF). The filename and the Content-Type header are never trusted. Limit: 5 MB.
+  - Files are stored under a random name in a folder outside any web root, with owner-only permissions. **The original filename is not stored**, because names such as `CCCD_<name>.jpg` are personal data.
+  - A retried upload is recognised by its content: the same application, document type and bytes can exist only once, enforced by the database. A retry returns the existing document with 200.
+  - Downloads go through the API with the access check and are served as attachments with `nosniff`. Staff list and download actions are audited.
+  - A coarse request-size guard rejects oversized uploads before they are buffered, because FastAPI parses a multipart body before it runs authentication.
+  - `delete_after` stays empty until a final decision exists (LF-011); the retention job (BR-23) is a later story.
+- **Consequences:**
+  - There is no virus scan and no inspection inside PDFs; the attachment and `nosniff` headers are the protection for now. Add scanning before any real deployment.
+  - A deliberate re-upload of an identical file under the same type counts as a duplicate.
+  - A file between 5 MB and about 5.06 MB gets the friendly "larger than the limit" message; anything bigger gets the shorter request-level message.
+  - Deleting or replacing a document is not offered; the permission matrix gives borrowers no delete right.
+
 ## Open items
 
 | # | Question | Owner (simulated) | Needed by |
