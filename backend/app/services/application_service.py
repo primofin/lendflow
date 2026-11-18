@@ -139,7 +139,11 @@ def get_for_user(
         raise Forbidden()
 
     if user.role in STAFF_ROLES:
-        # LF-010 narrows officers to assigned / queued applications.
+        # LF-011: an officer may not open a file another officer has taken (docs/01 matrix).
+        if user.role == Role.OFFICER and application.assigned_officer not in (None, user.id):
+            _audit(db, user, "application.access_denied", application.id, now, ip)
+            db.commit()
+            raise Forbidden()
         if audit_read:
             _audit(db, user, "application.read", application.id, now, ip)
             db.commit()

@@ -17,6 +17,11 @@ class ApplicationStatus(enum.StrEnum):
     DRAFT = "DRAFT"
     SUBMITTED = "SUBMITTED"
     IN_REVIEW = "IN_REVIEW"  # LF-010: mandatory documents in (or waived); queued for an officer
+    # LF-011: set only by recording a decision (BR-15), never by a background job.
+    NEEDS_INFO = "NEEDS_INFO"
+    REFERRED = "REFERRED"
+    APPROVED = "APPROVED"
+    REJECTED = "REJECTED"
 
 
 class Application(Base):

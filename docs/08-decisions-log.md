@@ -158,6 +158,26 @@ Short records of choices, so a reader can see *why*, not just *what*. Format: co
   - Nothing assigns `assigned_officer` yet, so every file appears unassigned to officers until LF-011 or a later story assigns it.
   - No frontend exists, so the queue screen is not built; this story is API only.
 
+## D-017: Decisions with reason codes (LF-011)
+- **Context:** BR-12 to BR-15 need four outcomes, a mandatory explanation for rejections, immutable decisions and no automatic outcome. D-014 and D-016 left officer file access and the authority check for this story.
+- **Decision:**
+  - `decisions` is append-only, like the audit log: database triggers reject UPDATE, DELETE and TRUNCATE, the ORM refuses them, and no route edits a row. A database `seq` defines "latest", so ordering never depends on clocks.
+  - Reason codes are data (`reason_codes`), seeded with **illustrative** codes. The real list is open item Q6.
+  - A **rejection** needs a reason code, an explanation of at least 20 characters, and the documents or conditions that could change the result (BR-13). A **request for information** needs an explanation. Approve and refer take no reason code or conditions. Explanations are limited to 1,000 characters.
+  - Transitions follow docs/03: approve, reject and request info from `IN_REVIEW` or `REFERRED`; refer only from `IN_REVIEW`. Anything else is a 409 that names the status.
+  - Authority: an officer approving at or above the limit or on an exception file gets "Supervisor approval required" (BR-10). An officer may still reject such a file or refer it. A referred file can be decided only by a supervisor. Only officers refer; a supervisor decides directly. Referring assigns the supervisor with the fewest open files if none is assigned.
+  - **Corrections:** only a supervisor, only for the latest decision, and only approve or reject, by sending `supersedes_id`. The new entry links to the old one, which stays visible in `GET /applications/{id}/decisions`.
+  - **Borrower view:** the latest outcome, and for a rejection or request the explanation and conditions. A referral is internal and not shown; who decided is never shown; the internal note on an approval is not shown.
+  - Decision audit entries hold ids and actions only, never the explanation text.
+  - **Officer scoping now applies to files too:** an officer may open or decide a file only if it is unassigned or theirs (403 and an `application.access_denied` entry otherwise). `POST /applications/{id}/claim` takes an `IN_REVIEW` file; deciding also claims it. Supervisors see all. This closes the gap noted in D-014 and D-016.
+  - BR-15: `APPROVED` and `REJECTED` are set only inside the decision service, as the result of a decision row.
+- **Consequences:**
+  - A file in `NEEDS_INFO` has no way back to the queue until LF-012 adds borrower resubmission; borrowers cannot upload to it yet.
+  - The self-created-on-behalf rule (RBAC rule 2) is not enforced because staff cannot create applications on a borrower's behalf yet.
+  - A correction does not notify the borrower; notification is LF-012.
+  - Fast-track approval is tested with the flag set directly, since LF-008 and LF-009 compute it.
+  - Dev decision rows cannot be deleted; the database-reset note in CLAUDE.md covers this.
+
 ## Open items
 
 | # | Question | Owner (simulated) | Needed by | Status |
@@ -167,3 +187,4 @@ Short records of choices, so a reader can see *why*, not just *what*. Format: co
 | Q3 | Officer approval limit | CCO | Before LF-011 build | Interim: 200,000,000 VND from BR-10, configurable (D-014) |
 | Q4 | Official consolidated text for C-04 and C-10 (effective dates, current circular) | Compliance | Before publishing the matrix | Open |
 | Q5 | Bank or consumer finance company model | Product Owner | Before release | Open |
+| Q6 | Official list of rejection reason codes | Compliance + Risk | Before release | Interim: illustrative codes seeded as data (D-017) |

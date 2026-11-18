@@ -17,6 +17,7 @@ from pydantic import (
 
 from app.core.config import get_settings
 from app.models.borrower_profile import IncomeType
+from app.schemas.decision import BorrowerDecisionOut
 from app.schemas.loan_terms import check_amount, check_term
 
 NationalId = Annotated[str, StringConstraints(strip_whitespace=True)]
@@ -72,6 +73,7 @@ class ApplicationOut(BaseModel):
     purpose: str | None
     submitted_at: datetime | None
     created_at: datetime
+    decision: BorrowerDecisionOut | None = None  # LF-011: set by the route, not the ORM row
 
     @computed_field  # type: ignore[prop-decorator]
     @property
