@@ -364,3 +364,17 @@ Short records of choices, so a reader can see *why*, not just *what*. Format: co
   - **Nothing yet turns a DRAFT into a submission.** There is no invitation or "claim" step: a borrower who registers with the imported email does not see the draft, and cannot submit it. That is a later story (it would also be where consent is collected).
   - A borrower with that email who registers later is not blocked, because no account was created. A borrower who registered first is simply skipped.
   - Imported DRAFTs are not in the queue, so officers reach them from the import result page, and they are not covered by the data-subject export or deletion request (LF-018) until they are claimed.
+
+## D-031: Operations dashboard (LF-019)
+- **Context:** The story asks for applications by status, average decision time, approval rate and AI cost per application, with a date-range filter. Only supervisors may view it (docs/01).
+- **Decision:**
+  - `GET /dashboard?from=&to=` (supervisor only, audited as `dashboard.view`) returns numbers only, no applicant data. Dates are UTC calendar days, **both ends inclusive**; the default is the last 30 days and the longest range is 366 days. One range scopes every figure, so they always agree.
+  - **By status:** applications *created* in the range, counted by their status *now*, every status shown in workflow order with zeros kept.
+  - **Decided, approval rate and decision time** use one group: applications whose **first approve or reject decision** fell in the range. The outcome is the **standing** one, so a supervisor's correction (BR-14) changes the outcome but not the time. Approval rate = approved / decided. Request-info and refer are not final decisions. Decision time is submission to that first decision, in hours; imported drafts that were never submitted have none. With nothing decided, the rate and time are `null` and the page says "No data", not 0.
+  - **Overdue now** counts open supervisor SLA breaches (D-029). It is a snapshot, not limited to the range.
+  - **AI cost per application is left out**: the AI features are deferred (D-026), so there is no cost to show.
+  - The page uses one validated hue for the bars (the palette's blue; the validator passes in light and dark), direct value labels, a hover and keyboard-focus tooltip, a table view of the same numbers, and keeps the previous render at reduced opacity while a new range loads.
+- **Consequences:**
+  - "Decided" counts by when the first decision happened, not by when the application was created, so the status chart and the decision figures can cover different applications in the same range. The page says what each covers.
+  - Reading the dashboard can mark overdue files (the SLA sweep runs first), as with the queue.
+  - The figures are computed on request with plain queries, which is fine at demo scale. A large dataset would need an index on decision time or stored summaries.
