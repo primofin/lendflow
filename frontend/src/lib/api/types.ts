@@ -6,3 +6,7 @@ type Schemas = components["schemas"];
 
 export type User = Schemas["UserOut"];
 export type Role = User["role"];
+export type AdminUser = Schemas["UserAdminOut"];
+export type UserCreate = Schemas["UserCreateIn"];
+
+export const ROLES: Role[] = ["borrower", "officer", "supervisor"];

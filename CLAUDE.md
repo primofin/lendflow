@@ -45,6 +45,9 @@ cd frontend && npm run dev
 cd frontend && npm test
 cd frontend && npm run lint
 cd frontend && npm run typecheck
+# browser tests: real backend + the lendflow_test database, which is WIPED and re-seeded each run
+# (needs Postgres up, uv on PATH, and once: npx playwright install chromium)
+cd frontend && npm run test:e2e
 cd frontend && npm run gen:api           # regenerate API types after the backend schema changes
 
 # AI evals

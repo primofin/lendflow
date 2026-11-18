@@ -78,6 +78,8 @@ Legend: **C** create, **R** read, **U** update, **D** delete, **-** no access, *
 4. Every read of a borrower's personal data by staff is logged.
 5. Staff sessions have a short idle timeout; sensitive actions require re-authentication (stretch goal).
 
+*Frontend note: the header shows the Users menu only to supervisors and `RequireRole` hides pages from other roles; this is courtesy only, the API enforces access (D-021).*
+
 *Implementation note: officers read and decide only unassigned files or their own, enforced in the API (LF-010, LF-011; decisions D-016, D-017).*
 
 *Traceability: stories LF-001, LF-002, LF-010, LF-016; compliance rows C-08 and C-12.*
