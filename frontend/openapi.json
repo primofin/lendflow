@@ -1696,6 +1696,78 @@
         ]
       }
     },
+    "/imports/applications/template": {
+      "get": {
+        "tags": [
+          "imports"
+        ],
+        "summary": "Download Template",
+        "description": "LF-013: the column names and one synthetic example row.",
+        "operationId": "download_template_imports_applications_template_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/imports/applications": {
+      "post": {
+        "tags": [
+          "imports"
+        ],
+        "summary": "Import Applications",
+        "description": "LF-013: valid rows become DRAFT applications; the result lists skipped and invalid rows.",
+        "operationId": "import_applications_imports_applications_post",
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/Body_import_applications_imports_applications_post"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ImportResultOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
     "/health": {
       "get": {
         "tags": [
@@ -2149,6 +2221,20 @@
           "ip_address"
         ],
         "title": "AuditEntryOut"
+      },
+      "Body_import_applications_imports_applications_post": {
+        "properties": {
+          "file": {
+            "type": "string",
+            "contentMediaType": "application/octet-stream",
+            "title": "File"
+          }
+        },
+        "type": "object",
+        "required": [
+          "file"
+        ],
+        "title": "Body_import_applications_imports_applications_post"
       },
       "Body_upload_document_applications__application_id__documents_post": {
         "properties": {
@@ -2995,6 +3081,102 @@
         },
         "type": "object",
         "title": "HTTPValidationError"
+      },
+      "ImportResultOut": {
+        "properties": {
+          "job_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Job Id"
+          },
+          "total_rows": {
+            "type": "integer",
+            "title": "Total Rows"
+          },
+          "imported": {
+            "type": "integer",
+            "title": "Imported"
+          },
+          "duplicates": {
+            "type": "integer",
+            "title": "Duplicates"
+          },
+          "invalid": {
+            "type": "integer",
+            "title": "Invalid"
+          },
+          "issues": {
+            "items": {
+              "$ref": "#/components/schemas/ImportRowIssue"
+            },
+            "type": "array",
+            "title": "Issues"
+          },
+          "created": {
+            "items": {
+              "$ref": "#/components/schemas/ImportedRow"
+            },
+            "type": "array",
+            "title": "Created"
+          }
+        },
+        "type": "object",
+        "required": [
+          "job_id",
+          "total_rows",
+          "imported",
+          "duplicates",
+          "invalid",
+          "issues",
+          "created"
+        ],
+        "title": "ImportResultOut"
+      },
+      "ImportRowIssue": {
+        "properties": {
+          "row": {
+            "type": "integer",
+            "title": "Row"
+          },
+          "kind": {
+            "type": "string",
+            "enum": [
+              "invalid",
+              "duplicate"
+            ],
+            "title": "Kind"
+          },
+          "message": {
+            "type": "string",
+            "title": "Message"
+          }
+        },
+        "type": "object",
+        "required": [
+          "row",
+          "kind",
+          "message"
+        ],
+        "title": "ImportRowIssue"
+      },
+      "ImportedRow": {
+        "properties": {
+          "row": {
+            "type": "integer",
+            "title": "Row"
+          },
+          "application_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Application Id"
+          }
+        },
+        "type": "object",
+        "required": [
+          "row",
+          "application_id"
+        ],
+        "title": "ImportedRow"
       },
       "IncomeType": {
         "type": "string",
