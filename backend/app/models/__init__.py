@@ -11,6 +11,7 @@ from app.models.deletion_request import DeletionRequest
 from app.models.document import DocType, Document
 from app.models.import_job import ImportJob
 from app.models.outbox import OutboxMessage
+from app.models.reminder_log import ReminderLog
 from app.models.requirement_rules import (
     IncomeTypeRule,
     RequiredDocumentOption,
@@ -39,6 +40,7 @@ __all__ = [
     "IncomeTypeRule",
     "OutboxMessage",
     "ReasonCode",
+    "ReminderLog",
     "RequiredDocumentOption",
     "RequiredDocumentRule",
     "Role",

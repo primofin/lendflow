@@ -4,7 +4,7 @@ import enum
 import uuid
 from datetime import datetime
 
-from sqlalchemy import Enum, String, func
+from sqlalchemy import Enum, String, func, true
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.models.base import Base
@@ -33,6 +33,8 @@ class User(Base):
         )
     )
     is_active: Mapped[bool] = mapped_column(default=True)
+    # LF-014: opt out of repayment reminder emails (on by default)
+    repayment_reminders: Mapped[bool] = mapped_column(default=True, server_default=true())
     failed_login_count: Mapped[int] = mapped_column(default=0)
     locked_until: Mapped[datetime | None]
     created_at: Mapped[datetime] = mapped_column(server_default=func.now())

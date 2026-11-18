@@ -15,6 +15,7 @@ from app.api.routes import (
     imports,
     loan_terms,
     queue,
+    reminders,
     requirements,
     users,
 )
@@ -40,6 +41,7 @@ def create_app() -> FastAPI:
     app.include_router(data_rights.router)
     app.include_router(imports.router)
     app.include_router(dashboard.router)
+    app.include_router(reminders.router)
 
     @app.get("/health", tags=["ops"])
     def health() -> dict[str, str]:

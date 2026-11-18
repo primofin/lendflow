@@ -11,12 +11,14 @@ from app.schemas.application import ApplicationOut, ApplicationSubmitIn
 from app.schemas.cic import CicCheckOut
 from app.schemas.decision import DecisionIn, DecisionOut
 from app.schemas.review import ReviewOut
+from app.schemas.schedule import ScheduleOut
 from app.schemas.tracker import TrackerOut
 from app.services import (
     application_service,
     cic_service,
     decision_service,
     review_service,
+    schedule_service,
     tracker_service,
 )
 from app.services.auth_service import AuthContext
@@ -142,5 +144,15 @@ def get_cic_check(
 ) -> CicCheckOut | None:
     """LF-008: progress or result of the latest check; null when none was started."""
     return cic_service.get_latest(
+        db, user=auth.user, application_id=application_id, now=clock(), ip=ip
+    )
+
+
+@router.get("/{application_id}/schedule")
+def get_schedule(
+    application_id: uuid.UUID, auth: CurrentAuth, db: DbSession, clock: Now, ip: ClientIp
+) -> ScheduleOut:
+    """LF-014: the repayment schedule of an approved application (owner or staff)."""
+    return schedule_service.get_schedule(
         db, user=auth.user, application_id=application_id, now=clock(), ip=ip
     )

@@ -33,6 +33,14 @@ _EVENTS: dict[str, tuple[str, str]] = {
         "We need more information",
         "We need more information to continue. Sign in to see what to add.",
     ),
+    "reminder_week": (
+        "A repayment is due soon",
+        "An instalment on your loan is due within a week.",
+    ),
+    "reminder_day": (
+        "A repayment is due tomorrow",
+        "An instalment on your loan is due tomorrow.",
+    ),
     "resubmitted": (
         "We received your information",
         "Thank you. We received your additional information and an officer will review it.",
@@ -72,7 +80,14 @@ def notify_staff(
     )
 
 
-def notify(db: Session, application: Application, event: str, *, now: datetime) -> uuid.UUID | None:
+def notify(
+    db: Session,
+    application: Application,
+    event: str,
+    *,
+    now: datetime,
+    detail: str | None = None,
+) -> uuid.UUID | None:
     """Queue one email to the application's owner. Returns the message id, or None if the
     owner cannot be found."""
     recipient = db.scalar(
@@ -82,12 +97,13 @@ def notify(db: Session, application: Application, event: str, *, now: datetime) 
         return None
     subject, message = _EVENTS[event]
     link = f"{get_settings().app_base_url}/applications/{application.id}"
+    extra = f"{detail}\n\n" if detail else ""
     message_row = OutboxMessage(
         recipient_user_id=recipient,
         application_id=application.id,
         template=event,
         subject=subject,
-        body=f"{message}\n\nStatus: {step_label(application.status)}\nDetails: {link}\n",
+        body=f"{message}\n\n{extra}Status: {step_label(application.status)}\nDetails: {link}\n",
         created_at=now,
     )
     db.add(message_row)
