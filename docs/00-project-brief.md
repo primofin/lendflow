@@ -42,11 +42,11 @@ These are **hypotheses to be measured on synthetic data and test users**, not re
 |---|---|---|---|
 | O1 | Remove re-keying | Number of times an ID number is typed per application | 1 (from 3) |
 | O2 | Faster officer review | Median officer time per application in a timed test with 5 users | -30% vs. a manual baseline sheet |
-| O3 | Accurate AI extraction | Field-level accuracy on 30-document synthetic eval set | >= 90% |
+| O3 | Accurate AI extraction (deferred, D-026) | Field-level accuracy on 30-document synthetic eval set | >= 90% |
 | O4 | Safe AI use | Share of AI outputs followed by an explicit human decision | 100% |
 | O5 | Transparency | Applications whose every status change is logged with actor and time | 100% |
 | O6 | Explainable rejection | Rejections that carry a reason code and next steps | 100% |
-| O7 | Low cost | AI cost per reviewed application; total monthly AI spend | <= US$0.02; <= US$10 hard cap |
+| O7 | Low cost (deferred, D-026) | AI cost per reviewed application; total monthly AI spend | <= US$0.02; <= US$10 hard cap |
 
 ## 5. Scope
 
@@ -55,9 +55,9 @@ These are **hypotheses to be measured on synthetic data and test users**, not re
 - Registration and login with role-based access (Borrower, Loan Officer, Supervisor/Admin)
 - Public loan calculator
 - Loan application with consent screen (data-protection compliant)
-- Document upload; AI extraction of ID fields; income-type document requirements
+- Document upload; income-type document requirements (AI extraction of ID fields deferred, D-026)
 - Mock CIC check with progress feedback
-- AI document-review summary with human decision (approve / reject / request more info / refer)
+- Human decision (approve / reject / request more info / refer); the AI document-review summary is deferred (D-026)
 - Loan officer queue; borrower status tracker
 - CSV bulk import of applications
 - Audit log; data-subject rights (view / correct / delete my data)

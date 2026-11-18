@@ -304,3 +304,8 @@ Short records of choices, so a reader can see *why*, not just *what*. Format: co
 | Q4 | Official consolidated text for C-04 and C-10 (effective dates, current circular) | Compliance | Before publishing the matrix | Open |
 | Q5 | Bank or consumer finance company model | Product Owner | Before release | Open |
 | Q6 | Official list of rejection reason codes | Compliance + Risk | Before release | Interim: illustrative codes seeded as data (D-017) |
+
+## D-026: AI features deferred (LF-006, LF-009)
+- **Context:** The lending flow (apply, upload, queue, decide, audit) is complete without AI, and no AI code exists yet beyond configuration scaffolding. LF-009's own criteria already require manual reviewability.
+- **Decision:** Mark LF-006 (AI ID extraction) and LF-009 (AI review summary) **Won't (this release)**. Keep the `AI_MODE=mock` configuration, `agents/` and `evals/` placeholders so the work can resume later. Objectives O3 and O7 are not measured this release; O4 holds trivially because no AI output exists.
+- **Consequences:** Officers and borrowers still enter ID data by hand. The consent screen's "AI-assisted document processing" purpose stays in place for now; review it before any AI work resumes. D-002 and BR-15 still apply to any future AI code.
