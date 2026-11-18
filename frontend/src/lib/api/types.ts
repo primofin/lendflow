@@ -59,6 +59,7 @@ export const FLAG_LABELS: Record<string, string> = {
   exception: "Exception",
   high_dti: "High DTI",
   fast_track: "Fast-track",
+  overdue: "Overdue",
 };
 
 export type DecisionOutcome = Schemas["DecisionIn"]["outcome"];

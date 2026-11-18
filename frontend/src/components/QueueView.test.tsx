@@ -118,3 +118,27 @@ describe("formatAge", () => {
     expect(formatAge(null)).toBe("");
   });
 });
+
+describe("LF-017 overdue files", () => {
+  it("shows the Overdue flag and can filter to overdue and to referred files", async () => {
+    fetchMock.mockImplementation(async () =>
+      Response.json({
+        items: [item("a1", "Nguyen An", ["exception", "overdue"])],
+        total: 1,
+        limit: 50,
+        offset: 0,
+        message: null,
+      }),
+    );
+    render(<QueueView />);
+
+    const row = (await screen.findByRole("link", { name: "Nguyen An" })).closest("tr")!;
+    expect(row).toHaveTextContent("Exception, Overdue");
+
+    await userEvent.selectOptions(screen.getByLabelText("Flag"), "overdue");
+    await waitFor(() => expect(lastQuery().get("flag")).toBe("overdue"));
+
+    await userEvent.selectOptions(screen.getByLabelText("Status"), "REFERRED");
+    await waitFor(() => expect(lastQuery().get("status")).toBe("REFERRED"));
+  });
+});

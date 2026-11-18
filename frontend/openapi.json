@@ -1463,7 +1463,8 @@
             "schema": {
               "enum": [
                 "IN_REVIEW",
-                "SUBMITTED"
+                "SUBMITTED",
+                "REFERRED"
               ],
               "type": "string",
               "default": "IN_REVIEW",
@@ -1480,7 +1481,8 @@
                   "enum": [
                     "exception",
                     "high_dti",
-                    "fast_track"
+                    "fast_track",
+                    "overdue"
                   ],
                   "type": "string"
                 },
@@ -3437,7 +3439,8 @@
               "enum": [
                 "exception",
                 "high_dti",
-                "fast_track"
+                "fast_track",
+                "overdue"
               ]
             },
             "type": "array",
@@ -3678,7 +3681,8 @@
               "enum": [
                 "exception",
                 "high_dti",
-                "fast_track"
+                "fast_track",
+                "overdue"
               ]
             },
             "type": "array",

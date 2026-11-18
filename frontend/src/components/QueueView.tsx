@@ -72,6 +72,7 @@ export function QueueView() {
             className={inputClass}
           >
             <option value="IN_REVIEW">In review</option>
+            <option value="REFERRED">Referred (waiting for a supervisor)</option>
             <option value="SUBMITTED">Submitted (documents incomplete)</option>
           </select>
         </label>
