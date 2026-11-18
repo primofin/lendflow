@@ -1,0 +1,21 @@
+# Local development database. Synthetic data only.
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: lendflow
+      POSTGRES_PASSWORD: lendflow  # local-only credential
+      POSTGRES_DB: lendflow
+    ports:
+      - "5433:5432"  # 5433 on the host to avoid clashing with a local Postgres
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./backend/docker/init-test-db.sql:/docker-entrypoint-initdb.d/init-test-db.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U lendflow"]
+      interval: 2s
+      timeout: 3s
+      retries: 15
+
+volumes:
+  pgdata:
