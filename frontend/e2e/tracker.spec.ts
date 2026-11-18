@@ -1,42 +1,16 @@
 import { expect, test } from "@playwright/test";
-import type { Page } from "@playwright/test";
 
 import {
   appAlert,
-  fillApplication,
+  jpeg,
+  missingItems,
   OFFICER,
-  registerBorrower,
   STAFF_PASSWORD,
+  submitSmallLoan,
+  uploadFirstMissing,
 } from "./helpers";
 
 const BACKEND = "http://localhost:8100";
-
-/** Synthetic files with real magic bytes (the server checks content, not names). */
-function jpeg(seed: number) {
-  return {
-    name: `scan-${seed}.jpg`,
-    mimeType: "image/jpeg",
-    buffer: Buffer.concat([Buffer.from([0xff, 0xd8, 0xff, 0xe0]), Buffer.alloc(200, seed)]),
-  };
-}
-
-async function submitSmallLoan(page: Page): Promise<string> {
-  await registerBorrower(page);
-  await page.getByRole("link", { name: "Apply", exact: true }).click();
-  await fillApplication(page, { amount: "50000000" });
-  await page.getByRole("checkbox").check();
-  await page.getByRole("button", { name: "Submit application" }).click();
-  await expect(page).toHaveURL(/\/applications\/[0-9a-f-]{36}$/);
-  return page.url().split("/").pop() as string;
-}
-
-const missingItems = (page: Page) => page.locator('li[data-state="missing"]');
-
-async function uploadFirstMissing(page: Page, seed: number) {
-  const item = missingItems(page).first();
-  await item.locator('input[type="file"]').setInputFiles(jpeg(seed));
-  await item.getByRole("button", { name: /Upload/ }).click();
-}
 
 test.describe("LF-005 / LF-007 / LF-012 borrower application page", () => {
   test("shows progress, the synthetic notice and what is still needed", async ({ page }) => {
@@ -54,6 +28,7 @@ test.describe("LF-005 / LF-007 / LF-012 borrower application page", () => {
     page,
   }) => {
     await submitSmallLoan(page);
+    await expect(missingItems(page).first()).toBeVisible(); // the checklist loads after the page
     const needed = await missingItems(page).count();
     expect(needed).toBeGreaterThan(0);
 
@@ -136,6 +111,7 @@ test.describe("LF-005 / LF-007 / LF-012 borrower application page", () => {
     playwright,
   }) => {
     const id = await submitSmallLoan(page);
+    await expect(missingItems(page).first()).toBeVisible(); // the checklist loads after the page
     const needed = await missingItems(page).count();
     for (let i = 0; i < needed; i += 1) {
       await uploadFirstMissing(page, 20 + i);

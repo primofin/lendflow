@@ -9,8 +9,9 @@ from app.api.deps import BorrowerAuth, ClientIp, CurrentAuth, DbSession, Now, re
 from app.models.user import Role
 from app.schemas.application import ApplicationOut, ApplicationSubmitIn
 from app.schemas.decision import DecisionIn, DecisionOut
+from app.schemas.review import ReviewOut
 from app.schemas.tracker import TrackerOut
-from app.services import application_service, decision_service, tracker_service
+from app.services import application_service, decision_service, review_service, tracker_service
 from app.services.auth_service import AuthContext
 
 router = APIRouter(prefix="/applications", tags=["applications"])
@@ -47,6 +48,16 @@ def get_application(
     out = ApplicationOut.model_validate(application)
     out.decision = decision_service.borrower_view(db, application)  # LF-011, BR-13
     return out
+
+
+@router.get("/{application_id}/review")
+def review_application(
+    application_id: uuid.UUID, auth: StaffAuth, db: DbSession, clock: Now, ip: ClientIp
+) -> ReviewOut:
+    """F4: the file view for staff: loan, applicant (ID masked), flags and who holds it."""
+    return review_service.review(
+        db, user=auth.user, application_id=application_id, now=clock(), ip=ip
+    )
 
 
 @router.post("/{application_id}/claim")

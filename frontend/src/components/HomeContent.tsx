@@ -42,16 +42,13 @@ export function HomeContent() {
     );
   }
 
-  const next = {
-    officer: "Your queue of applications waiting for review will appear here.",
-    supervisor:
-      "The review queue will appear here. You can manage users from the Users page.",
-  }[user.role];
   return (
     <>
       <p className="mt-3 text-slate-700">You are logged in as {user.role}.</p>
-      <p className="mt-4 rounded border border-slate-200 bg-slate-50 px-3 py-2 text-slate-700">
-        Coming next: {next}
+      <p className="mt-4">
+        <Link href="/queue" className="text-blue-800 underline">
+          Open the review queue
+        </Link>
       </p>
     </>
   );
