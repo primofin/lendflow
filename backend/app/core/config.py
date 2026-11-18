@@ -54,6 +54,11 @@ class Settings(BaseSettings):
     # LF-012: where links in notification emails point (the borrower-facing app)
     app_base_url: str = "http://localhost:3000"
 
+    # LF-008 mock CIC: the real bureau takes 3 to 7 minutes; the mock is shorter. Illustrative.
+    cic_duration_seconds: int = 20
+    cic_attempt_timeout_seconds: int = 60
+    cic_max_attempts: int = 2
+
     ai_mode: str = "mock"
 
 

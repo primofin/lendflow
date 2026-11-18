@@ -516,6 +516,30 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/applications/{application_id}/cic-check": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Cic Check
+         * @description LF-008: progress or result of the latest check; null when none was started.
+         */
+        get: operations["get_cic_check_applications__application_id__cic_check_get"];
+        put?: never;
+        /**
+         * Start Cic Check
+         * @description LF-008: start the mock credit-bureau check for a file in review.
+         */
+        post: operations["start_cic_check_applications__application_id__cic_check_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/queue": {
         parameters: {
             query?: never;
@@ -757,6 +781,37 @@ export interface components {
             doc_types: string[];
             /** Document Ids */
             document_ids: string[];
+        };
+        /** CicCheckOut */
+        CicCheckOut: {
+            /**
+             * Status
+             * @enum {string}
+             */
+            status: "running" | "done" | "timeout";
+            /** Progress Pct */
+            progress_pct: number;
+            /** Seconds Remaining */
+            seconds_remaining: number | null;
+            /** Attempt */
+            attempt: number;
+            /** Max Attempts */
+            max_attempts: number;
+            /** Message */
+            message: string;
+            /** Debt Group */
+            debt_group: number | null;
+            /** Flag */
+            flag: ("pass" | "attention" | "recommend_reject") | null;
+            /** Summary */
+            summary: string | null;
+            /**
+             * Started At
+             * Format: date-time
+             */
+            started_at: string;
+            /** Finished At */
+            finished_at: string | null;
         };
         /** ConsentOut */
         ConsentOut: {
@@ -1988,6 +2043,68 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["TrackerOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_cic_check_applications__application_id__cic_check_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                application_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CicCheckOut"] | null;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    start_cic_check_applications__application_id__cic_check_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                application_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CicCheckOut"];
                 };
             };
             /** @description Validation Error */

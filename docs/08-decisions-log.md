@@ -309,3 +309,16 @@ Short records of choices, so a reader can see *why*, not just *what*. Format: co
 - **Context:** The lending flow (apply, upload, queue, decide, audit) is complete without AI, and no AI code exists yet beyond configuration scaffolding. LF-009's own criteria already require manual reviewability.
 - **Decision:** Mark LF-006 (AI ID extraction) and LF-009 (AI review summary) **Won't (this release)**. Keep the `AI_MODE=mock` configuration, `agents/` and `evals/` placeholders so the work can resume later. Objectives O3 and O7 are not measured this release; O4 holds trivially because no AI output exists.
 - **Consequences:** Officers and borrowers still enter ID data by hand. The consent screen's "AI-assisted document processing" purpose stays in place for now; review it before any AI work resumes. D-002 and BR-15 still apply to any future AI code.
+
+## D-027: Mock CIC check (LF-008)
+- **Context:** LF-008 asks for a progress bar, an estimated time, a debt group (1 to 5) and a timeout with automatic retry. There is no real bureau and no background worker in this stack.
+- **Decision:**
+  - The check is **officer-started** (`POST /applications/{id}/cic-check`) on a file that is `IN_REVIEW`; `GET` returns progress. Progress, time remaining, completion and retry are **worked out from stored timestamps and the clock each time the check is read**, so nothing runs in the background, progress survives a restart, and tests move a fake clock. Reads lock the row so two pollers cannot advance it twice.
+  - The result is **deterministic from the application id**, never from personal data: same file, same debt group. About one file in four "times out" on its first attempt, so the timeout path is visible in the demo. Timings are settings (`CIC_DURATION_SECONDS`, `CIC_ATTEMPT_TIMEOUT_SECONDS`, `CIC_MAX_ATTEMPTS`); the e2e run shortens them.
+  - On timeout the file stays saved and the check **retries once automatically**. After the last attempt the status is `timeout` and an officer may start it again.
+  - Debt group maps to a flag by BR-08: 1 pass, 2 attention, 3 to 5 "recommend reject". The flag is **shown only**. It does not set `high_dti` or `fast_track`, does not move the application, and does not block a decision (BR-15). Starting, timing out and completing are audited (`cic.started`, `cic.timeout`, `cic.completed`).
+- **Consequences:**
+  - A check is not required before a decision, and the queue flags `high_dti` and `fast_track` are still never computed. Making the check a precondition, or computing BR-07 and BR-09, is a separate decision.
+  - Reading a check can write (state change and audit rows), which is why a `GET` locks the row.
+  - C-11 (negative history older than 5 years is ignored) is **not built**: the mock has no credit history to age out. Compliance matrix row C-11 still needs a seed-data test.
+  - The `cic.timeout` audit row is written when the stalled attempt is next read, not at the exact moment it expired.

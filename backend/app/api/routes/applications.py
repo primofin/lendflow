@@ -8,10 +8,17 @@ from fastapi import APIRouter, Depends, status
 from app.api.deps import BorrowerAuth, ClientIp, CurrentAuth, DbSession, Now, require_roles
 from app.models.user import Role
 from app.schemas.application import ApplicationOut, ApplicationSubmitIn
+from app.schemas.cic import CicCheckOut
 from app.schemas.decision import DecisionIn, DecisionOut
 from app.schemas.review import ReviewOut
 from app.schemas.tracker import TrackerOut
-from app.services import application_service, decision_service, review_service, tracker_service
+from app.services import (
+    application_service,
+    cic_service,
+    decision_service,
+    review_service,
+    tracker_service,
+)
 from app.services.auth_service import AuthContext
 
 router = APIRouter(prefix="/applications", tags=["applications"])
@@ -117,5 +124,23 @@ def resubmit_application(
     """LF-012: the borrower has added what was asked; the file returns to the officer."""
     tracker_service.resubmit(db, user=auth.user, application_id=application_id, now=clock(), ip=ip)
     return tracker_service.tracker(
+        db, user=auth.user, application_id=application_id, now=clock(), ip=ip
+    )
+
+
+@router.post("/{application_id}/cic-check", status_code=status.HTTP_201_CREATED)
+def start_cic_check(
+    application_id: uuid.UUID, auth: StaffAuth, db: DbSession, clock: Now, ip: ClientIp
+) -> CicCheckOut:
+    """LF-008: start the mock credit-bureau check for a file in review."""
+    return cic_service.start(db, user=auth.user, application_id=application_id, now=clock(), ip=ip)
+
+
+@router.get("/{application_id}/cic-check")
+def get_cic_check(
+    application_id: uuid.UUID, auth: StaffAuth, db: DbSession, clock: Now, ip: ClientIp
+) -> CicCheckOut | None:
+    """LF-008: progress or result of the latest check; null when none was started."""
+    return cic_service.get_latest(
         db, user=auth.user, application_id=application_id, now=clock(), ip=ip
     )
