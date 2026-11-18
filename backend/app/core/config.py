@@ -39,6 +39,10 @@ class Settings(BaseSettings):
     # LF-018 / BR-22: days to answer a deletion request (illustrative, docs/02; configurable)
     deletion_request_due_days: int = 30
 
+    # LF-013 CSV bulk import: size and row limits (configurable)
+    import_max_bytes: int = 2 * 1024 * 1024
+    import_max_rows: int = 500
+
     # LF-017 / BR-11: hours a supervisor may take before a file is overdue (illustrative, docs/02)
     supervisor_sla_hours: float = 24
 

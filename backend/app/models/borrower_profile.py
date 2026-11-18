@@ -25,7 +25,9 @@ class BorrowerProfile(Base):
     __tablename__ = "borrower_profiles"
 
     id: Mapped[uuid.UUID] = mapped_column(primary_key=True, default=uuid.uuid4)
-    user_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("users.id"), unique=True)
+    # LF-013: null for a profile imported from a CSV before the borrower has an account.
+    user_id: Mapped[uuid.UUID | None] = mapped_column(ForeignKey("users.id"), unique=True)
+    contact_email: Mapped[str | None] = mapped_column(String(320))  # imported profiles only
     full_name: Mapped[str | None] = mapped_column(String(200))
     date_of_birth: Mapped[date | None]
     national_id: Mapped[str | None] = mapped_column(String(12))  # 12 digits, synthetic

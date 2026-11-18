@@ -49,9 +49,14 @@ export function SiteHeader() {
           </Link>
         )}
         {(user?.role === "officer" || user?.role === "supervisor") && (
-          <Link href="/queue" className={link}>
-            Queue
-          </Link>
+          <>
+            <Link href="/queue" className={link}>
+              Queue
+            </Link>
+            <Link href="/import" className={link}>
+              Import
+            </Link>
+          </>
         )}
         {user?.role === "supervisor" && (
           <>

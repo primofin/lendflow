@@ -660,6 +660,46 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/imports/applications/template": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Download Template
+         * @description LF-013: the column names and one synthetic example row.
+         */
+        get: operations["download_template_imports_applications_template_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/imports/applications": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Import Applications
+         * @description LF-013: valid rows become DRAFT applications; the result lists skipped and invalid rows.
+         */
+        post: operations["import_applications_imports_applications_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/health": {
         parameters: {
             query?: never;
@@ -802,6 +842,11 @@ export interface components {
             application_id: string | null;
             /** Ip Address */
             ip_address: string | null;
+        };
+        /** Body_import_applications_imports_applications_post */
+        Body_import_applications_imports_applications_post: {
+            /** File */
+            file: string;
         };
         /** Body_upload_document_applications__application_id__documents_post */
         Body_upload_document_applications__application_id__documents_post: {
@@ -1133,6 +1178,48 @@ export interface components {
         HTTPValidationError: {
             /** Detail */
             detail?: components["schemas"]["ValidationError"][];
+        };
+        /** ImportResultOut */
+        ImportResultOut: {
+            /**
+             * Job Id
+             * Format: uuid
+             */
+            job_id: string;
+            /** Total Rows */
+            total_rows: number;
+            /** Imported */
+            imported: number;
+            /** Duplicates */
+            duplicates: number;
+            /** Invalid */
+            invalid: number;
+            /** Issues */
+            issues: components["schemas"]["ImportRowIssue"][];
+            /** Created */
+            created: components["schemas"]["ImportedRow"][];
+        };
+        /** ImportRowIssue */
+        ImportRowIssue: {
+            /** Row */
+            row: number;
+            /**
+             * Kind
+             * @enum {string}
+             */
+            kind: "invalid" | "duplicate";
+            /** Message */
+            message: string;
+        };
+        /** ImportedRow */
+        ImportedRow: {
+            /** Row */
+            row: number;
+            /**
+             * Application Id
+             * Format: uuid
+             */
+            application_id: string;
         };
         /**
          * IncomeType
@@ -2501,6 +2588,59 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["DeletionRequestAdminOut"][];
+                };
+            };
+        };
+    };
+    download_template_imports_applications_template_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+        };
+    };
+    import_applications_imports_applications_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "multipart/form-data": components["schemas"]["Body_import_applications_imports_applications_post"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ImportResultOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
                 };
             };
         };

@@ -28,7 +28,7 @@ def submit(
     submission leaves nothing behind (BR-21: no processing before consent).
     """
     consent_service.require_current_version(data.consent_version)
-    _check_age(data.profile.date_of_birth, data.term_months, today=now.date())
+    check_age(data.profile.date_of_birth, data.term_months, today=now.date())
 
     consent_given = consent_service.record_consent(db, user=user, now=now)
     profile = _upsert_profile(db, user, data.profile)
@@ -88,7 +88,7 @@ def _add_months(day: date, months: int) -> date:
     return date(year, month, min(day.day, 28))
 
 
-def _check_age(born: date, term_months: int, *, today: date) -> None:
+def check_age(born: date, term_months: int, *, today: date) -> None:
     """BR-03: 18 to 60 at application; maximum 65 (configurable) at maturity."""
     settings = get_settings()
     age = _years_between(born, today)

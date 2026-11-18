@@ -48,6 +48,8 @@ class Application(Base):
     assigned_officer: Mapped[uuid.UUID | None] = mapped_column(ForeignKey("users.id"))
     assigned_supervisor: Mapped[uuid.UUID | None] = mapped_column(ForeignKey("users.id"))
     # LF-017 / BR-11: when the file started waiting at a supervisor, and when the SLA was missed.
+    # LF-013: set when the application was created by a CSV import (always a DRAFT).
+    import_job_id: Mapped[uuid.UUID | None] = mapped_column(ForeignKey("import_jobs.id"))
     assigned_supervisor_at: Mapped[datetime | None]
     sla_breached_at: Mapped[datetime | None]
     submitted_at: Mapped[datetime | None]
