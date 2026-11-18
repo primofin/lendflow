@@ -9,6 +9,7 @@ from app.api.routes import (
     calculator,
     consent,
     documents,
+    queue,
     requirements,
     users,
 )
@@ -28,6 +29,7 @@ def create_app() -> FastAPI:
     app.include_router(audit.router)
     app.include_router(requirements.router)
     app.include_router(applications.router)
+    app.include_router(queue.router)
 
     @app.get("/health", tags=["ops"])
     def health() -> dict[str, str]:

@@ -143,6 +143,21 @@ Short records of choices, so a reader can see *why*, not just *what*. Format: co
   - One story per branch, merged to `main` with a merge commit after the tests pass. Choices made while building are recorded here in the same branch.
 - **Consequences:** The suite is slower than an in-memory one (about 25 seconds). Contributors need Docker for Postgres.
 
+## D-016: Officer queue (LF-010)
+- **Context:** The state machine puts files in `IN_REVIEW` once "checks done", but the checks (LF-006, LF-008) do not exist yet. The story also filters on high DTI and fast-track, which need CIC and verified-income data that is not built.
+- **Decision:**
+  - `IN_REVIEW` is added. A file moves from `SUBMITTED` to `IN_REVIEW` as soon as no mandatory document is missing, checked after each upload and after each officer waiver. The move writes a status-history row and an `application.queued` audit entry. LF-008 will add its own condition to this step.
+  - `high_dti` and `fast_track` are stored booleans, false until LF-008 and LF-009 compute them (BR-07, BR-09). The queue filters on them now so the API contract does not change later; tests set them directly.
+  - `GET /queue` is for officers and supervisors. Supervisors see every file. Officers see unassigned files and their own, so one officer does not pick up a colleague's file. Default is `IN_REVIEW` only, oldest first; `status=SUBMITTED` shows files still waiting for documents.
+  - Paged with `limit` (max 200, larger values rejected) and `offset`, with a total count; an index on `(status, submitted_at)` keeps the first page fast. An empty result carries the message "No applications waiting".
+  - Each queue read is audited (`queue.view`). Rows show the applicant's name, amount, term, flags and age, and no documents or identity numbers.
+  - Uploads stay open on `IN_REVIEW` so a borrower can still add optional documents.
+- **Consequences:**
+  - Officers are narrowed in the queue list only. `GET /applications/{id}` still lets any officer read any file, as D-014 noted; narrowing it needs a decision on what happens to exception files assigned to a supervisor, and is left for LF-011.
+  - The supervisor-assignment rule in D-013 now counts `IN_REVIEW` files as open.
+  - Nothing assigns `assigned_officer` yet, so every file appears unassigned to officers until LF-011 or a later story assigns it.
+  - No frontend exists, so the queue screen is not built; this story is API only.
+
 ## Open items
 
 | # | Question | Owner (simulated) | Needed by | Status |
