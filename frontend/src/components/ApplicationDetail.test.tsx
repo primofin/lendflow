@@ -8,6 +8,20 @@ import { ApplicationDetail } from "./ApplicationDetail";
 
 const fetchMock = vi.fn<typeof fetch>();
 
+const scheduleBody = {
+  application_id: "a1",
+  start_date: "2026-11-18",
+  annual_rate_percent: 14,
+  term_months: 2,
+  monthly_payment_vnd: 510_000,
+  total_paid_vnd: 1_020_000,
+  total_interest_vnd: 20_000,
+  instalments: [
+    { number: 1, due_date: "2026-12-18", payment_vnd: 510_000, principal_vnd: 500_000, interest_vnd: 10_000, balance_vnd: 500_000 },
+    { number: 2, due_date: "2027-01-18", payment_vnd: 510_000, principal_vnd: 500_000, interest_vnd: 10_000, balance_vnd: 0 },
+  ],
+};
+
 const notice = {
   notice: "Only synthetic, non-real documents may be used in this demo.",
   allowed_types: ["image/jpeg", "image/png", "application/pdf"],
@@ -66,6 +80,7 @@ beforeEach(() => {
     if (url.endsWith("/checklist")) return Response.json(state.checklist);
     if (url.endsWith("/documents")) return Response.json(state.documents);
     if (url.endsWith("/documents/notice")) return Response.json(notice);
+    if (url.endsWith("/schedule")) return Response.json(scheduleBody);
     return Response.json({
       id: "a1",
       status: state.status,
@@ -235,5 +250,17 @@ describe("LF-005 upload", () => {
 
     expect(await screen.findByText(/can no longer be added/)).toBeInTheDocument();
     expect(screen.queryByLabelText("File for Payslips")).not.toBeInTheDocument();
+  });
+
+  it("shows the repayment schedule only once the application is approved (LF-014)", async () => {
+    state.status = "APPROVED";
+    const approved = render(<ApplicationDetail id="a1" />);
+    expect(await screen.findByTestId("schedule-table")).toBeInTheDocument();
+    approved.unmount();
+
+    state.status = "IN_REVIEW";
+    render(<ApplicationDetail id="a1" />);
+    await screen.findByTestId("status");
+    expect(screen.queryByTestId("schedule")).not.toBeInTheDocument();
   });
 });

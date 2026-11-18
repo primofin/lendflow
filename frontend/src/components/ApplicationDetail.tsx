@@ -17,6 +17,7 @@ import { formatVnd } from "@/lib/loan/money";
 
 import { FormError } from "./FormError";
 import { buttonClass } from "./FormField";
+import { ScheduleTable } from "./ScheduleTable";
 import { TrackerPanel } from "./TrackerPanel";
 import { UploadControl } from "./UploadControl";
 
@@ -120,6 +121,8 @@ export function ApplicationDetail({ id }: { id: string }) {
       </section>
 
       <TrackerPanel tracker={tracker} />
+
+      {application.status === "APPROVED" && <ScheduleTable applicationId={id} />}
 
       {needsInfo && (
         <section

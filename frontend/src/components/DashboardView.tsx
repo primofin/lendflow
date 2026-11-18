@@ -14,6 +14,7 @@ import {
 } from "@/lib/loan/dashboardFormat";
 
 import { FormError } from "./FormError";
+import { RemindersPanel } from "./RemindersPanel";
 import { buttonClass, inputClass } from "./FormField";
 
 const PRESETS = [
@@ -139,6 +140,7 @@ export function DashboardView() {
           </section>
 
           <StatusChart data={data} asTable={asTable} onToggle={() => setAsTable((v) => !v)} />
+          <RemindersPanel />
         </div>
       )}
       {!data && !error && <p>Loading…</p>}

@@ -1442,6 +1442,55 @@
         }
       }
     },
+    "/applications/{application_id}/schedule": {
+      "get": {
+        "tags": [
+          "applications"
+        ],
+        "summary": "Get Schedule",
+        "description": "LF-014: the repayment schedule of an approved application (owner or staff).",
+        "operationId": "get_schedule_applications__application_id__schedule_get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "application_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Application Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ScheduleOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/queue": {
       "get": {
         "tags": [
@@ -1839,6 +1888,105 @@
             }
           }
         }
+      }
+    },
+    "/me/settings": {
+      "get": {
+        "tags": [
+          "reminders"
+        ],
+        "summary": "Get Settings For Me",
+        "description": "LF-014: whether repayment reminder emails are on (they are by default).",
+        "operationId": "get_settings_for_me_me_settings_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReminderSettings"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      },
+      "put": {
+        "tags": [
+          "reminders"
+        ],
+        "summary": "Update Settings",
+        "description": "LF-014: opt in or out of repayment reminders.",
+        "operationId": "update_settings_me_settings_put",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ReminderSettings"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReminderSettings"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/reminders/run": {
+      "post": {
+        "tags": [
+          "reminders"
+        ],
+        "summary": "Run Reminders",
+        "description": "LF-014: queue every reminder that is due and not yet sent (safe to run repeatedly).",
+        "operationId": "run_reminders_reminders_run_post",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReminderRunOut"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
       }
     },
     "/health": {
@@ -3340,6 +3488,45 @@
         "title": "IncomeType",
         "description": "Income types from docs/02 section 3."
       },
+      "InstalmentOut": {
+        "properties": {
+          "number": {
+            "type": "integer",
+            "title": "Number"
+          },
+          "due_date": {
+            "type": "string",
+            "format": "date",
+            "title": "Due Date"
+          },
+          "payment_vnd": {
+            "type": "integer",
+            "title": "Payment Vnd"
+          },
+          "principal_vnd": {
+            "type": "integer",
+            "title": "Principal Vnd"
+          },
+          "interest_vnd": {
+            "type": "integer",
+            "title": "Interest Vnd"
+          },
+          "balance_vnd": {
+            "type": "integer",
+            "title": "Balance Vnd"
+          }
+        },
+        "type": "object",
+        "required": [
+          "number",
+          "due_date",
+          "payment_vnd",
+          "principal_vnd",
+          "interest_vnd",
+          "balance_vnd"
+        ],
+        "title": "InstalmentOut"
+      },
       "LoanTermsOut": {
         "properties": {
           "allowed_terms_months": {
@@ -3909,6 +4096,32 @@
         ],
         "title": "RegisterIn"
       },
+      "ReminderRunOut": {
+        "properties": {
+          "queued": {
+            "type": "integer",
+            "title": "Queued"
+          }
+        },
+        "type": "object",
+        "required": [
+          "queued"
+        ],
+        "title": "ReminderRunOut"
+      },
+      "ReminderSettings": {
+        "properties": {
+          "repayment_reminders": {
+            "type": "boolean",
+            "title": "Repayment Reminders"
+          }
+        },
+        "type": "object",
+        "required": [
+          "repayment_reminders"
+        ],
+        "title": "ReminderSettings"
+      },
       "RequirementOut": {
         "properties": {
           "id": {
@@ -4073,6 +4286,59 @@
           "role"
         ],
         "title": "RoleChangeIn"
+      },
+      "ScheduleOut": {
+        "properties": {
+          "application_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Application Id"
+          },
+          "start_date": {
+            "type": "string",
+            "format": "date",
+            "title": "Start Date"
+          },
+          "annual_rate_percent": {
+            "type": "number",
+            "title": "Annual Rate Percent"
+          },
+          "term_months": {
+            "type": "integer",
+            "title": "Term Months"
+          },
+          "monthly_payment_vnd": {
+            "type": "integer",
+            "title": "Monthly Payment Vnd"
+          },
+          "total_paid_vnd": {
+            "type": "integer",
+            "title": "Total Paid Vnd"
+          },
+          "total_interest_vnd": {
+            "type": "integer",
+            "title": "Total Interest Vnd"
+          },
+          "instalments": {
+            "items": {
+              "$ref": "#/components/schemas/InstalmentOut"
+            },
+            "type": "array",
+            "title": "Instalments"
+          }
+        },
+        "type": "object",
+        "required": [
+          "application_id",
+          "start_date",
+          "annual_rate_percent",
+          "term_months",
+          "monthly_payment_vnd",
+          "total_paid_vnd",
+          "total_interest_vnd",
+          "instalments"
+        ],
+        "title": "ScheduleOut"
       },
       "StatusCount": {
         "properties": {

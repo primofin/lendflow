@@ -94,6 +94,9 @@ export type ImportIssue = Schemas["ImportRowIssue"];
 
 export type Dashboard = Schemas["DashboardOut"];
 
+export type Schedule = Schemas["ScheduleOut"];
+export type ReminderSettings = Schemas["ReminderSettings"];
+
 export type MyData = Schemas["MyDataOut"];
 export type DeletionRequest = Schemas["DeletionRequestOut"];
 export type DeletionRequestAdmin = Schemas["DeletionRequestAdminOut"];
