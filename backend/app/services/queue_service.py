@@ -15,7 +15,7 @@ from app.models.borrower_profile import BorrowerProfile
 from app.models.status_history import StatusHistory
 from app.models.user import Role, User
 from app.schemas.queue import QueueFlag, QueueItemOut, QueuePageOut, QueueParams
-from app.services import audit_service, notification_service, requirements_service
+from app.services import audit_service, notification_service, requirements_service, sla_service
 
 EMPTY_MESSAGE = "No applications waiting"
 
@@ -23,6 +23,7 @@ _FLAG_COLUMNS = {
     "exception": Application.exception_flag,
     "high_dti": Application.high_dti,
     "fast_track": Application.fast_track,
+    "overdue": Application.sla_breached_at.is_not(None),  # LF-017
 }
 
 
@@ -62,6 +63,7 @@ def list_queue(
     db: Session, *, viewer: User, params: QueueParams, now: datetime, ip: str | None
 ) -> QueuePageOut:
     """Supervisors see every file; officers see unassigned files and their own."""
+    sla_service.sweep(db, now=now)  # LF-017: mark and announce newly overdue files first
     conditions = [Application.status == params.status]
     if viewer.role != Role.SUPERVISOR:
         conditions.append(
@@ -103,6 +105,8 @@ def _item(application: Application, name: str | None, now: datetime) -> QueueIte
         flags.append("high_dti")
     if application.fast_track:
         flags.append("fast_track")
+    if sla_service.is_overdue(application):
+        flags.append("overdue")
     age = None
     if application.submitted_at is not None:
         age = round((now - application.submitted_at).total_seconds() / 3600, 2)

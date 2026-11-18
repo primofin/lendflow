@@ -1277,7 +1277,7 @@ export interface components {
             /** Term Months */
             term_months: number;
             /** Flags */
-            flags: ("exception" | "high_dti" | "fast_track")[];
+            flags: ("exception" | "high_dti" | "fast_track" | "overdue")[];
             /** Submitted At */
             submitted_at: string | null;
             /** Age Hours */
@@ -1357,7 +1357,7 @@ export interface components {
             /** Submitted At */
             submitted_at: string | null;
             /** Flags */
-            flags: ("exception" | "high_dti" | "fast_track")[];
+            flags: ("exception" | "high_dti" | "fast_track" | "overdue")[];
             /** Assigned To Me */
             assigned_to_me: boolean;
             /** Assigned */
@@ -2373,8 +2373,8 @@ export interface operations {
     get_queue_queue_get: {
         parameters: {
             query?: {
-                status?: "IN_REVIEW" | "SUBMITTED";
-                flag?: ("exception" | "high_dti" | "fast_track") | null;
+                status?: "IN_REVIEW" | "SUBMITTED" | "REFERRED";
+                flag?: ("exception" | "high_dti" | "fast_track" | "overdue") | null;
                 sort?: "oldest" | "newest";
                 limit?: number;
                 offset?: number;

@@ -60,6 +60,7 @@ def assign_supervisor(
     if supervisor_id is None:  # no active supervisor: the flag still holds, a human must pick up
         return
     application.assigned_supervisor = supervisor_id
+    application.assigned_supervisor_at = now  # LF-017: the supervisor's SLA clock starts here
     audit_service.record(
         db,
         action="application.supervisor_assigned",

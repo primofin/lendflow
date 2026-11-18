@@ -10,7 +10,7 @@ from app.models.application import Application
 from app.models.borrower_profile import BorrowerProfile
 from app.models.user import User
 from app.schemas.review import ApplicantOut, Flag, ReviewOut
-from app.services import application_service
+from app.services import application_service, sla_service
 
 
 def mask_national_id(value: str | None) -> str | None:
@@ -27,6 +27,7 @@ def _int(value: object) -> int | None:
 def review(
     db: Session, *, user: User, application_id: uuid.UUID, now: datetime, ip: str | None
 ) -> ReviewOut:
+    sla_service.sweep(db, now=now)
     application = application_service.get_for_user(
         db, user=user, application_id=application_id, now=now, ip=ip
     )
@@ -44,6 +45,8 @@ def _build(application: Application, profile: BorrowerProfile, user: User) -> Re
         flags.append("high_dti")
     if application.fast_track:
         flags.append("fast_track")
+    if sla_service.is_overdue(application):
+        flags.append("overdue")
     rate = application.annual_rate
     return ReviewOut(
         id=application.id,

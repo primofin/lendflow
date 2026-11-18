@@ -90,6 +90,13 @@ describe("F4 ReviewView", () => {
     expect(screen.getByText("150,000,000 VND")).toBeInTheDocument();
   });
 
+  it("shows an overdue flag on the file (LF-017)", async () => {
+    review = { ...reviewBody(), flags: ["overdue"] };
+    render(<ReviewView id="a1" />);
+
+    expect(await screen.findByTestId("flags")).toHaveTextContent("Overdue");
+  });
+
   it("lets an officer claim an unassigned file and reloads", async () => {
     render(<ReviewView id="a1" />);
     await userEvent.click(await screen.findByRole("button", { name: "Claim this file" }));

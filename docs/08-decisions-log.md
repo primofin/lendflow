@@ -334,3 +334,17 @@ Short records of choices, so a reader can see *why*, not just *what*. Format: co
   - **Correction is not built.** A borrower can only change their profile by submitting a new application (D-009). Add a correction story if needed.
   - There is **no "resolve" step** for supervisors yet, so requests stay open and become overdue. Actually erasing data (and deciding what the law lets us erase) is a later story; retention periods and legal bases are still open items in the compliance matrix and nothing here invents article numbers.
   - Consent withdrawal (`consents.withdrawn_at`) is also not built.
+
+## D-029: Supervisor SLA escalation (LF-017, BR-11)
+- **Context:** BR-11 gives a supervisor 24 hours. The story says a file waiting longer becomes "overdue", the admin is notified and the breach is logged. There is no background worker.
+- **Decision:**
+  - A file is **waiting at a supervisor** when it has an assigned supervisor and is `IN_REVIEW` or `REFERRED`. The clock (`assigned_supervisor_at`) starts when the supervisor is assigned, by a referral or an exception. `NEEDS_INFO` is waiting for the borrower, so it is not counted, and a resubmission **restarts the clock**.
+  - Overdue means waiting **strictly more than** `SUPERVISOR_SLA_HOURS` (default 24, illustrative, configurable).
+  - `sla_service.sweep` marks each newly late file **once** (`sla_breached_at`), writes an audit row `sla.breached` with no actor (the system), and queues an email to **every active supervisor**, the admin role in this system. Notices hold a link and a step, no names or amounts. Running it twice does nothing new.
+  - The sweep runs when the queue or a file view is read, and `uv run python -m scripts.sla_sweep` can run it on a schedule. Overdue is shown as an **Overdue** flag in the queue (filterable) and the file view. It never moves or decides a file (BR-15).
+  - The queue gained a **Referred** status so supervisors can find files waiting for them. Referred files were not listed anywhere before.
+- **Consequences:**
+  - Reads can write (marking, audit, notices), as with the CIC check (D-027). Rows are locked with `SKIP LOCKED` so two readers cannot mark the same file twice.
+  - Notices go out only when someone reads the app or the script runs; without either, an overdue file is marked late when it is next read. Marking uses the moment it is noticed, not the exact moment it became overdue.
+  - The **4-business-hour officer SLA** in BR-11 is not built, and there are no business-hours calendars: the 24 hours are plain clock hours.
+  - The backend tests move a fake clock to cover the rules. There is no browser test, because a real 24-hour wait cannot be shown in one.

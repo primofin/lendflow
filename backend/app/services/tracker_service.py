@@ -121,6 +121,10 @@ def resubmit(
         raise Conflict(f"Add these required documents before resubmitting: {labels}")
 
     application.status = ApplicationStatus.IN_REVIEW.value
+    if application.assigned_supervisor is not None:
+        # LF-017: time spent waiting for the borrower does not count against the supervisor
+        application.assigned_supervisor_at = now
+        application.sla_breached_at = None
     db.add(
         StatusHistory(
             application_id=application.id,
