@@ -277,6 +277,23 @@ Short records of choices, so a reader can see *why*, not just *what*. Format: co
   - Queue rows and the file view show personal data to staff; every read is audited.
   - Browser tests wait for the checklist to render before counting items. Two tests had counted too early and failed intermittently; they now pass on repeated runs.
 
+## D-025: Decisions, history and corrections in the file view (F4b; LF-011)
+- **Context:** The decision rules (BR-10, BR-13, BR-14, BR-15) are enforced by the API. The screen has to make a human decision deliberate and visible, without copying business limits into the browser.
+- **Decision:**
+  - The decision panel sits on `/review/[id]` under the documents, so the officer has the file in front of them. It shows the history first, then the form.
+  - Options: officers on an in-review file get approve, reject, request information and refer. Supervisors get approve, reject and request information (the server refuses a supervisor's referral). A correction offers only approve or reject.
+  - A rejection needs a reason code (the list comes from `/reason-codes`, illustrative, Q6), an explanation of at least 20 characters and conditions; a request for information needs a message of at least 20 characters. The form checks these first and sends only the fields the outcome carries; the server's messages are shown as written.
+  - **Every decision needs a confirmation** (native `<dialog>`, focus trapped while open and returned on close, Escape cancels): it says what the borrower will see and that the entry is recorded and cannot be deleted. Nothing is sent before Confirm.
+  - **Approval limit not copied:** Approve is always offered to officers. On a file at or above the limit, or with an exception, the server refuses with "Supervisor approval required" and the message is shown with the form kept. The same applies to other server refusals.
+  - **History** lists every entry oldest first with outcome, time, who ("You" or "Another staff member", since the API gives an id only), reason, explanation and conditions. A corrected entry stays visible and is marked "Corrected by a later decision"; a correction is marked "Corrects an earlier decision".
+  - **Correction** is a supervisor-only button on the latest approval or rejection. It sends the id of the entry it replaces; an entry that was already corrected offers no button.
+  - On a referred file an officer sees a note and no form. After a decision the file view reloads, so status, history and actions update.
+- **Consequences:**
+  - The client keeps its own copy of which statuses accept a decision and of the minimum explanation length; the server still decides.
+  - The history shows no staff names. Names need a backend change and are left out for now.
+  - A decision cannot be deleted or edited from the screen, only corrected by a supervisor.
+  - The AI review (LF-009) is deferred; when it arrives it will sit beside the form and cannot submit anything.
+
 ## Open items
 
 | # | Question | Owner (simulated) | Needed by | Status |

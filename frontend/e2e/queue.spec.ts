@@ -1,47 +1,20 @@
 import { expect, test } from "@playwright/test";
-import type { Browser, Page, PlaywrightWorkerArgs } from "@playwright/test";
+import type { PlaywrightWorkerArgs } from "@playwright/test";
 
 import {
   appAlert,
-  missingItems,
+  applicantName,
   OFFICER,
-  signIn,
+  openFromQueue,
+  staffPage,
   STAFF_PASSWORD,
   submitSmallLoan,
   SUPERVISOR,
   uniqueEmail,
+  uploadAll,
 } from "./helpers";
 
 const BACKEND = "http://localhost:8100";
-
-let counter = 0;
-const applicantName = (prefix: string) => `${prefix} ${Date.now()}${(counter += 1)}`;
-
-/** Upload every missing document except those whose label matches `skip`. */
-async function uploadAll(page: Page, seed: number, skip?: RegExp) {
-  // The checklist loads after the page; counting before it renders would find nothing.
-  await expect(missingItems(page).first()).toBeVisible();
-  const wanted = skip ? missingItems(page).filter({ hasNotText: skip }) : missingItems(page);
-  const count = await wanted.count();
-  for (let i = 0; i < count; i += 1) {
-    const before = await missingItems(page).count();
-    const item = wanted.first();
-    await item.locator('input[type="file"]').setInputFiles({
-      name: `s${seed + i}.jpg`,
-      mimeType: "image/jpeg",
-      buffer: Buffer.concat([Buffer.from([0xff, 0xd8, 0xff, 0xe0]), Buffer.alloc(200, seed + i)]),
-    });
-    await item.getByRole("button", { name: /Upload/ }).click();
-    await expect(missingItems(page)).toHaveCount(before - 1);
-  }
-}
-
-async function staffPage(browser: Browser, email: string, password: string): Promise<Page> {
-  const context = await browser.newContext({ baseURL: "http://localhost:3100" });
-  const page = await context.newPage();
-  await signIn(page, email, password);
-  return page;
-}
 
 async function createOfficer(playwright: PlaywrightWorkerArgs["playwright"]) {
   const api = await playwright.request.newContext({ baseURL: BACKEND });
@@ -56,15 +29,6 @@ async function createOfficer(playwright: PlaywrightWorkerArgs["playwright"]) {
   });
   expect(created.ok()).toBe(true);
   return email;
-}
-
-async function openFromQueue(page: Page, name: string, status = "IN_REVIEW") {
-  await page.getByRole("link", { name: "Queue", exact: true }).click();
-  await expect(page.getByRole("heading", { name: "Review queue" })).toBeVisible();
-  await page.getByLabel("Status").selectOption(status);
-  await page.getByLabel("Order").selectOption("newest");
-  await page.getByRole("link", { name }).click();
-  await expect(page.getByRole("heading", { name: "Review application" })).toBeVisible();
 }
 
 test.describe("LF-010 / LF-011 officer queue, file view and claim", () => {

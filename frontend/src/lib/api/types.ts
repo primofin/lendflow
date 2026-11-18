@@ -60,3 +60,22 @@ export const FLAG_LABELS: Record<string, string> = {
   high_dti: "High DTI",
   fast_track: "Fast-track",
 };
+
+export type DecisionOutcome = Schemas["DecisionIn"]["outcome"];
+export type DecisionEntry = Schemas["DecisionOut"];
+export type DecisionSubmit = Schemas["DecisionIn"];
+export type ReasonCode = Schemas["ReasonCodeOut"];
+
+export const OUTCOME_LABELS: Record<DecisionOutcome, string> = {
+  approve: "Approve",
+  reject: "Reject",
+  request_info: "Request information",
+  refer: "Refer to a supervisor",
+};
+
+export const OUTCOME_RESULT: Record<DecisionOutcome, string> = {
+  approve: "Approved",
+  reject: "Rejected",
+  request_info: "Information requested",
+  refer: "Referred to a supervisor",
+};
