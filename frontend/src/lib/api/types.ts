@@ -79,3 +79,11 @@ export const OUTCOME_RESULT: Record<DecisionOutcome, string> = {
   request_info: "Information requested",
   refer: "Referred to a supervisor",
 };
+
+export type CicCheck = Schemas["CicCheckOut"];
+
+export const CIC_FLAG_LABELS: Record<NonNullable<CicCheck["flag"]>, string> = {
+  pass: "Passes",
+  attention: "Needs attention",
+  recommend_reject: "Recommend reject (a person decides)",
+};

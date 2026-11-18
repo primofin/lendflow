@@ -25,7 +25,13 @@ export default defineConfig({
       command: `uv run python -m scripts.e2e_reset && uv run fastapi run app/main.py --port ${BACKEND_PORT}`,
       cwd: "../backend",
       url: `http://localhost:${BACKEND_PORT}/health`,
-      env: { DATABASE_URL: databaseUrl, TEST_DATABASE_URL: databaseUrl },
+      env: {
+        DATABASE_URL: databaseUrl,
+        TEST_DATABASE_URL: databaseUrl,
+        // LF-008: short mock-bureau timings so a browser test finishes in seconds
+        CIC_DURATION_SECONDS: "3",
+        CIC_ATTEMPT_TIMEOUT_SECONDS: "4",
+      },
       reuseExistingServer: false,
       timeout: 120_000,
     },

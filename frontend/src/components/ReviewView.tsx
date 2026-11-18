@@ -10,6 +10,7 @@ import { useAuth } from "@/lib/auth/AuthProvider";
 import { formatDateTime } from "@/lib/loan/fileCheck";
 import { formatVnd } from "@/lib/loan/money";
 
+import { CicPanel } from "./CicPanel";
 import { DecisionPanel } from "./DecisionPanel";
 import { FormError } from "./FormError";
 import { buttonClass } from "./FormField";
@@ -251,6 +252,8 @@ export function ReviewView({ id }: { id: string }) {
           </ul>
         )}
       </section>
+
+      {user && <CicPanel applicationId={id} status={review.status} />}
 
       {user && (
         <DecisionPanel
