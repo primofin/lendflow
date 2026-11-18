@@ -26,8 +26,13 @@ docs/                # BA documents (source of truth for requirements)
 ## Commands (create these as the project is built, then keep this list accurate)
 
 ```
-# backend
-cd backend && uv run pytest              # tests
+# database (Postgres 16 on host port 5433; creates lendflow + lendflow_test)
+docker compose up -d --wait
+
+# backend (first time: cp .env.example backend/.env and set JWT_SECRET)
+cd backend && uv sync
+cd backend && uv run pytest              # tests (uses lendflow_test, migrates it)
+cd backend && uv run python -m scripts.seed_users   # synthetic officer + supervisor
 cd backend && uv run ruff check .        # lint
 cd backend && uv run alembic upgrade head
 cd backend && uv run fastapi dev app/main.py

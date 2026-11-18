@@ -34,6 +34,19 @@ Short records of choices, so a reader can see *why*, not just *what*. Format: co
 - **Decision:** Rates and thresholds are invented and configurable; marked as such throughout.
 - **Consequences:** No claim about real market rates; stakeholder sign-off is shown as an open item.
 
+## D-008: Authentication session design (LF-001)
+- **Context:** LF-001 requires a 5-failure lockout for 15 minutes, a 30-minute idle logout, and short-lived tokens with refresh.
+- **Decision:**
+  - A locked account returns **423 "locked for 15 minutes"** so a genuine user knows to wait. This reveals that the email exists, but only after 5 failed attempts.
+  - Wrong credentials return one generic 401 and take the same time whether or not the email is registered.
+  - Each access JWT (15 minutes) is tied to a server-side session. Every authenticated request updates the session's last-activity time, so the idle timeout is exact.
+  - Each refresh token works once and is replaced when used. Presenting the token that was just replaced revokes the whole session (theft signal) and is audited.
+  - Failed logins for **unknown** emails are not audited, because doing so would mean storing the attempted email (personal data).
+- **Consequences:**
+  - One database write per authenticated request. That's acceptable at demo scale; throttle it if load grows.
+  - Two browser tabs refreshing with the same token at the same moment will log the user out. Accepted as the safer side.
+  - Only the immediately previous refresh token is checked for reuse; older tokens are simply rejected without revoking the session.
+
 ## Open items
 
 | # | Question | Owner (simulated) | Needed by |
