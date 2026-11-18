@@ -15,7 +15,7 @@ Each story traces back to a pain point or source story (column "Source") and for
 | LF-006 | AI extraction of ID fields (enter once) | LENDING-101 | Should | 5 | To do |
 | LF-007 | Required documents by income type | LENDING-103 | **Must** | 8 | Done |
 | LF-008 | Mock CIC check with progress | LENDING-102 | Should | 5 | To do |
-| LF-009 | AI review summary (advisory) | New (core AI) | **Must** | 8 | To do |
+| LF-009 | AI review summary (advisory) | New (core AI) | Should | 8 | To do |
 | LF-010 | Officer queue | Elicitation (Gap 3) | **Must** | 5 | Done |
 | LF-011 | Decision with reason code | P2 / homework | **Must** | 5 | Done |
 | LF-012 | Borrower status tracker | LOAN-02 / P2 | **Must** | 5 | Done |
@@ -30,11 +30,12 @@ Each story traces back to a pain point or source story (column "Source") and for
 
 **Status** is updated as each story is merged to `main`; decisions behind the built stories are in the [decisions log](08-decisions-log.md).
 
-**MoSCoW ratio:** Must 10/20 = 50% (below the 60% guideline), Should 5, Could 4, Won't 1.
+**MoSCoW ratio:** Must 9/20 = 45% (within the 60% ceiling), Should 6, Could 4, Won't 1.
 
 ### Reconciliation notes versus the training documents
 
 - **E-signature** appeared as *Must Have* in the MoSCoW matrix and *Medium* in the pain-point backlog. Decision: **Won't (this release)**. Real e-signature needs a certified provider and adds cost without proving new skills. The legal basis is documented in the compliance matrix instead.
+- **AI review summary** (LF-009) was *Must*. Decision: **Should**. The workflow, decisions and audit trail work without it, and every file stays reviewable by hand when the AI is unavailable (AC4), so the lending flow does not depend on it. It stays in the release if time allows and carries the evaluation and cost work. See D-019.
 - **Loan calculator** was "High" in the pain-point backlog and *Should* in the MoSCoW matrix. Decision: **Should**, but scheduled in week 3 because it is cheap and public.
 - **LENDING-101** relied on a national-ID lookup API that does not exist in this project. Rewritten as **OCR / AI extraction from an uploaded image** (LF-006).
 
@@ -91,17 +92,6 @@ Each story traces back to a pain point or source story (column "Source") and for
 - **Given** all mandatory documents are present, **when** the officer opens the checklist, **then** it shows "Complete" in green.
 
 *Dependency: rule sign-off ([OPEN] in business rules). Size 8.*
-
-### LF-009 AI review summary (advisory)
-**As a** loan officer, **I want** an AI-generated summary of the application with extracted data, missing items and risk flags, **so that** I can decide faster and with the evidence in one place.
-
-- **Given** a submitted application with documents, **when** the review runs, **then** it returns extracted fields with confidence scores, a list of missing or inconsistent items, and a short plain-language summary.
-- **Given** a field with confidence below the threshold, **when** the officer views the summary, **then** the field is highlighted for manual confirmation.
-- **Given** any AI output, **when** it is stored, **then** model name, configuration version, timestamp and cost are recorded (BR-16, BR-19).
-- **Given** the AI service fails or the monthly cap is reached, **when** the officer opens the file, **then** the application remains reviewable manually and shows "AI review unavailable".
-- **Given** any application, **when** it reaches the decision step, **then** the system requires a human decision; the AI cannot approve or reject.
-
-*Evaluation: 30-document synthetic eval set. Size 8.*
 
 ### LF-010 Officer queue
 **As a** loan officer, **I want** a prioritised list of applications waiting for me, **so that** I handle the right files first.
@@ -174,6 +164,17 @@ Each story traces back to a pain point or source story (column "Source") and for
 - **Given** the mock service times out, **when** the timeout is reached, **then** a clear message is shown, the file is saved, and the check retries automatically.
 
 *Size 5.*
+
+### LF-009 AI review summary (advisory)
+**As a** loan officer, **I want** an AI-generated summary of the application with extracted data, missing items and risk flags, **so that** I can decide faster and with the evidence in one place.
+
+- **Given** a submitted application with documents, **when** the review runs, **then** it returns extracted fields with confidence scores, a list of missing or inconsistent items, and a short plain-language summary.
+- **Given** a field with confidence below the threshold, **when** the officer views the summary, **then** the field is highlighted for manual confirmation.
+- **Given** any AI output, **when** it is stored, **then** model name, configuration version, timestamp and cost are recorded (BR-16, BR-19).
+- **Given** the AI service fails or the monthly cap is reached, **when** the officer opens the file, **then** the application remains reviewable manually and shows "AI review unavailable".
+- **Given** any application, **when** it reaches the decision step, **then** the system requires a human decision; the AI cannot approve or reject.
+
+*Evaluation: 30-document synthetic eval set. Size 8.*
 
 ### LF-013 CSV bulk import
 **As a** loan officer, **I want** to import many applications from a CSV, **so that** batch intake is quick.
