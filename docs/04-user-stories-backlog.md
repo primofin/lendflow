@@ -16,7 +16,7 @@ Each story traces back to a pain point or source story (column "Source") and for
 | LF-007 | Required documents by income type | LENDING-103 | **Must** | 8 | Done |
 | LF-008 | Mock CIC check with progress | LENDING-102 | Should | 5 | To do |
 | LF-009 | AI review summary (advisory) | New (core AI) | **Must** | 8 | To do |
-| LF-010 | Officer queue | Elicitation (Gap 3) | **Must** | 5 | To do |
+| LF-010 | Officer queue | Elicitation (Gap 3) | **Must** | 5 | Done |
 | LF-011 | Decision with reason code | P2 / homework | **Must** | 5 | To do |
 | LF-012 | Borrower status tracker | LOAN-02 / P2 | **Must** | 5 | To do |
 | LF-013 | CSV bulk import | New (file import) | Should | 5 | To do |

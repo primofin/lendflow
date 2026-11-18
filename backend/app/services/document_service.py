@@ -26,11 +26,14 @@ from app.models.application import Application, ApplicationStatus
 from app.models.document import DocType, Document
 from app.models.user import User
 from app.schemas.document import UploadNoticeOut
-from app.services import application_service, audit_service, file_storage
+from app.services import application_service, audit_service, file_storage, queue_service
 from app.services.file_sniffing import ALLOWED_MIME_TYPES, EXTENSIONS, detect_mime
 
-# NEEDS_INFO joins this set when that status exists (docs/03 state machine).
-UPLOADABLE_STATUSES = frozenset({ApplicationStatus.SUBMITTED.value})
+# NEEDS_INFO joins this set when that status exists (docs/03 state machine). IN_REVIEW stays
+# open so a borrower can still add optional documents once the file is queued (LF-010).
+UPLOADABLE_STATUSES = frozenset(
+    {ApplicationStatus.SUBMITTED.value, ApplicationStatus.IN_REVIEW.value}
+)
 
 SYNTHETIC_NOTICE = (
     "Demo only: upload synthetic or non-real documents. Do not upload real identity "
@@ -115,6 +118,7 @@ def upload(
             application_id=application.id,
             ip_address=ip,
         )
+        queue_service.promote_if_ready(db, application, actor_id=user.id, now=now, ip=ip)
         db.commit()
     except IntegrityError:  # a concurrent retry stored the same content first
         db.rollback()

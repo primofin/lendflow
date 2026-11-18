@@ -12,7 +12,7 @@ from app.models.application import Application, ApplicationStatus
 from app.models.application_exception import ApplicationException
 from app.models.requirement_rules import RequiredDocumentRule
 from app.models.user import User
-from app.services import application_service, audit_service, escalation_service
+from app.services import application_service, audit_service, escalation_service, queue_service
 from app.services.requirements_service import (
     application_income_type,
     evaluate_application,
@@ -83,6 +83,7 @@ def declare(
     )
     if get_income_rule(db, income_type).needs_supervisor_if_missing:
         escalation_service.flag_and_assign(db, application, actor_id=officer.id, now=now, ip=ip)
+    queue_service.promote_if_ready(db, application, actor_id=officer.id, now=now, ip=ip)
     db.commit()
     return application, True
 

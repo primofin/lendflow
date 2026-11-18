@@ -15,7 +15,7 @@ from app.models.requirement_rules import IncomeTypeRule
 from app.models.user import Role, User
 from app.services import audit_service
 
-OPEN_STATUSES = (ApplicationStatus.SUBMITTED.value,)
+OPEN_STATUSES = (ApplicationStatus.SUBMITTED.value, ApplicationStatus.IN_REVIEW.value)
 
 
 def pick_supervisor(db: Session) -> uuid.UUID | None:

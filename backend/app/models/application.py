@@ -5,7 +5,7 @@ import uuid
 from datetime import datetime
 from decimal import Decimal
 
-from sqlalchemy import ForeignKey, Numeric, String, Text, func
+from sqlalchemy import ForeignKey, Index, Numeric, String, Text, func
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.models.base import Base
@@ -16,10 +16,12 @@ class ApplicationStatus(enum.StrEnum):
 
     DRAFT = "DRAFT"
     SUBMITTED = "SUBMITTED"
+    IN_REVIEW = "IN_REVIEW"  # LF-010: mandatory documents in (or waived); queued for an officer
 
 
 class Application(Base):
     __tablename__ = "applications"
+    __table_args__ = (Index("ix_applications_status_submitted_at", "status", "submitted_at"),)
 
     id: Mapped[uuid.UUID] = mapped_column(primary_key=True, default=uuid.uuid4)
     borrower_profile_id: Mapped[uuid.UUID] = mapped_column(
@@ -35,6 +37,9 @@ class Application(Base):
     # applications, but this application's document requirements must not change (LF-007).
     income_type: Mapped[str | None] = mapped_column(String(20))
     exception_flag: Mapped[bool] = mapped_column(default=False)
+    # LF-010 queue flags. Always false until LF-008 (CIC) and LF-009 (AI review) compute them.
+    high_dti: Mapped[bool] = mapped_column(default=False)  # BR-07
+    fast_track: Mapped[bool] = mapped_column(default=False)  # BR-09
     assigned_officer: Mapped[uuid.UUID | None] = mapped_column(ForeignKey("users.id"))
     assigned_supervisor: Mapped[uuid.UUID | None] = mapped_column(ForeignKey("users.id"))
     submitted_at: Mapped[datetime | None]
