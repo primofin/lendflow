@@ -5,28 +5,30 @@ Each story traces back to a pain point or source story (column "Source") and for
 
 ## 1. Backlog overview (MoSCoW)
 
-| ID | Story | Source | Priority | Size |
-|---|---|---|---|---|
-| LF-001 | Register and log in | New (access) | **Must** | 5 |
-| LF-002 | Role-based access control | New (RBAC, C-12) | **Must** | 5 |
-| LF-003 | Loan calculator | LOAN-01 / P1 | Should | 3 |
-| LF-004 | Submit application with consent | New (C-08) | **Must** | 8 |
-| LF-005 | Upload documents | LOAN-05 / P5 | **Must** | 5 |
-| LF-006 | AI extraction of ID fields (enter once) | LENDING-101 | Should | 5 |
-| LF-007 | Required documents by income type | LENDING-103 | **Must** | 8 |
-| LF-008 | Mock CIC check with progress | LENDING-102 | Should | 5 |
-| LF-009 | AI review summary (advisory) | New (core AI) | **Must** | 8 |
-| LF-010 | Officer queue | Elicitation (Gap 3) | **Must** | 5 |
-| LF-011 | Decision with reason code | P2 / homework | **Must** | 5 |
-| LF-012 | Borrower status tracker | LOAN-02 / P2 | **Must** | 5 |
-| LF-013 | CSV bulk import | New (file import) | Should | 5 |
-| LF-014 | Repayment schedule and email reminders | LOAN-04 / P4 | Could | 5 |
-| LF-015 | E-signature of contract | LOAN-03 / P3 | Won't (this release) | n/a |
-| LF-016 | Audit log | New (C-01, Audit) | **Must** | 5 |
-| LF-017 | SLA escalation | US-005 | Could | 3 |
-| LF-018 | Data-subject rights | New (C-08) | Should | 5 |
-| LF-019 | Operations dashboard | Giao an (NPL report) | Could | 5 |
-| LF-020 | Biometric step simulation | New (C-07) | Could | 3 |
+| ID | Story | Source | Priority | Size | Status |
+|---|---|---|---|---|---|
+| LF-001 | Register and log in | New (access) | **Must** | 5 | Done |
+| LF-002 | Role-based access control | New (RBAC, C-12) | **Must** | 5 | Done |
+| LF-003 | Loan calculator | LOAN-01 / P1 | Should | 3 | Done |
+| LF-004 | Submit application with consent | New (C-08) | **Must** | 8 | Done |
+| LF-005 | Upload documents | LOAN-05 / P5 | **Must** | 5 | Done |
+| LF-006 | AI extraction of ID fields (enter once) | LENDING-101 | Should | 5 | To do |
+| LF-007 | Required documents by income type | LENDING-103 | **Must** | 8 | Done |
+| LF-008 | Mock CIC check with progress | LENDING-102 | Should | 5 | To do |
+| LF-009 | AI review summary (advisory) | New (core AI) | **Must** | 8 | To do |
+| LF-010 | Officer queue | Elicitation (Gap 3) | **Must** | 5 | To do |
+| LF-011 | Decision with reason code | P2 / homework | **Must** | 5 | To do |
+| LF-012 | Borrower status tracker | LOAN-02 / P2 | **Must** | 5 | To do |
+| LF-013 | CSV bulk import | New (file import) | Should | 5 | To do |
+| LF-014 | Repayment schedule and email reminders | LOAN-04 / P4 | Could | 5 | To do |
+| LF-015 | E-signature of contract | LOAN-03 / P3 | Won't (this release) | n/a | Won't |
+| LF-016 | Audit log | New (C-01, Audit) | **Must** | 5 | Done |
+| LF-017 | SLA escalation | US-005 | Could | 3 | To do |
+| LF-018 | Data-subject rights | New (C-08) | Should | 5 | To do |
+| LF-019 | Operations dashboard | Giao an (NPL report) | Could | 5 | To do |
+| LF-020 | Biometric step simulation | New (C-07) | Could | 3 | To do |
+
+**Status** is updated as each story is merged to `main`; decisions behind the built stories are in the [decisions log](08-decisions-log.md).
 
 **MoSCoW ratio:** Must 10/20 = 50% (below the 60% guideline), Should 5, Could 4, Won't 1.
 

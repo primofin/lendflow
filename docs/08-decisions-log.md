@@ -56,6 +56,10 @@ Short records of choices, so a reader can see *why*, not just *what*. Format: co
   - `annual_rate` stays empty on the application until the calculator (LF-003) supplies it.
   - Validation error responses report only the field and the reason, never the submitted values, so personal data is not echoed back.
 - **Consequences:** The frontend must keep form state until the user submits. Server-side drafts, officer-created applications and consent withdrawal (LF-018) are later stories.
+  - Age is calculated on the server's UTC date, so near midnight in Vietnam it can be off by a day.
+  - A second application overwrites the borrower's saved profile with the newly submitted details; there is no history of earlier values.
+  - Consent is recorded once per user and consent version, not per application, because the data model has no link between them.
+  - The "maximum age 65 at maturity" rule cannot trigger with the documented ranges (60 plus a 60-month term is exactly 65). It is kept as a setting and tested by lowering the limit.
 
 ## D-010: Loan calculator rounding and rates (LF-003)
 - **Context:** The worked example in `docs/02` gives a monthly payment of 4,896,311 VND and a total repaid of 117,511,465 VND. Multiplying the rounded payment by 24 gives 117,511,464, so the documented total was rounded from the exact figures.
@@ -65,6 +69,9 @@ Short records of choices, so a reader can see *why*, not just *what*. Format: co
   - Rates are the illustrative tiers of BR-05 (up to 12 months 14%, 13 to 36 months 16%, over 36 months 18%), held in settings. A 0% rate falls back to amount divided by term.
   - A submitted application stores the rate quoted for its term in `annual_rate`.
 - **Consequences:** The borrower's real instalments would sum to 1 VND less than the quoted total in the worked example, and by up to a few VND for other loans. A repayment schedule, in a later story, will decide how the last instalment is adjusted. The calculator and the application share one set of amount and term validators, so they cannot disagree.
+  - The calculator is public and has no rate limiting. The calculation is cheap, but add limiting before any deployment.
+  - `annual_rate_percent` in the response is a float for display only; every calculation and the stored rate use `Decimal`.
+  - A term above the highest configured tier (60 months) returns an error. That cannot happen while terms are limited to the allowed list.
 
 ## D-011: Document upload (LF-005)
 - **Context:** Borrowers upload identity and income documents. These are sensitive, and the demo allows synthetic files only (BR-24).
@@ -112,12 +119,36 @@ Short records of choices, so a reader can see *why*, not just *what*. Format: co
   - Supervisor editing of rules is a later story. Changing rules while files are in flight needs its own design for audit and for what happens to those files.
   - Assignment is by simple load. LF-010 (queues) and LF-017 (escalation) can replace it.
 
+## D-014: Role-based access control (LF-002), recorded retrospectively
+- **Context:** LF-002 requires that each role can do only what `docs/01` allows, enforced in the API and not just hidden in the UI. This record was written after the story was merged; it covers choices that were previously only in review notes.
+- **Decision:**
+  - Roles are enforced by a `require_roles` dependency on each route plus ownership checks in the services. Every refusal returns 403 and is audited (`access.denied`, `application.access_denied`). An unknown role is denied by default.
+  - Borrowers read only applications of their own profile. Officers and supervisors read all applications **for now**, because nothing can be assigned until LF-010, which narrows officers to assigned or queued files as the matrix says. Staff reads are audited (RBAC rule 4).
+  - A request for an application that does not exist returns 404, while one that belongs to someone else returns 403. This reveals that the id exists, which is acceptable because ids are random UUIDs and cannot be guessed.
+  - User management is supervisor-only. A supervisor cannot change their own role, so the system cannot lose its last supervisor by accident. One supervisor can still demote another.
+  - Self-registration always creates a borrower. Staff accounts are created by a supervisor or the seed script.
+  - The officer limit (BR-10) is a pure function, `check_decision_authority`: officers are refused at or above 200,000,000 VND, or when the exception flag is set, with "Supervisor approval required". The limit is a setting. It is tested but not connected to an endpoint until the decision story (LF-011).
+  - Minimal `borrower_profiles` and `applications` tables were created here so ownership could be enforced; LF-004 extended them.
+- **Consequences:**
+  - Officers can see every application until LF-010.
+  - An officer approving an application they created on a borrower's behalf above the limit (RBAC rule 2) is not handled until LF-011.
+  - Re-authentication for sensitive actions is a stretch goal and is not built.
+
+## D-015: How the code is tested and trusted
+- **Context:** The domain rules (consent, authorization, money, audit) are expensive to get wrong, and a green test suite only helps if the tests can actually fail.
+- **Decision:**
+  - Tests run against a real Postgres database (`lendflow_test`), not SQLite, so constraints, triggers, `numeric` and the migrations behave as they will in production. Each test runs in a transaction that is rolled back. Time-dependent rules use an injectable fake clock.
+  - Tests for a story are written first and run to confirm they fail for the right reason.
+  - For rules where a silent mistake is costly (access control, consent, money, uploads, audit), the rule is deliberately broken once to check that at least one test fails, then restored. A mutation that no test notices means a missing test, unless another layer makes the behaviour identical (for example a database constraint backing an application check).
+  - One story per branch, merged to `main` with a merge commit after the tests pass. Choices made while building are recorded here in the same branch.
+- **Consequences:** The suite is slower than an in-memory one (about 25 seconds). Contributors need Docker for Postgres.
+
 ## Open items
 
-| # | Question | Owner (simulated) | Needed by |
-|---|---|---|---|
-| Q1 | Acceptance rule for freelance and self-employed income | CCO + Risk | Before LF-007 build |
-| Q2 | Handling of legacy 9-digit IDs | Compliance | Before LF-006 build |
-| Q3 | Officer approval limit | CCO | Before LF-011 build |
-| Q4 | Official consolidated text for C-04 and C-10 (effective dates, current circular) | Compliance | Before publishing the matrix |
-| Q5 | Bank or consumer finance company model | Product Owner | Before release |
+| # | Question | Owner (simulated) | Needed by | Status |
+|---|---|---|---|---|
+| Q1 | Acceptance rule for freelance and self-employed income | CCO + Risk | Before release | Interim: illustrative rules seeded, changeable as data (D-013) |
+| Q2 | Handling of legacy 9-digit IDs | Compliance | Before LF-006 build | Interim: rejected with "National ID must be 12 digits" (D-009) |
+| Q3 | Officer approval limit | CCO | Before LF-011 build | Interim: 200,000,000 VND from BR-10, configurable (D-014) |
+| Q4 | Official consolidated text for C-04 and C-10 (effective dates, current circular) | Compliance | Before publishing the matrix | Open |
+| Q5 | Bank or consumer finance company model | Product Owner | Before release | Open |
