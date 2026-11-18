@@ -2,7 +2,7 @@
 
 > A digital lending application with an AI document-review agent, built as an end-to-end portfolio project: **business analysis + fullstack engineering + applied AI**, designed around Vietnamese lending and data-protection rules.
 
-**Status:** Documentation complete (v0.1). Implementation in progress, see the [roadmap](#roadmap).
+**Status:** Documentation complete (v0.1). Backend implementation in progress; per-story status is in the [backlog](docs/04-user-stories-backlog.md#1-backlog-overview-moscow), and the reasons behind each choice are in the [decisions log](docs/08-decisions-log.md). No frontend yet.
 **Live demo:** _coming soon_ · **Demo video:** _coming soon_
 
 > LendFlow is a **fictional lender** for educational purposes. It uses **synthetic data only** and is not a financial product or legal advice.
@@ -84,7 +84,29 @@ Free-tier hosting, mock AI mode by default, cheapest model that passes the evals
 
 ## Getting started
 
-_Setup instructions will be added when the code skeleton lands (week 3)._
+Backend only so far. You need [Docker](https://www.docker.com/) (for Postgres) and [uv](https://docs.astral.sh/uv/) (it installs Python 3.12 for you).
+
+```bash
+docker compose up -d --wait               # Postgres 16 on host port 5433 (lendflow + lendflow_test)
+
+cp .env.example backend/.env              # then set JWT_SECRET (32+ characters), e.g.
+python3 -c "import secrets; print(secrets.token_urlsafe(48))"
+
+cd backend
+uv sync
+uv run alembic upgrade head               # create the schema and seed the document rules
+uv run python -m scripts.seed_users       # synthetic officer and supervisor (prints a password)
+uv run fastapi dev app/main.py            # API on http://localhost:8000, docs at /docs
+
+uv run pytest                             # tests (migrates and uses lendflow_test)
+uv run ruff check .                       # lint
+```
+
+Notes:
+
+- Uploaded files are stored under `STORAGE_DIR` (default `backend/storage`, git-ignored).
+- The audit log is append-only by design, so its rows cannot be deleted. To reset the dev database, run `docker compose down -v` and start again from the top.
+- AI features are not built yet; `AI_MODE` defaults to `mock`.
 
 ## Responsible-use notes
 
