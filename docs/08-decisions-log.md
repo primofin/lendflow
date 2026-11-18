@@ -348,3 +348,19 @@ Short records of choices, so a reader can see *why*, not just *what*. Format: co
   - Notices go out only when someone reads the app or the script runs; without either, an overdue file is marked late when it is next read. Marking uses the moment it is noticed, not the exact moment it became overdue.
   - The **4-business-hour officer SLA** in BR-11 is not built, and there are no business-hours calendars: the 24 hours are plain clock hours.
   - The backend tests move a fake clock to cover the rules. There is no browser test, because a real 24-hour wait cannot be shown in one.
+
+## D-030: CSV bulk import creates inert DRAFTs (LF-013, BR-21)
+- **Context:** LF-013 says valid rows become DRAFT applications. But an application belongs to a borrower profile, a profile belonged to a user account, and BR-21 forbids processing a person's data before they consent. An officer's file cannot create that consent for the borrower.
+- **Decision:**
+  - A profile's `user_id` is now **optional**. An imported row creates a profile with **no account**, found again by its `contact_email`, and a DRAFT application created by the importing officer (`import_job_id` records which import). No user account is created, so the person can still register later with that email.
+  - **No consent is recorded**, and a DRAFT is **inert**: it is not in any queue, the CIC check refuses it (not in review), it has no documents and no code moves it forward. Staff can open it in the file view (national ID masked) and that is all.
+  - Rows are checked with the **same rules as a submitted application** (BR-01 to BR-04, purpose rule, age at maturity) and the CSV is `email, full_name, date_of_birth, national_id, address, income_type, monthly_income_vnd, existing_debt_payment_vnd, amount_vnd, term_months, purpose`. Valid rows are imported even when others fail.
+  - **Duplicates** are decided by email: already registered, already imported, or repeated in the same file (first row wins). An existing borrower's data is never changed. Re-importing the same file therefore imports nothing.
+  - Whole-file refusals: wrong or missing columns (named), over 2 MB (`IMPORT_MAX_BYTES`), more than 500 rows (`IMPORT_MAX_ROWS`), not `.csv`, not UTF-8, no data rows.
+  - Row messages name the **column and the rule, never the value**, so the error report holds no personal data. The report is built in the browser from the result, with a leading `=`, `+`, `-` or `@` neutralised for spreadsheets. Counts, file hash and the importing officer are kept in `import_jobs`; the filename and row contents are not.
+  - Officers and supervisors may import (docs/01 matrix). Each created application is audited (`application.imported`) and so is the job (`import.completed`).
+- **Consequences:**
+  - **Open compliance question:** the imported personal details are stored without the person's own consent. They are inert and synthetic here, but for a real lender Compliance must say whether storing them at all is allowed, and for how long. Nothing here invents a legal basis.
+  - **Nothing yet turns a DRAFT into a submission.** There is no invitation or "claim" step: a borrower who registers with the imported email does not see the draft, and cannot submit it. That is a later story (it would also be where consent is collected).
+  - A borrower with that email who registers later is not blocked, because no account was created. A borrower who registered first is simply skipped.
+  - Imported DRAFTs are not in the queue, so officers reach them from the import result page, and they are not covered by the data-subject export or deletion request (LF-018) until they are claimed.

@@ -33,7 +33,8 @@ erDiagram
   }
   BORROWER_PROFILES {
     uuid id PK
-    uuid user_id FK
+    uuid user_id FK "null for a profile imported from CSV before the borrower has an account (D-030)"
+    string contact_email "imported profiles only; unique while user_id is null"
     string full_name
     date date_of_birth
     string national_id "12 digits, synthetic"
@@ -182,9 +183,11 @@ erDiagram
   IMPORT_JOBS {
     uuid id PK
     uuid created_by FK
-    string file_hash
-    int rows_ok
-    int rows_failed
+    string file_sha256 "the filename is not kept"
+    int total_rows
+    int rows_imported
+    int rows_duplicate
+    int rows_invalid
     datetime created_at
   }
 ```
