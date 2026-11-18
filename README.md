@@ -1,6 +1,6 @@
 # LendFlow
 
-> A digital lending application with an AI document-review agent, built as an end-to-end portfolio project: **business analysis + fullstack engineering + applied AI**, designed around Vietnamese lending and data-protection rules.
+> A digital lending application built as an end-to-end portfolio project: **business analysis + fullstack engineering**, designed around Vietnamese lending and data-protection rules.
 
 **Status:** Documentation complete (v0.1). Backend implementation in progress; per-story status is in the [backlog](docs/04-user-stories-backlog.md#1-backlog-overview-moscow), and the reasons behind each choice are in the [decisions log](docs/08-decisions-log.md). The frontend is set up (Next.js shell, API proxy, login session handling); screens are built story by story.
 **Live demo:** _coming soon_ · **Demo video:** _coming soon_
@@ -14,11 +14,11 @@ Borrowers don't know how much they can borrow or where their application stands.
 ## The solution
 
 - A public **loan calculator** (reducing-balance annuity).
-- Online **application with explicit consent** (purposes including credit scoring and AI processing).
-- **Document upload** and **AI extraction** of ID fields, entered once and editable.
+- Online **application with explicit consent** (purposes including credit scoring; the AI-processing purpose is retained for a later release).
+- **Document upload** with type and size validation. *(AI extraction of ID fields is deferred, D-026.)*
 - **Rules by income type** (salaried, freelance, self-employed, rental) with required documents.
 - **Mock credit-bureau check** with a progress indicator.
-- **AI review summary** with confidence scores and flags. It is *advisory*: a human always decides.
+- **Human decisions only**: a loan officer or supervisor always decides. *(The advisory AI review summary is deferred, D-026.)*
 - **Officer queue**, **supervisor escalation**, **decision with reason code**, **borrower status tracker**.
 - **Audit log**, **data-subject rights**, **CSV bulk import**.
 
@@ -28,7 +28,7 @@ Borrowers don't know how much they can borrow or where their application stands.
 |---|---|
 | **Business analysis** | Brief, stakeholder analysis, business rules, As-Is/To-Be process, 20-story backlog with MoSCoW, compliance matrix, traceability |
 | **Fullstack** | Next.js + TypeScript frontend; FastAPI + PostgreSQL backend; JWT auth with RBAC; CRUD; file upload and CSV import; CI/CD |
-| **Applied AI** | Tool-using agent loop, structured output, evaluation set with accuracy numbers, cost controls, mock mode, human-in-the-loop |
+| **Applied AI** | Deferred (D-026). Design kept: mock mode, cost controls, human-in-the-loop |
 | **Product thinking** | Measurable objectives, scope cuts documented in a decisions log |
 | **Compliance awareness** | Mapping of Vietnamese lending, e-transaction and personal-data rules to features and tests |
 
@@ -54,7 +54,7 @@ flowchart LR
   F -->|REST + JWT| API[FastAPI backend]
   API --> DB[(PostgreSQL)]
   API --> FS[(File storage)]
-  API --> AG[AI agent service]
+  API -.->|deferred, D-026| AG[AI agent service]
   AG -->|tool calls| T1[extract_fields]
   AG --> T2[check_required_documents]
   AG --> T3[lookup_mock_cic]
@@ -78,8 +78,8 @@ Free-tier hosting, mock AI mode by default, cheapest model that passes the evals
 | 2 | Requirements, rules, RBAC, data model, compliance matrix |
 | 3 | Skeleton: auth and roles, deployed shell, calculator |
 | 4 | Application workflow, status tracker, officer queue |
-| 5 | Upload, CSV import, mock CIC, AI review agent |
-| 6 | Evals, tests, security pass, UAT cases |
+| 5 | Upload, CSV import, mock CIC (AI review agent deferred, D-026) |
+| 6 | Tests, security pass, UAT cases (evals deferred, D-026) |
 | 7 | README polish, demo video, case study |
 
 ## Getting started
@@ -106,7 +106,7 @@ Notes:
 
 - Uploaded files are stored under `STORAGE_DIR` (default `backend/storage`, git-ignored).
 - The audit log is append-only by design, so its rows cannot be deleted. To reset the dev database, run `docker compose down -v` and start again from the top.
-- AI features are not built yet; `AI_MODE` defaults to `mock`.
+- AI features (LF-006, LF-009) are deferred to a later release (D-026); `AI_MODE` defaults to `mock`.
 
 ## Responsible-use notes
 

@@ -74,6 +74,8 @@ cd evals && uv run python run_evals.py --mode mock
 
 ## AI and cost rules
 
+> **Deferred (D-026):** LF-006 and LF-009 are Won't this release. Do not build AI features unless asked; these rules apply if work resumes.
+
 - `AI_MODE` is `mock` by default. `live` requires an API key and enforces `AI_MONTHLY_BUDGET_USD`.
 - Log model, config version, input references, cost and timestamp for every AI call (BR-16, BR-19).
 - Prefer the cheapest model that passes `evals/`. Use prompt caching and short outputs.

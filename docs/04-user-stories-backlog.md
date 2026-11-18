@@ -12,10 +12,10 @@ Each story traces back to a pain point or source story (column "Source") and for
 | LF-003 | Loan calculator | LOAN-01 / P1 | Should | 3 | Done |
 | LF-004 | Submit application with consent | New (C-08) | **Must** | 8 | Done |
 | LF-005 | Upload documents | LOAN-05 / P5 | **Must** | 5 | Done |
-| LF-006 | AI extraction of ID fields (enter once) | LENDING-101 | Should | 5 | To do |
+| LF-006 | AI extraction of ID fields (enter once) | LENDING-101 | Won't (this release) | n/a | Deferred (D-026) |
 | LF-007 | Required documents by income type | LENDING-103 | **Must** | 8 | Done |
 | LF-008 | Mock CIC check with progress | LENDING-102 | Should | 5 | To do |
-| LF-009 | AI review summary (advisory) | New (core AI) | Should | 8 | To do |
+| LF-009 | AI review summary (advisory) | New (core AI) | Won't (this release) | n/a | Deferred (D-026) |
 | LF-010 | Officer queue | Elicitation (Gap 3) | **Must** | 5 | Done |
 | LF-011 | Decision with reason code | P2 / homework | **Must** | 5 | Done |
 | LF-012 | Borrower status tracker | LOAN-02 / P2 | **Must** | 5 | Done |
@@ -30,12 +30,12 @@ Each story traces back to a pain point or source story (column "Source") and for
 
 **Status** is updated as each story is merged to `main`; decisions behind the built stories are in the [decisions log](08-decisions-log.md).
 
-**MoSCoW ratio:** Must 9/20 = 45% (within the 60% ceiling), Should 6, Could 4, Won't 1.
+**MoSCoW ratio:** Must 9/20 = 45% (within the 60% ceiling), Should 4, Could 4, Won't 3 (LF-006 and LF-009 deferred by D-026).
 
 ### Reconciliation notes versus the training documents
 
 - **E-signature** appeared as *Must Have* in the MoSCoW matrix and *Medium* in the pain-point backlog. Decision: **Won't (this release)**. Real e-signature needs a certified provider and adds cost without proving new skills. The legal basis is documented in the compliance matrix instead.
-- **AI review summary** (LF-009) was *Must*. Decision: **Should**. The workflow, decisions and audit trail work without it, and every file stays reviewable by hand when the AI is unavailable (AC4), so the lending flow does not depend on it. It stays in the release if time allows and carries the evaluation and cost work. See D-019.
+- **AI review summary** (LF-009) was *Must*. Decision: **Should**. The workflow, decisions and audit trail work without it, and every file stays reviewable by hand when the AI is unavailable (AC4), so the lending flow does not depend on it. It was later deferred to **Won't (this release)** with LF-006; see D-026 and D-019.
 - **Loan calculator** was "High" in the pain-point backlog and *Should* in the MoSCoW matrix. Decision: **Should**, but scheduled in week 3 because it is cheap and public.
 - **LENDING-101** relied on a national-ID lookup API that does not exist in this project. Rewritten as **OCR / AI extraction from an uploaded image** (LF-006).
 
