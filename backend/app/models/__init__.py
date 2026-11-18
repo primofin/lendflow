@@ -4,6 +4,7 @@ from app.models.application import Application, ApplicationStatus
 from app.models.application_exception import ApplicationException
 from app.models.audit_log import AuditLog
 from app.models.borrower_profile import BorrowerProfile, IncomeType
+from app.models.cic_check import CicCheck
 from app.models.consent import Consent
 from app.models.decision import Decision, DecisionImmutable, ReasonCode
 from app.models.document import DocType, Document
@@ -24,6 +25,7 @@ __all__ = [
     "AuditLog",
     "AuthSession",
     "BorrowerProfile",
+    "CicCheck",
     "Consent",
     "Decision",
     "DecisionImmutable",
