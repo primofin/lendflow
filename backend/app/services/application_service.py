@@ -107,9 +107,19 @@ def _check_age(born: date, term_months: int, *, today: date) -> None:
 
 
 def get_for_user(
-    db: Session, *, user: User, application_id: uuid.UUID, now: datetime, ip: str | None
+    db: Session,
+    *,
+    user: User,
+    application_id: uuid.UUID,
+    now: datetime,
+    ip: str | None,
+    audit_read: bool = True,
 ) -> Application:
-    """Return the application if `user` may read it (RBAC rule 1, rule 4)."""
+    """Return the application if `user` may read it (RBAC rule 1, rule 4).
+
+    Denials are always audited. `audit_read=False` lets a caller that records its own, more
+    specific audit entry (e.g. document.download) skip the generic application.read one.
+    """
     application = db.get(Application, application_id)
     if application is None:
         raise NotFound("Application not found")
@@ -128,8 +138,9 @@ def get_for_user(
 
     if user.role in STAFF_ROLES:
         # LF-010 narrows officers to assigned / queued applications.
-        _audit(db, user, "application.read", application.id, now, ip)
-        db.commit()
+        if audit_read:
+            _audit(db, user, "application.read", application.id, now, ip)
+            db.commit()
         return application
 
     raise Forbidden()  # default deny for any future role

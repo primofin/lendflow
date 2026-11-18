@@ -4,6 +4,7 @@ from app.models.application import Application, ApplicationStatus
 from app.models.audit_log import AuditLog
 from app.models.borrower_profile import BorrowerProfile, IncomeType
 from app.models.consent import Consent
+from app.models.document import DocType, Document
 from app.models.session import AuthSession
 from app.models.status_history import StatusHistory
 from app.models.user import Role, User
@@ -15,6 +16,8 @@ __all__ = [
     "AuthSession",
     "BorrowerProfile",
     "Consent",
+    "DocType",
+    "Document",
     "IncomeType",
     "Role",
     "StatusHistory",

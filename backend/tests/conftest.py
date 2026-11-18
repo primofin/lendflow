@@ -3,6 +3,7 @@
 import uuid
 from collections.abc import Callable, Iterator
 from datetime import datetime, timedelta
+from pathlib import Path
 
 import pytest
 from alembic import command
@@ -93,3 +94,11 @@ def make_user(client: TestClient, db: Session) -> MakeUser:
         return user, headers
 
     return _make
+
+
+@pytest.fixture(autouse=True)
+def storage_dir(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> Path:
+    """LF-005: every test writes uploads into its own temporary folder, never the project's."""
+    folder = tmp_path / "storage"
+    monkeypatch.setattr(get_settings(), "storage_dir", folder)
+    return folder

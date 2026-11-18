@@ -2,6 +2,7 @@
 
 from decimal import Decimal
 from functools import lru_cache
+from pathlib import Path
 
 from pydantic import Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
@@ -43,6 +44,12 @@ class Settings(BaseSettings):
         (36, Decimal("0.16")),
         (60, Decimal("0.18")),
     ]
+
+    # LF-005 uploads (BR-24): JPG/PNG/PDF up to 5 MB, stored outside any web root
+    storage_dir: Path = Path("storage")
+    max_upload_bytes: int = 5 * 1024 * 1024
+    max_request_overhead_bytes: int = 64 * 1024  # multipart framing around the file
+    max_documents_per_application: int = 20
 
     ai_mode: str = "mock"
 
