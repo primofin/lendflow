@@ -33,6 +33,7 @@ docker compose up -d --wait
 cd backend && uv sync
 cd backend && uv run pytest              # tests (uses lendflow_test, migrates it)
 cd backend && uv run python -m scripts.seed_users   # synthetic officer + supervisor
+cd backend && uv run python -m scripts.sla_sweep    # mark files overdue at a supervisor and queue notices (LF-017)
 cd backend && uv run ruff check .        # lint
 cd backend && uv run alembic upgrade head
 # audit_logs and decisions are append-only (triggers), so dev rows cannot be deleted; to reset the dev database:
