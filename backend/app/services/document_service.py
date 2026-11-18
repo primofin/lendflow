@@ -112,6 +112,7 @@ def upload(
             actor_id=user.id,
             target_type="document",
             target_id=document.id,
+            application_id=application.id,
             ip_address=ip,
         )
         db.commit()
@@ -143,7 +144,7 @@ def list_documents(
         )
     )
     if user.role in STAFF_ROLES:  # RBAC rule 4: staff reads of personal data are logged
-        _audit(db, user, "document.list", "application", application.id, now, ip)
+        _audit(db, user, "document.list", "application", application.id, application.id, now, ip)
         db.commit()
     return documents
 
@@ -168,7 +169,7 @@ def get_file(
     except FileNotFoundError as exc:
         raise NotFound("The stored file is missing. Contact support.") from exc
     if user.role in STAFF_ROLES:
-        _audit(db, user, "document.download", "document", document.id, now, ip)
+        _audit(db, user, "document.download", "document", document.id, application.id, now, ip)
         db.commit()
     return document, content
 
@@ -191,6 +192,7 @@ def _audit(
     action: str,
     target_type: str,
     target_id: uuid.UUID,
+    application_id: uuid.UUID,
     now: datetime,
     ip: str | None,
 ) -> None:
@@ -201,5 +203,6 @@ def _audit(
         actor_id=user.id,
         target_type=target_type,
         target_id=target_id,
+        application_id=application_id,
         ip_address=ip,
     )

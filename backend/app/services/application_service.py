@@ -162,5 +162,6 @@ def _audit(
         actor_id=user.id,
         target_type=target_type,
         target_id=target_id,
+        application_id=target_id if target_type == "application" else None,
         ip_address=ip,
     )

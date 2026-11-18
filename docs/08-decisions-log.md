@@ -81,6 +81,21 @@ Short records of choices, so a reader can see *why*, not just *what*. Format: co
   - A file between 5 MB and about 5.06 MB gets the friendly "larger than the limit" message; anything bigger gets the shorter request-level message.
   - Deleting or replacing a document is not offered; the permission matrix gives borrowers no delete right.
 
+## D-012: Audit log is append-only and searchable (LF-016)
+- **Context:** BR-14 and LF-016 require that audit entries cannot be edited or deleted through the application, and that a supervisor can reconstruct an application's history. The app connects to Postgres as a superuser in development, so revoking privileges would not stop it.
+- **Decision:**
+  - Database triggers reject `UPDATE`, `DELETE` and `TRUNCATE` on `audit_logs` for every connection. An ORM guard fails fast with a clear error, and the only audit route is `GET`.
+  - Each entry gets a database-assigned `seq` that orders and pages the log exactly, because many entries can share a timestamp.
+  - Each entry that concerns an application, or one of its documents, carries `application_id`, so the full history is one indexed query. The migration backfills existing rows before the triggers are installed.
+  - Supervisors read all entries. Officers read only their own actions, enforced inside the query so filters cannot widen it. Borrowers are refused, and the refusal is audited.
+  - `limit` is capped at 200 and larger values are rejected rather than silently clamped, so a client paging with `offset += limit` cannot skip entries. Reading the audit log is not itself audited, because entries hold ids, actions and IP addresses, never borrower data.
+- **Consequences:**
+  - Dev rows cannot be deleted. Reset the dev database with `docker compose down -v` (see CLAUDE.md).
+  - `seq` follows insertion, not commit order, so two transactions that commit at nearly the same moment may appear in either order.
+  - The trigger stops the application but not someone who owns the table or is a superuser, since they can drop it.
+- **Before any real deployment:** run the app as a database role that can only `INSERT` and `SELECT` on `audit_logs`, separate from the role that owns the tables and runs migrations.
+- **Open for LF-018:** audit entries hold actor ids and IP addresses, which are personal data, and they can no longer be changed. Decide how data-subject deletion requests treat them (for example, anonymising the user record while the entries keep a non-identifying actor id).
+
 ## Open items
 
 | # | Question | Owner (simulated) | Needed by |

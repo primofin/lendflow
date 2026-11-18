@@ -35,6 +35,8 @@ cd backend && uv run pytest              # tests (uses lendflow_test, migrates i
 cd backend && uv run python -m scripts.seed_users   # synthetic officer + supervisor
 cd backend && uv run ruff check .        # lint
 cd backend && uv run alembic upgrade head
+# audit_logs is append-only (triggers), so dev rows cannot be deleted; to reset the dev database:
+#   docker compose down -v && docker compose up -d --wait && (cd backend && uv run alembic upgrade head)
 cd backend && uv run fastapi dev app/main.py
 
 # frontend
