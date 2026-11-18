@@ -41,6 +41,42 @@ def _whole_vnd(value: Decimal) -> int:
     return int(value.quantize(Decimal(1), rounding=ROUND_HALF_UP))
 
 
+@dataclass(frozen=True)
+class Instalment:
+    number: int
+    payment_vnd: int
+    principal_vnd: int
+    interest_vnd: int
+    balance_vnd: int  # still owed after this instalment
+
+
+def schedule(amount_vnd: int, term_months: int) -> list[Instalment]:
+    """LF-014: the month-by-month plan behind `quote`.
+
+    Interest each month is round(balance * monthly rate); the payment is the quoted monthly
+    amount. Whole-VND rounding leaves a few VND over or short by the end, so the last instalment
+    pays exactly the remaining balance plus its interest. The total can therefore differ from
+    the quote's `total_repaid_vnd` by a few VND (see the module note).
+    """
+    result = quote(amount_vnd, term_months)
+    monthly_rate = result.annual_rate / 12
+    balance = amount_vnd
+    rows: list[Instalment] = []
+    for number in range(1, term_months + 1):
+        with localcontext() as ctx:
+            ctx.prec = 50
+            interest = _whole_vnd(Decimal(balance) * monthly_rate)
+        if number == term_months:
+            principal = balance
+            payment = principal + interest
+        else:
+            principal = min(result.monthly_payment_vnd - interest, balance)
+            payment = result.monthly_payment_vnd
+        balance -= principal
+        rows.append(Instalment(number, payment, principal, interest, balance))
+    return rows
+
+
 def quote(amount_vnd: int, term_months: int) -> Quote:
     rate = rate_for_term(term_months)
     with localcontext() as ctx:

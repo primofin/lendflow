@@ -128,4 +128,16 @@ describe("SiteHeader (LF-002 AC3: only supervisors see user management)", () => 
     render(<SiteHeader />);
     expect(screen.getByRole("link", { name: "Dashboard" })).toBeInTheDocument();
   });
+
+  it("shows Settings to borrowers only (LF-014)", () => {
+    auth.status = "authenticated";
+    auth.user = user("borrower");
+    const first = render(<SiteHeader />);
+    expect(screen.getByRole("link", { name: "Settings" })).toBeInTheDocument();
+    first.unmount();
+
+    auth.user = user("officer");
+    render(<SiteHeader />);
+    expect(screen.queryByRole("link", { name: "Settings" })).not.toBeInTheDocument();
+  });
 });

@@ -540,6 +540,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/applications/{application_id}/schedule": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Schedule
+         * @description LF-014: the repayment schedule of an approved application (owner or staff).
+         */
+        get: operations["get_schedule_applications__application_id__schedule_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/queue": {
         parameters: {
             query?: never;
@@ -714,6 +734,50 @@ export interface paths {
         get: operations["get_dashboard_dashboard_get"];
         put?: never;
         post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/me/settings": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Settings For Me
+         * @description LF-014: whether repayment reminder emails are on (they are by default).
+         */
+        get: operations["get_settings_for_me_me_settings_get"];
+        /**
+         * Update Settings
+         * @description LF-014: opt in or out of repayment reminders.
+         */
+        put: operations["update_settings_me_settings_put"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/reminders/run": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Run Reminders
+         * @description LF-014: queue every reminder that is due and not yet sent (safe to run repeatedly).
+         */
+        post: operations["run_reminders_reminders_run_post"];
         delete?: never;
         options?: never;
         head?: never;
@@ -1276,6 +1340,24 @@ export interface components {
          * @enum {string}
          */
         IncomeType: "salaried" | "freelance" | "self_employed" | "rental" | "other";
+        /** InstalmentOut */
+        InstalmentOut: {
+            /** Number */
+            number: number;
+            /**
+             * Due Date
+             * Format: date
+             */
+            due_date: string;
+            /** Payment Vnd */
+            payment_vnd: number;
+            /** Principal Vnd */
+            principal_vnd: number;
+            /** Interest Vnd */
+            interest_vnd: number;
+            /** Balance Vnd */
+            balance_vnd: number;
+        };
         /** LoanTermsOut */
         LoanTermsOut: {
             /** Allowed Terms Months */
@@ -1454,6 +1536,16 @@ export interface components {
             /** Password */
             password: string;
         };
+        /** ReminderRunOut */
+        ReminderRunOut: {
+            /** Queued */
+            queued: number;
+        };
+        /** ReminderSettings */
+        ReminderSettings: {
+            /** Repayment Reminders */
+            repayment_reminders: boolean;
+        };
         /** RequirementOut */
         RequirementOut: {
             /**
@@ -1510,6 +1602,31 @@ export interface components {
         /** RoleChangeIn */
         RoleChangeIn: {
             role: components["schemas"]["Role"];
+        };
+        /** ScheduleOut */
+        ScheduleOut: {
+            /**
+             * Application Id
+             * Format: uuid
+             */
+            application_id: string;
+            /**
+             * Start Date
+             * Format: date
+             */
+            start_date: string;
+            /** Annual Rate Percent */
+            annual_rate_percent: number;
+            /** Term Months */
+            term_months: number;
+            /** Monthly Payment Vnd */
+            monthly_payment_vnd: number;
+            /** Total Paid Vnd */
+            total_paid_vnd: number;
+            /** Total Interest Vnd */
+            total_interest_vnd: number;
+            /** Instalments */
+            instalments: components["schemas"]["InstalmentOut"][];
         };
         /** StatusCount */
         StatusCount: {
@@ -2513,6 +2630,37 @@ export interface operations {
             };
         };
     };
+    get_schedule_applications__application_id__schedule_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                application_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ScheduleOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     get_queue_queue_get: {
         parameters: {
             query?: {
@@ -2729,6 +2877,79 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_settings_for_me_me_settings_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ReminderSettings"];
+                };
+            };
+        };
+    };
+    update_settings_me_settings_put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ReminderSettings"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ReminderSettings"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    run_reminders_reminders_run_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ReminderRunOut"];
                 };
             };
         };

@@ -8,6 +8,7 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from app.core.config import get_settings
+from app.core.dates import add_months
 from app.core.errors import Forbidden, NotFound, UnprocessableEntity
 from app.core.permissions import STAFF_ROLES
 from app.models.application import Application, ApplicationStatus
@@ -82,12 +83,6 @@ def _years_between(born: date, on: date) -> int:
     return on.year - born.year - ((on.month, on.day) < (born.month, born.day))
 
 
-def _add_months(day: date, months: int) -> date:
-    index = day.month - 1 + months
-    year, month = day.year + index // 12, index % 12 + 1
-    return date(year, month, min(day.day, 28))
-
-
 def check_age(born: date, term_months: int, *, today: date) -> None:
     """BR-03: 18 to 60 at application; maximum 65 (configurable) at maturity."""
     settings = get_settings()
@@ -101,7 +96,7 @@ def check_age(born: date, term_months: int, *, today: date) -> None:
             f"Applicant must be at most {settings.max_age_at_application} years old "
             "at the time of application"
         )
-    if _years_between(born, _add_months(today, term_months)) > settings.max_age_at_maturity:
+    if _years_between(born, add_months(today, term_months)) > settings.max_age_at_maturity:
         raise UnprocessableEntity(
             f"Applicant would be over {settings.max_age_at_maturity} at maturity; "
             "choose a shorter term"

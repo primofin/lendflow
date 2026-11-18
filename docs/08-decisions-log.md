@@ -378,3 +378,17 @@ Short records of choices, so a reader can see *why*, not just *what*. Format: co
   - "Decided" counts by when the first decision happened, not by when the application was created, so the status chart and the decision figures can cover different applications in the same range. The page says what each covers.
   - Reading the dashboard can mark overdue files (the SLA sweep runs first), as with the queue.
   - The figures are computed on request with plain queries, which is fine at demo scale. A large dataset would need an index on decision time or stored summaries.
+
+## D-032: Repayment schedule and reminders (LF-014)
+- **Context:** The story asks for a schedule with due date, principal and interest, reminder emails 7 and 1 days before, and an opt-out. There is no disbursement step (LF-020), no recorded payments, and no background worker.
+- **Decision:**
+  - **Schedule start:** the schedule begins on the **approval date**, and instalment *n* is due *n* months later on the same day of the month, capped at the 28th. It is shown to the owner and to staff for an `APPROVED` application only (`GET /applications/{id}/schedule`), and not for any other status.
+  - **Maths:** the same annuity as the calculator (D-010). Interest each month is `round(balance x monthly rate)` and the payment is the quoted monthly amount. Whole-VND rounding leaves a few VND, so the **last instalment pays the exact remaining balance plus its interest**. The schedule total can therefore differ from the calculator's total by a few VND, as the calculator's note anticipated. The 100,000,000 VND, 24-month example still starts at 4,896,311 VND.
+  - **Reminders:** an email 7 days and 1 day before each instalment, queued once per application, instalment and kind (`reminder_log`). A reminder is due when the instalment is still ahead and within 7 (week) or 1 (day) days, so a late run still sends the nearest one, and **nothing is sent on or after the due date**. The email names the instalment number, the date and a link, **never amounts** (C-12).
+  - **How they are sent:** no worker, as with D-029. A supervisor presses "Send due reminders now" on the dashboard, or `uv run python -m scripts.send_reminders` runs daily. Running more often is harmless.
+  - **Opt-out:** `users.repayment_reminders`, on by default, changed on a borrower's Settings page (`/me/settings`). Opted-out and inactive accounts get nothing. Changes are audited.
+- **Consequences:**
+  - **No payments are recorded**, so a reminder cannot know an instalment was already paid, and every instalment shows as upcoming. A payments story would fix both.
+  - If disbursement (LF-020) is added, the schedule should start from the disbursement date instead; the start date is one function.
+  - Reminders are real only if something runs the script or a supervisor presses the button. Nothing sends mail outside the mock outbox.
+  - An approval that is later corrected to a rejection stops having a schedule, because only `APPROVED` files have one; reminders already queued stay in the outbox.
