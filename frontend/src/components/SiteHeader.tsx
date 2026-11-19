@@ -74,7 +74,7 @@ export function SiteHeader() {
         )}
         {user && (
           <div className="flex items-center gap-3">
-            <span className="hidden text-sm text-slate-600 xl:inline">
+            <span className="max-w-40 truncate text-sm text-slate-600 2xl:max-w-none" title={`${user.email} (${user.role})`}>
               {user.email} ({user.role})
             </span>
             <button
