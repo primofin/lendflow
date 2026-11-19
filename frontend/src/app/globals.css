@@ -10,6 +10,10 @@
   --color-blue-800: #4338ca;
   --color-blue-900: #3730a3;
   --color-brand-ink: #0f1235;
+  --color-brand: #4338ca;
+  --color-brand-hover: #3730a3;
+  --color-surface: #ffffff;
+  --color-line: #e6e8f2;
   --font-sans: var(--font-geist-sans), system-ui, sans-serif;
   --shadow-card: 0 1px 2px rgb(15 18 53 / 0.05), 0 4px 16px rgb(15 18 53 / 0.06);
 }
@@ -17,6 +21,60 @@
 :root {
   --background: #f6f7fb;
   --foreground: #0f1235;
+}
+
+/* Dark theme: the same Tailwind classes, re-pointed. The slate scale is inverted, tinted
+   backgrounds become deep tints, and light-on-dark text colours replace the dark-on-light ones. */
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --background: #0b0d24;
+  --foreground: #e8eaf8;
+  --shadow-card: 0 1px 2px rgb(0 0 0 / 0.4), 0 4px 16px rgb(0 0 0 / 0.3);
+
+  --color-surface: #15183a;
+  --color-line: #262b57;
+  --color-brand-ink: #1c2050;
+
+  --color-slate-50: #171b3f;
+  --color-slate-100: #1d2247;
+  --color-slate-200: #2a2f5c;
+  --color-slate-300: #3b4175;
+  --color-slate-400: #626aa3;
+  --color-slate-500: #9199c9;
+  --color-slate-600: #aab0d8;
+  --color-slate-700: #c3c8e6;
+  --color-slate-800: #dde0f3;
+  --color-slate-900: #eef0fb;
+
+  --color-blue-50: #1d2252;
+  --color-blue-100: #272d6b;
+  --color-blue-200: #3a4290;
+  --color-blue-700: #818cf8;
+  --color-blue-800: #a5b4fc;
+  --color-blue-900: #c7d2fe;
+
+  --color-amber-50: #2f2509;
+  --color-amber-100: #3d300c;
+  --color-amber-300: #7a5c14;
+  --color-amber-500: #b7791f;
+  --color-amber-900: #fde68a;
+  --color-emerald-50: #0e2c22;
+  --color-emerald-100: #11392b;
+  --color-emerald-200: #1f6b4f;
+  --color-emerald-800: #6ee7b7;
+  --color-green-50: #0e2c22;
+  --color-green-100: #11392b;
+  --color-green-300: #2f855a;
+  --color-green-800: #86efac;
+  --color-green-900: #bbf7d0;
+  --color-red-50: #371521;
+  --color-red-300: #9b2c3f;
+  --color-red-700: #fca5a5;
+  --color-red-900: #fecaca;
+  --color-rose-100: #451a28;
+  --color-rose-800: #fda4af;
+  --color-violet-100: #2f2560;
+  --color-violet-800: #c4b5fd;
 }
 
 body {
@@ -32,8 +90,8 @@ a.underline {
 
 /* Every labelled section on a page is a card. Sections that bring their own border are left alone. */
 main section[aria-labelledby]:not([class*="border"]) {
-  background: #fff;
-  border: 1px solid #e6e8f2;
+  background: var(--color-surface);
+  border: 1px solid var(--color-line);
   border-radius: 1rem;
   padding: 1.25rem;
   box-shadow: var(--shadow-card);
@@ -44,11 +102,11 @@ main section[aria-labelledby] section[aria-labelledby] {
 
 input[type="checkbox"],
 input[type="radio"] {
-  accent-color: #4338ca;
+  accent-color: var(--color-brand);
 }
 
 input[type="file"] {
-  color: #5b5f86;
+  color: var(--color-slate-500);
   font-size: 0.875rem;
 }
 input[type="file"]::file-selector-button {
@@ -56,17 +114,17 @@ input[type="file"]::file-selector-button {
   cursor: pointer;
   border: 0;
   border-radius: 0.75rem;
-  background: #e0e7ff;
+  background: var(--color-blue-100);
   padding: 0.5rem 1rem;
   font-weight: 600;
-  color: #3730a3;
+  color: var(--color-blue-800);
 }
 input[type="file"]::file-selector-button:hover {
-  background: #c7d2fe;
+  background: var(--color-blue-200);
 }
 
 main table th {
-  color: #5b5f86;
+  color: var(--color-slate-500);
   font-weight: 600;
 }
 
@@ -84,7 +142,7 @@ main table th {
   --viz-bar: #2a78d6;
   --viz-bar-hover: #1f5fae;
 }
-@media (prefers-color-scheme: dark) {
+:root[data-theme="dark"] {
   .viz-root {
     --viz-surface: #1a1a19;
     --viz-text: #f0efec;

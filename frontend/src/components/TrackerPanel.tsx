@@ -28,7 +28,7 @@ export function TrackerPanel({ tracker }: { tracker: Tracker }) {
               <span
                 aria-hidden="true"
                 className={`mb-2 grid h-6 w-6 place-items-center rounded-full text-xs font-bold ${
-                  done ? "bg-emerald-600 text-white" : current ? "bg-blue-700 text-white" : "bg-slate-200 text-slate-600"
+                  done ? "bg-emerald-600 text-white" : current ? "bg-brand text-white" : "bg-slate-200 text-slate-600"
                 }`}
               >
                 {done ? "✓" : index + 1}

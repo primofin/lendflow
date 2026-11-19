@@ -35,7 +35,7 @@ export function MyApplications() {
         </h2>
       </div>
       {applications.length === 0 ? (
-        <p className="mt-3 rounded-2xl bg-white p-6 shadow-card ring-1 ring-slate-200/70">
+        <p className="mt-3 rounded-2xl bg-surface p-6 shadow-card ring-1 ring-slate-200/70">
           You have no applications yet.{" "}
           <Link href="/apply" className="text-blue-800 underline">
             Apply for a loan
@@ -44,7 +44,7 @@ export function MyApplications() {
       ) : (
         <ul className="mt-3 grid gap-3 sm:grid-cols-2">
           {applications.map((app) => (
-            <li key={app.id} className="rounded-2xl bg-white p-5 shadow-card ring-1 ring-slate-200/70">
+            <li key={app.id} className="rounded-2xl bg-surface p-5 shadow-card ring-1 ring-slate-200/70">
               <div className="flex items-start justify-between gap-3">
                 <Link href={`/applications/${app.id}`} className="text-xl font-bold tracking-tight text-blue-900">
                   {formatVnd(app.amount_vnd)} over {app.term_months} months

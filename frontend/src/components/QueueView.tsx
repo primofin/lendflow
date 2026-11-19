@@ -63,7 +63,7 @@ export function QueueView() {
 
   return (
     <div className="flex flex-col gap-4">
-      <div className="flex flex-wrap items-end gap-4 rounded-2xl bg-white p-4 shadow-card ring-1 ring-slate-200/70">
+      <div className="flex flex-wrap items-end gap-4 rounded-2xl bg-surface p-4 shadow-card ring-1 ring-slate-200/70">
         <label className="flex flex-col gap-1 text-sm font-medium">
           Status
           <select
@@ -112,7 +112,7 @@ export function QueueView() {
         <div className="flex flex-col gap-2" aria-busy="true">
           <p className="sr-only">Loading…</p>
           {[0, 1, 2].map((n) => (
-            <div key={n} className="h-12 animate-pulse rounded-xl bg-white/70" aria-hidden="true" />
+            <div key={n} className="h-12 animate-pulse rounded-xl bg-surface/70" aria-hidden="true" />
           ))}
         </div>
       )}
@@ -120,7 +120,7 @@ export function QueueView() {
       {page && page.items.length === 0 && (
         <p
           data-testid="queue-empty"
-          className="rounded-2xl bg-white p-8 text-center text-slate-600 shadow-card ring-1 ring-slate-200/70"
+          className="rounded-2xl bg-surface p-8 text-center text-slate-600 shadow-card ring-1 ring-slate-200/70"
         >
           {page.message ?? "No applications waiting"}
         </p>
@@ -128,7 +128,7 @@ export function QueueView() {
 
       {page && page.items.length > 0 && (
         <>
-          <div className="overflow-x-auto rounded-2xl bg-white shadow-card ring-1 ring-slate-200/70">
+          <div className="overflow-x-auto rounded-2xl bg-surface shadow-card ring-1 ring-slate-200/70">
           <table className="w-full text-left">
             <caption className="sr-only">Applications waiting for review</caption>
             <thead>

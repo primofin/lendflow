@@ -79,7 +79,7 @@ export function ImportView() {
         </button>
       </section>
 
-      <form onSubmit={submit} className="flex flex-col items-start gap-3 rounded-2xl bg-white p-6 shadow-card ring-1 ring-slate-200/70" aria-label="Import a CSV file">
+      <form onSubmit={submit} className="flex flex-col items-start gap-3 rounded-2xl bg-surface p-6 shadow-card ring-1 ring-slate-200/70" aria-label="Import a CSV file">
         <label className="flex flex-col gap-1 text-sm font-medium">
           CSV file
           <input ref={input} type="file" accept=".csv,text/csv" className={inputClass} />
