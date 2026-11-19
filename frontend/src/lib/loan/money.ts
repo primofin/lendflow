@@ -10,3 +10,9 @@ export function parseVnd(text: string): number | null {
 export function formatVnd(value: number): string {
   return `${new Intl.NumberFormat("en-US").format(value)} VND`;
 }
+
+/** "50000000" becomes "50,000,000" as the user types; anything that is not a digit is dropped. */
+export function groupDigits(text: string): string {
+  const digits = text.replace(/\D/g, "").slice(0, 15);
+  return digits.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+}

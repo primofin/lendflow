@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { Suspense } from "react";
 import { Geist } from "next/font/google";
 
 import { SiteHeader } from "@/components/SiteHeader";
@@ -26,7 +27,9 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
           personal information.
         </p>
         <AuthProvider>
-          <SiteHeader />
+          <Suspense fallback={<div className="h-[3.75rem] border-b border-slate-200 bg-white" />}>
+            <SiteHeader />
+          </Suspense>
           {children}
         </AuthProvider>
       </body>

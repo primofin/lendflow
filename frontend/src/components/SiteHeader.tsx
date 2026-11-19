@@ -77,6 +77,12 @@ export function SiteHeader() {
             <span className="max-w-40 truncate text-sm text-slate-600 2xl:max-w-none" title={`${user.email} (${user.role})`}>
               {user.email} ({user.role})
             </span>
+            <span
+              aria-hidden="true"
+              className="rounded-full bg-blue-50 px-2.5 py-0.5 text-xs font-semibold capitalize text-blue-800"
+            >
+              {user.role}
+            </span>
             <button
               type="button"
               onClick={leave}
