@@ -52,23 +52,29 @@ beforeEach(() => {
   setAccessToken("tok");
 });
 
+/** Fills steps 1 and 2 and stops on the consent step. */
 async function fill(small = true) {
   const u = userEvent.setup();
-  await screen.findByRole("group", { name: "Consent" });
+  await screen.findByLabelText(/Loan amount/);
   await u.type(screen.getByLabelText(/Loan amount/), small ? "50000000" : "150000000");
   await u.selectOptions(screen.getByLabelText("Term"), "12");
+  if (!small) await u.type(screen.getByLabelText(/Purpose of the loan/), "Buy a motorbike");
+  await u.click(screen.getByRole("button", { name: "Next" }));
   await u.type(screen.getByLabelText("Full name"), "Nguyen Test");
   await u.type(screen.getByLabelText("Date of birth"), "1990-05-01");
   await u.type(screen.getByLabelText("National ID"), "012345678901");
   await u.type(screen.getByLabelText("Address"), "1 Example Street");
   await u.selectOptions(screen.getByLabelText("Income type"), "salaried");
   await u.type(screen.getByLabelText(/Monthly income/), "20000000");
+  await u.click(screen.getByRole("button", { name: "Next" }));
+  await screen.findByRole("group", { name: "Consent" });
   return u;
 }
 
 describe("LF-004 ApplyForm", () => {
   it("lists every consent purpose and the retention period", async () => {
     render(<ApplyForm />);
+    await fill();
 
     expect(await screen.findByText("Credit scoring")).toBeInTheDocument();
     expect(screen.getByText("AI-assisted document processing")).toBeInTheDocument();
@@ -105,18 +111,74 @@ describe("LF-004 ApplyForm", () => {
       consent_version: "v1",
     });
     expect(body.profile.national_id).toBe("012345678901");
-    expect(screen.getByLabelText("National ID")).toHaveValue(""); // personal data cleared
+    expect(screen.queryByText("Nguyen Test")).not.toBeInTheDocument(); // personal data cleared
   });
 
-  it("requires a purpose from the configured amount and sends nothing", async () => {
+  it("requires a purpose from the configured amount before leaving step 1", async () => {
     render(<ApplyForm />);
-    const u = await fill(false);
+    const u = userEvent.setup();
+    await u.type(await screen.findByLabelText(/Loan amount/), "150000000");
+    await u.selectOptions(screen.getByLabelText("Term"), "12");
+
+    await u.click(screen.getByRole("button", { name: "Next" }));
+
+    expect(await screen.findByText(/A purpose is required for loans of 100,000,000 VND/)).toBeInTheDocument();
+    expect(screen.queryByLabelText("Full name")).not.toBeInTheDocument();
+    expect(submitCalls()).toHaveLength(0);
+  });
+
+  it("formats money fields with thousands separators as you type, and sends plain numbers", async () => {
+    render(<ApplyForm />);
+    const u = await fill();
+    expect(screen.getByText("50,000,000 VND")).toBeInTheDocument(); // summary of the typed amount
     await u.click(screen.getByRole("checkbox"));
 
     await u.click(screen.getByRole("button", { name: "Submit application" }));
 
-    expect(await screen.findByText(/A purpose is required for loans of 100,000,000 VND/)).toBeInTheDocument();
-    expect(submitCalls()).toHaveLength(0);
+    await waitFor(() => expect(push).toHaveBeenCalled());
+    expect(JSON.parse(String(submitCalls()[0][1]?.body)).amount_vnd).toBe(50_000_000);
+  });
+
+  it("types an amount with separators", async () => {
+    render(<ApplyForm />);
+    const u = userEvent.setup();
+    const amount = await screen.findByLabelText(/Loan amount/);
+
+    await u.type(amount, "1234567");
+
+    expect(amount).toHaveValue("1,234,567");
+  });
+
+  it("Next shows the step's problems and stays on the step; Back keeps what was typed", async () => {
+    render(<ApplyForm />);
+    const u = userEvent.setup();
+    await screen.findByLabelText(/Loan amount/);
+    await u.click(screen.getByRole("button", { name: "Next" }));
+    expect(await screen.findByText(/Enter the amount as a number/)).toBeInTheDocument();
+    expect(screen.getByText("Choose one of the available terms.")).toBeInTheDocument();
+
+    await u.type(screen.getByLabelText(/Loan amount/), "50000000");
+    await u.selectOptions(screen.getByLabelText("Term"), "12");
+    await u.click(screen.getByRole("button", { name: "Next" }));
+    await u.type(screen.getByLabelText("Full name"), "Nguyen Test");
+    await u.click(screen.getByRole("button", { name: "Back" }));
+
+    expect(screen.getByLabelText(/Loan amount/)).toHaveValue("50,000,000");
+    await u.click(screen.getByRole("button", { name: "Next" }));
+    expect(screen.getByLabelText("Full name")).toHaveValue("Nguyen Test");
+  });
+
+  it("Next on step 2 will not move on while its fields are invalid", async () => {
+    render(<ApplyForm />);
+    const u = userEvent.setup();
+    await u.type(await screen.findByLabelText(/Loan amount/), "50000000");
+    await u.selectOptions(screen.getByLabelText("Term"), "12");
+    await u.click(screen.getByRole("button", { name: "Next" }));
+
+    await u.click(screen.getByRole("button", { name: "Next" }));
+
+    expect(await screen.findByText("Enter your full name.")).toBeInTheDocument();
+    expect(screen.queryByRole("group", { name: "Consent" })).not.toBeInTheDocument();
   });
 
   it("shows the server's field message under the field", async () => {
@@ -159,16 +221,16 @@ describe("LF-004 ApplyForm", () => {
     await u.click(screen.getByRole("button", { name: "Submit application" }));
 
     expect(await screen.findByText("Applicant must be at least 18 years old")).toBeInTheDocument();
-    expect(screen.getByLabelText("Full name")).toHaveValue("Nguyen Test");
+    expect(screen.getByText("Nguyen Test")).toBeInTheDocument(); // still in the summary
   });
 
   it("pre-fills amount and term from the calculator link, ignoring anything else", async () => {
     search = "amount=75000000&term=24&full_name=Evil";
     render(<ApplyForm />);
 
-    await screen.findByRole("group", { name: "Consent" });
-    expect(screen.getByLabelText(/Loan amount/)).toHaveValue("75000000");
+    expect(await screen.findByLabelText(/Loan amount/)).toHaveValue("75,000,000");
     expect(screen.getByLabelText("Term")).toHaveValue("24");
+    await userEvent.click(screen.getByRole("button", { name: "Next" }));
     expect(screen.getByLabelText("Full name")).toHaveValue("");
   });
 });

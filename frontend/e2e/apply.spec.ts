@@ -1,5 +1,5 @@
 import { expect, test } from "@playwright/test";
-import { appAlert, fillApplication, registerBorrower } from "./helpers";
+import { appAlert, fillApplication, fillLoanStep, registerBorrower } from "./helpers";
 
 test.describe("LF-003 loan calculator (public)", () => {
   test("shows the worked example without logging in", async ({ page }) => {
@@ -34,11 +34,10 @@ test.describe("LF-004 application with consent", () => {
   test("a borrower applies and sees the submitted application", async ({ page }) => {
     await registerBorrower(page);
     await page.getByRole("link", { name: "Apply", exact: true }).click();
+
+    await fillApplication(page, { amount: "150000000", term: "24", purpose: "Expand my shop" });
     await expect(page.getByText("Credit scoring")).toBeVisible();
     await expect(page.getByText(/Retention period/)).toBeVisible();
-
-    await fillApplication(page, { amount: "150000000", term: "24" });
-    await page.getByLabel("Purpose of the loan").fill("Expand my shop");
     await page.getByRole("checkbox").check();
     await page.getByRole("button", { name: "Submit application" }).click();
 
@@ -70,10 +69,9 @@ test.describe("LF-004 application with consent", () => {
     page.on("request", (r) => {
       if (r.method() === "POST" && r.url().endsWith("/api/applications")) posted = true;
     });
-    await fillApplication(page, { amount: "600000000" });
-    await page.getByRole("checkbox").check();
+    await fillLoanStep(page, { amount: "600000000" });
 
-    await page.getByRole("button", { name: "Submit application" }).click();
+    await page.getByRole("button", { name: "Next", exact: true }).click();
 
     await expect(page.getByText(/must be between 1,000,000 VND and 500,000,000 VND/)).toBeVisible();
     expect(posted).toBe(false);
@@ -97,20 +95,20 @@ test.describe("LF-004 application with consent", () => {
 
     await page.goto("/apply?amount=75000000&term=36");
 
-    await expect(page.getByLabel(/Loan amount/)).toHaveValue("75000000");
+    await expect(page.getByLabel(/Loan amount/)).toHaveValue("75,000,000");
     await expect(page.getByLabel("Term")).toHaveValue("36");
   });
 
   test("the server's age rule is shown and the data is kept", async ({ page }) => {
     await registerBorrower(page);
     await page.getByRole("link", { name: "Apply", exact: true }).click();
-    await fillApplication(page, { amount: "50000000" });
-    await page.getByLabel("Date of birth").fill("2015-01-01");
+    await fillApplication(page, { amount: "50000000", dateOfBirth: "2015-01-01" });
     await page.getByRole("checkbox").check();
 
     await page.getByRole("button", { name: "Submit application" }).click();
 
     await expect(appAlert(page)).toContainText(/at least 18/);
+    await page.getByRole("button", { name: "Back" }).click();
     await expect(page.getByLabel("Full name")).toHaveValue("Nguyen Test");
   });
 });

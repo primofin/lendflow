@@ -66,6 +66,17 @@ export async function registerBorrower(page: Page): Promise<void> {
   await expect(page.getByText(/\(borrower\)/)).toBeVisible();
 }
 
+/** Step 1 of the application form (loan details). Does not press Next. */
+export async function fillLoanStep(
+  page: Page,
+  { amount, term = "12", purpose }: { amount: string; term?: string; purpose?: string },
+): Promise<void> {
+  await page.getByLabel(/Loan amount/).fill(amount);
+  await page.getByLabel("Term").selectOption(term);
+  if (purpose) await page.getByLabel(/Purpose of the loan/).fill(purpose);
+}
+
+/** Fills the whole form and stops on the last step (review and consent). */
 export async function fillApplication(
   page: Page,
   {
@@ -74,17 +85,26 @@ export async function fillApplication(
     name = "Nguyen Test",
     incomeType = "salaried",
     purpose,
-  }: { amount: string; term?: string; name?: string; incomeType?: string; purpose?: string },
+    dateOfBirth = "1990-05-01",
+  }: {
+    amount: string;
+    term?: string;
+    name?: string;
+    incomeType?: string;
+    purpose?: string;
+    dateOfBirth?: string;
+  },
 ): Promise<void> {
-  await page.getByLabel(/Loan amount/).fill(amount);
-  await page.getByLabel("Term").selectOption(term);
+  await fillLoanStep(page, { amount, term, purpose });
+  await page.getByRole("button", { name: "Next", exact: true }).click();
   await page.getByLabel("Full name").fill(name);
-  await page.getByLabel("Date of birth").fill("1990-05-01");
+  await page.getByLabel("Date of birth").fill(dateOfBirth);
   await page.getByLabel("National ID").fill("012345678901");
   await page.getByLabel("Address").fill("1 Example Street, Hanoi");
   await page.getByLabel("Income type").selectOption(incomeType);
   await page.getByLabel(/Monthly income/).fill("30000000");
-  if (purpose) await page.getByLabel(/Purpose of the loan/).fill(purpose);
+  await page.getByRole("button", { name: "Next", exact: true }).click();
+  await expect(page.getByRole("group", { name: "Consent" })).toBeVisible();
 }
 
 /** Synthetic files with real magic bytes (the server checks content, not names). */
