@@ -2,7 +2,7 @@
 
 > A digital lending application built as an end-to-end portfolio project: **business analysis + fullstack engineering**, designed around Vietnamese lending and data-protection rules.
 
-**Status:** Documentation complete (v0.1). Backend implementation in progress; per-story status is in the [backlog](docs/04-user-stories-backlog.md#1-backlog-overview-moscow), and the reasons behind each choice are in the [decisions log](docs/08-decisions-log.md). The frontend is set up (Next.js shell, API proxy, login session handling); screens are built story by story.
+**Status:** All 20 backlog stories are Done, Won't or Deferred; the AI features (LF-006, LF-009) are deferred (D-026) and e-signature (LF-015) is out of this release. Per-story status is in the [backlog](docs/04-user-stories-backlog.md#1-backlog-overview-moscow), and the reasons behind each choice are in the [decisions log](docs/08-decisions-log.md).
 **Live demo:** _coming soon_ · **Demo video:** _coming soon_
 
 > LendFlow is a **fictional lender** for educational purposes. It uses **synthetic data only** and is not a financial product or legal advice.
@@ -13,14 +13,29 @@ Borrowers don't know how much they can borrow or where their application stands.
 
 ## The solution
 
-- A public **loan calculator** (reducing-balance annuity).
-- Online **application with explicit consent** (purposes including credit scoring; the AI-processing purpose is retained for a later release).
-- **Document upload** with type and size validation. *(AI extraction of ID fields is deferred, D-026.)*
-- **Rules by income type** (salaried, freelance, self-employed, rental) with required documents.
-- **Mock credit-bureau check** with a progress indicator.
-- **Human decisions only**: a loan officer or supervisor always decides. *(The advisory AI review summary is deferred, D-026.)*
-- **Officer queue**, **supervisor escalation**, **decision with reason code**, **borrower status tracker**.
-- **Audit log**, **data-subject rights**, **CSV bulk import**.
+**Borrower**
+- Public **loan calculator** (reducing-balance annuity): 100,000,000 VND over 24 months at 16% is 4,896,311 VND a month.
+- Online **application with explicit consent** (the AI-processing purpose is retained for a later release).
+- **Document upload** (JPG, PNG, PDF, up to 5 MB) with **required documents by income type** (salaried, freelance, self-employed, rental). *(AI extraction of ID fields is deferred, D-026.)*
+- **Status tracker** with the reason and conditions for a rejection.
+- **Repayment schedule** once approved, and **reminder emails** 7 and 1 days before each due date, with an opt-out.
+- **My data**: view, export and request deletion (data-subject rights).
+
+**Loan officer**
+- **Queue** of files in review, **mock credit-bureau check** with a progress indicator and retry.
+- **Decisions**: approve, reject, request information or refer. A rejection needs a reason code and a plain-language explanation.
+- **CSV bulk import** of applications as drafts.
+- **Disbursement** of approved loans. Above 10M VND a **simulated face match** is required (single-use, 5 minutes); a failed match blocks the payout and is logged.
+
+**Supervisor**
+- Decides referred files, approves loans at or above the officer limit and corrects earlier decisions.
+- **SLA escalation** marks files overdue after 24 hours; **operations dashboard** (status counts, decision time, approval rate); **audit log**; user administration.
+
+**Across the app**
+- **Human decisions only**: the AI never approves or rejects, and no code path does either automatically. *(The advisory AI review summary is deferred, D-026.)*
+- **Role-based access** enforced in the API. Decisions, audit rows and disbursements are **append-only** (database triggers).
+
+**Not built yet:** recorded payments, a borrower claim flow for imported drafts, and the `high_dti` / `fast_track` queue flags.
 
 ## What this project demonstrates
 
@@ -46,7 +61,7 @@ Borrowers don't know how much they can borrow or where their application stands.
 | [07 Glossary](docs/07-glossary.md) | Bilingual (EN/VI) terms |
 | [08 Decisions log](docs/08-decisions-log.md) | Why key choices were made; open questions |
 
-## Architecture (planned)
+## Architecture
 
 ```mermaid
 flowchart LR
@@ -84,7 +99,7 @@ Free-tier hosting, mock AI mode by default, cheapest model that passes the evals
 
 ## Getting started
 
-Backend only so far. You need [Docker](https://www.docker.com/) (for Postgres) and [uv](https://docs.astral.sh/uv/) (it installs Python 3.12 for you).
+You need [Docker](https://www.docker.com/) (for Postgres) and [uv](https://docs.astral.sh/uv/) (it installs Python 3.12 for you).
 
 ```bash
 docker compose up -d --wait               # Postgres 16 on host port 5433 (lendflow + lendflow_test)
@@ -100,6 +115,13 @@ uv run fastapi dev app/main.py            # API on http://localhost:8000, docs a
 
 uv run pytest                             # tests (migrates and uses lendflow_test)
 uv run ruff check .                       # lint
+
+# frontend (the backend must be running)
+cd ../frontend
+npm install && cp .env.example .env.local
+npm run dev                               # http://localhost:3000
+npm test                                  # unit tests
+npm run test:e2e                          # browser tests; WIPES and re-seeds lendflow_test
 ```
 
 Notes:
