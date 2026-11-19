@@ -13,6 +13,8 @@ erDiagram
   APPLICATIONS ||--o{ AI_REVIEWS : receives
   APPLICATIONS ||--o{ OUTBOX : "notifies about"
   APPLICATIONS ||--o{ DECISIONS : "ends with"
+  APPLICATIONS ||--o| DISBURSEMENTS : "is paid out by"
+  APPLICATIONS ||--o{ FACE_MATCHES : "may need"
   APPLICATIONS ||--o{ STATUS_HISTORY : tracks
   USERS ||--o{ CONSENTS : gives
   USERS ||--o{ AUDIT_LOGS : "performs"
@@ -120,6 +122,23 @@ erDiagram
     uuid supersedes_id FK
     datetime decided_at
   }
+  DISBURSEMENTS {
+    uuid id PK
+    bigint seq "database insertion order"
+    uuid application_id FK "unique: one payout per loan (LF-020)"
+    numeric amount_vnd
+    uuid disbursed_by FK
+    uuid face_match_id FK "null at or below the biometric threshold"
+    datetime disbursed_at
+  }
+  FACE_MATCHES {
+    uuid id PK
+    uuid application_id FK
+    uuid performed_by FK
+    bool passed "simulated result (C-07); no image is stored"
+    datetime created_at
+    datetime consumed_at "set once; a match is single-use"
+  }
   STATUS_HISTORY {
     uuid id PK
     uuid application_id FK
@@ -202,7 +221,7 @@ erDiagram
 
 ## Design notes
 
-- `AUDIT_LOGS` and `DECISIONS` are **append-only**: no update or delete endpoints; the application's database role has no UPDATE/DELETE privilege on them.
+- `AUDIT_LOGS`, `DECISIONS` and `DISBURSEMENTS` are **append-only**: no update or delete endpoints; the application's database role has no UPDATE/DELETE privilege on them.
 - `DECISIONS.supersedes_id` supports corrections without erasing history (BR-14).
 - `DOCUMENTS.delete_after` implements the retention rule (BR-23); a scheduled job deletes expired files.
 - `AI_REVIEWS` stores model, configuration version, cost and mode for traceability (BR-16, BR-19, BR-20).

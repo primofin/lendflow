@@ -1635,6 +1635,171 @@
         ]
       }
     },
+    "/applications/{application_id}/disbursement": {
+      "get": {
+        "tags": [
+          "disbursement"
+        ],
+        "summary": "Get Disbursement",
+        "description": "LF-020: whether the loan is disbursed and whether a face match is required.",
+        "operationId": "get_disbursement_applications__application_id__disbursement_get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "application_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Application Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DisbursementStatusOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "disbursement"
+        ],
+        "summary": "Disburse",
+        "description": "LF-020: pay out an approved loan; above the threshold a passed face match is required.",
+        "operationId": "disburse_applications__application_id__disbursement_post",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "application_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Application Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DisbursementIn"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DisbursementOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/applications/{application_id}/face-match": {
+      "post": {
+        "tags": [
+          "disbursement"
+        ],
+        "summary": "Face Match",
+        "description": "LF-020: simulated face match (C-07). Returns a single-use, short-lived token.",
+        "operationId": "face_match_applications__application_id__face_match_post",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "application_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Application Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/FaceMatchIn"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FaceMatchOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/me/data": {
       "get": {
         "tags": [
@@ -3256,6 +3421,109 @@
         ],
         "title": "DeletionRequestOut"
       },
+      "DisbursementIn": {
+        "properties": {
+          "face_match_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Face Match Id"
+          }
+        },
+        "type": "object",
+        "title": "DisbursementIn"
+      },
+      "DisbursementOut": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "application_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Application Id"
+          },
+          "amount_vnd": {
+            "type": "integer",
+            "title": "Amount Vnd"
+          },
+          "face_match_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Face Match Id"
+          },
+          "disbursed_by": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Disbursed By"
+          },
+          "disbursed_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Disbursed At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "application_id",
+          "amount_vnd",
+          "face_match_id",
+          "disbursed_by",
+          "disbursed_at"
+        ],
+        "title": "DisbursementOut"
+      },
+      "DisbursementStatusOut": {
+        "properties": {
+          "disbursement": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/DisbursementOut"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "amount_vnd": {
+            "type": "integer",
+            "title": "Amount Vnd"
+          },
+          "face_match_required": {
+            "type": "boolean",
+            "title": "Face Match Required"
+          },
+          "threshold_vnd": {
+            "type": "integer",
+            "title": "Threshold Vnd"
+          }
+        },
+        "type": "object",
+        "required": [
+          "disbursement",
+          "amount_vnd",
+          "face_match_required",
+          "threshold_vnd"
+        ],
+        "title": "DisbursementStatusOut",
+        "description": "What the UI needs to decide whether to show the face-match step."
+      },
       "DocType": {
         "type": "string",
         "enum": [
@@ -3366,6 +3634,48 @@
         ],
         "title": "ExceptionDeclareIn",
         "description": "Only the requirement is accepted: no free text, so no personal data can slip in."
+      },
+      "FaceMatchIn": {
+        "properties": {
+          "result": {
+            "type": "string",
+            "enum": [
+              "pass",
+              "fail"
+            ],
+            "title": "Result"
+          }
+        },
+        "type": "object",
+        "required": [
+          "result"
+        ],
+        "title": "FaceMatchIn"
+      },
+      "FaceMatchOut": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "passed": {
+            "type": "boolean",
+            "title": "Passed"
+          },
+          "expires_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Expires At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "passed",
+          "expires_at"
+        ],
+        "title": "FaceMatchOut"
       },
       "HTTPValidationError": {
         "properties": {

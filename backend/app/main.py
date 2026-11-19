@@ -11,6 +11,7 @@ from app.api.routes import (
     dashboard,
     data_rights,
     decisions,
+    disbursements,
     documents,
     imports,
     loan_terms,
@@ -38,6 +39,7 @@ def create_app() -> FastAPI:
     app.include_router(applications.router)
     app.include_router(queue.router)
     app.include_router(decisions.router)
+    app.include_router(disbursements.router)
     app.include_router(data_rights.router)
     app.include_router(imports.router)
     app.include_router(dashboard.router)

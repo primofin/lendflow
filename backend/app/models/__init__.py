@@ -8,6 +8,7 @@ from app.models.cic_check import CicCheck
 from app.models.consent import Consent
 from app.models.decision import Decision, DecisionImmutable, ReasonCode
 from app.models.deletion_request import DeletionRequest
+from app.models.disbursement import Disbursement, DisbursementImmutable, FaceMatch
 from app.models.document import DocType, Document
 from app.models.import_job import ImportJob
 from app.models.outbox import OutboxMessage
@@ -33,8 +34,11 @@ __all__ = [
     "Decision",
     "DecisionImmutable",
     "DeletionRequest",
+    "Disbursement",
+    "DisbursementImmutable",
     "DocType",
     "Document",
+    "FaceMatch",
     "ImportJob",
     "IncomeType",
     "IncomeTypeRule",

@@ -600,6 +600,50 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/applications/{application_id}/disbursement": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Disbursement
+         * @description LF-020: whether the loan is disbursed and whether a face match is required.
+         */
+        get: operations["get_disbursement_applications__application_id__disbursement_get"];
+        put?: never;
+        /**
+         * Disburse
+         * @description LF-020: pay out an approved loan; above the threshold a passed face match is required.
+         */
+        post: operations["disburse_applications__application_id__disbursement_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/applications/{application_id}/face-match": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Face Match
+         * @description LF-020: simulated face match (C-07). Returns a single-use, short-lived token.
+         */
+        post: operations["face_match_applications__application_id__face_match_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/me/data": {
         parameters: {
             query?: never;
@@ -1232,6 +1276,51 @@ export interface components {
             /** Retained */
             retained: components["schemas"]["RetainedItem"][];
         };
+        /** DisbursementIn */
+        DisbursementIn: {
+            /** Face Match Id */
+            face_match_id?: string | null;
+        };
+        /** DisbursementOut */
+        DisbursementOut: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /**
+             * Application Id
+             * Format: uuid
+             */
+            application_id: string;
+            /** Amount Vnd */
+            amount_vnd: number;
+            /** Face Match Id */
+            face_match_id: string | null;
+            /**
+             * Disbursed By
+             * Format: uuid
+             */
+            disbursed_by: string;
+            /**
+             * Disbursed At
+             * Format: date-time
+             */
+            disbursed_at: string;
+        };
+        /**
+         * DisbursementStatusOut
+         * @description What the UI needs to decide whether to show the face-match step.
+         */
+        DisbursementStatusOut: {
+            disbursement: components["schemas"]["DisbursementOut"] | null;
+            /** Amount Vnd */
+            amount_vnd: number;
+            /** Face Match Required */
+            face_match_required: boolean;
+            /** Threshold Vnd */
+            threshold_vnd: number;
+        };
         /**
          * DocType
          * @description Document kinds from docs/02 section 3 (required documents by income type).
@@ -1286,6 +1375,29 @@ export interface components {
              * Format: uuid
              */
             requirement_id: string;
+        };
+        /** FaceMatchIn */
+        FaceMatchIn: {
+            /**
+             * Result
+             * @enum {string}
+             */
+            result: "pass" | "fail";
+        };
+        /** FaceMatchOut */
+        FaceMatchOut: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Passed */
+            passed: boolean;
+            /**
+             * Expires At
+             * Format: date-time
+             */
+            expires_at: string;
         };
         /** HTTPValidationError */
         HTTPValidationError: {
@@ -2712,6 +2824,107 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["ReasonCodeOut"][];
+                };
+            };
+        };
+    };
+    get_disbursement_applications__application_id__disbursement_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                application_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DisbursementStatusOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    disburse_applications__application_id__disbursement_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                application_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["DisbursementIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DisbursementOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    face_match_applications__application_id__face_match_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                application_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["FaceMatchIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FaceMatchOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
                 };
             };
         };
