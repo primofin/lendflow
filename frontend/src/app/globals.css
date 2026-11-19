@@ -42,6 +42,29 @@ main section[aria-labelledby] section[aria-labelledby] {
   box-shadow: none;
 }
 
+input[type="checkbox"],
+input[type="radio"] {
+  accent-color: #4338ca;
+}
+
+input[type="file"] {
+  color: #5b5f86;
+  font-size: 0.875rem;
+}
+input[type="file"]::file-selector-button {
+  margin-right: 0.75rem;
+  cursor: pointer;
+  border: 0;
+  border-radius: 0.75rem;
+  background: #e0e7ff;
+  padding: 0.5rem 1rem;
+  font-weight: 600;
+  color: #3730a3;
+}
+input[type="file"]::file-selector-button:hover {
+  background: #c7d2fe;
+}
+
 main table th {
   color: #5b5f86;
   font-weight: 600;
