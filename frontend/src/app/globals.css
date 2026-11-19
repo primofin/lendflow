@@ -1,28 +1,55 @@
 @import "tailwindcss";
 
+/* Brand: indigo. Remapping Tailwind's blue scale recolours every existing blue-* class at once. */
+@theme {
+  --color-blue-50: #eef2ff;
+  --color-blue-100: #e0e7ff;
+  --color-blue-200: #c7d2fe;
+  --color-blue-600: #4f46e5;
+  --color-blue-700: #4338ca;
+  --color-blue-800: #4338ca;
+  --color-blue-900: #3730a3;
+  --color-brand-ink: #0f1235;
+  --font-sans: var(--font-geist-sans), system-ui, sans-serif;
+  --shadow-card: 0 1px 2px rgb(15 18 53 / 0.05), 0 4px 16px rgb(15 18 53 / 0.06);
+}
+
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  --background: #f6f7fb;
+  --foreground: #0f1235;
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-sans);
+}
+
+a.underline {
+  text-underline-offset: 3px;
+  text-decoration-thickness: 1px;
+}
+
+/* Every labelled section on a page is a card. Sections that bring their own border are left alone. */
+main section[aria-labelledby]:not([class*="border"]) {
+  background: #fff;
+  border: 1px solid #e6e8f2;
+  border-radius: 1rem;
+  padding: 1.25rem;
+  box-shadow: var(--shadow-card);
+}
+main section[aria-labelledby] section[aria-labelledby] {
+  box-shadow: none;
+}
+
+main table th {
+  color: #5b5f86;
+  font-weight: 600;
+}
+
+:focus-visible {
+  outline: 2px solid #4f46e5;
+  outline-offset: 2px;
 }
 
 /* LF-019 chart tokens: roles, not raw hex (blue is categorical slot 1 of the validated palette). */

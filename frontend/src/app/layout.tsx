@@ -17,9 +17,9 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html lang="en" className={`${geist.variable} h-full antialiased`}>
-      <body className="flex min-h-full flex-col bg-white text-slate-900">
+      <body className="flex min-h-full flex-col text-slate-900">
         <p
-          className="bg-amber-100 px-4 py-2 text-center text-sm text-amber-900"
+          className="bg-brand-ink px-4 py-1.5 text-center text-xs text-indigo-100"
           role="note"
         >
           Demo only. LendFlow is fictional; use synthetic data, never real

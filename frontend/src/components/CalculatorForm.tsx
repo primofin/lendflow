@@ -86,8 +86,12 @@ export function CalculatorForm() {
   });
 
   return (
-    <div className="flex flex-col gap-6">
-      <form onSubmit={submit} className="flex max-w-sm flex-col gap-4" noValidate>
+    <div className="grid items-start gap-6 md:grid-cols-2">
+      <form
+        onSubmit={submit}
+        className="flex flex-col gap-4 rounded-2xl bg-white p-6 shadow-card ring-1 ring-slate-200/70"
+        noValidate
+      >
         <FormField id="amount" label="Loan amount (VND)">
           {(describedBy) => (
             <>
@@ -132,13 +136,14 @@ export function CalculatorForm() {
         </button>
       </form>
 
+      <div className="flex flex-col gap-4">
       <FormError message={apiError} />
 
       {shown && (
         <section
           aria-live="polite"
           aria-labelledby="result-heading"
-          className="max-w-md rounded border border-slate-300 bg-slate-50 p-4"
+          className="rounded-2xl border-0 bg-blue-50 p-6 ring-1 ring-blue-200"
         >
           <h2 id="result-heading" className="text-lg font-semibold">
             Your estimate
@@ -157,12 +162,13 @@ export function CalculatorForm() {
           </p>
           <Link
             href={`/apply?${applyQuery}`}
-            className="mt-3 inline-block text-blue-800 underline"
+            className={`${buttonClass} mt-4 w-full`}
           >
             Apply with these terms
           </Link>
         </section>
       )}
+      </div>
     </div>
   );
 }
