@@ -26,7 +26,7 @@ Each story traces back to a pain point or source story (column "Source") and for
 | LF-017 | SLA escalation | US-005 | Could | 3 | Done |
 | LF-018 | Data-subject rights | New (C-08) | Should | 5 | Done |
 | LF-019 | Operations dashboard | Giao an (NPL report) | Could | 5 | Done |
-| LF-020 | Biometric step simulation | New (C-07) | Could | 3 | To do |
+| LF-020 | Biometric step simulation | New (C-07) | Could | 3 | Done |
 
 **Status** is updated as each story is merged to `main`; decisions behind the built stories are in the [decisions log](08-decisions-log.md).
 

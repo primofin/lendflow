@@ -11,6 +11,7 @@ import { formatDateTime } from "@/lib/loan/fileCheck";
 import { formatVnd } from "@/lib/loan/money";
 
 import { CicPanel } from "./CicPanel";
+import { DisbursementPanel } from "./DisbursementPanel";
 import { DecisionPanel } from "./DecisionPanel";
 import { FormError } from "./FormError";
 import { buttonClass } from "./FormField";
@@ -254,6 +255,8 @@ export function ReviewView({ id }: { id: string }) {
       </section>
 
       {user && <CicPanel applicationId={id} status={review.status} />}
+
+      {user && review.status === "APPROVED" && <DisbursementPanel applicationId={id} />}
 
       {user && (
         <DecisionPanel

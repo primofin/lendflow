@@ -392,3 +392,17 @@ Short records of choices, so a reader can see *why*, not just *what*. Format: co
   - If disbursement (LF-020) is added, the schedule should start from the disbursement date instead; the start date is one function.
   - Reminders are real only if something runs the script or a supervisor presses the button. Nothing sends mail outside the mock outbox.
   - An approval that is later corrected to a rejection stops having a schedule, because only `APPROVED` files have one; reminders already queued stay in the outbox.
+
+## D-033: Disbursement and the simulated face match (LF-020)
+- **Context:** C-07 asks for biometric authentication before a transfer above 10M VND. LendFlow had no disbursement step, so the story needed a minimal one to attach to.
+- **Decision:**
+  - **Disbursement:** a supervisor or officer disburses an `APPROVED` application once (`POST /applications/{id}/disbursement`). The row is append-only (triggers, as for decisions) and unique per application. **No new status** is added: "disbursed" means a row exists, so the state machine, tracker and dashboard are unchanged. The amount is the approved amount.
+  - **Threshold:** a face match is needed when the amount is **above** `biometric_threshold_vnd` (10,000,000 by default, configurable). Exactly 10M and below need none. The 20M per-day limit in C-07 is **not built**, because a loan is paid out once.
+  - **Face match:** `POST /applications/{id}/face-match` with `{"result": "pass" | "fail"}` is a simulation; the caller states the result and no image is captured or stored. It returns a token (`face_matches.id`) that is bound to the application, usable **once**, and valid for `face_match_ttl_minutes` (5).
+  - **Failure:** a missing, failed, expired, used or foreign token returns 403 with the reason, writes `disbursement.blocked` and commits it before the error is raised, so the attempt is logged. Face-match results are audited as `face_match.passed` / `face_match.failed`. Retrying with a new match is allowed.
+  - The review page shows a Disbursement panel for approved files, with the two simulate buttons.
+- **Consequences:**
+  - Because the simulated result is chosen by the staff member, it proves the control flow, not identity. A real provider would verify the **borrower**, not the officer, and would return the result server to server.
+  - The repayment schedule (D-032) still starts on the approval date; moving it to the disbursement date is a later, separate choice.
+  - A disbursement cannot be reversed or corrected in this release. A payments story would need that.
+  - Nothing moves real money; this is a record only.

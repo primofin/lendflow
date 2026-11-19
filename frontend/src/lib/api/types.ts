@@ -82,6 +82,8 @@ export const OUTCOME_RESULT: Record<DecisionOutcome, string> = {
 };
 
 export type CicCheck = Schemas["CicCheckOut"];
+export type DisbursementStatus = Schemas["DisbursementStatusOut"];
+export type FaceMatch = Schemas["FaceMatchOut"];
 
 export const CIC_FLAG_LABELS: Record<NonNullable<CicCheck["flag"]>, string> = {
   pass: "Passes",
