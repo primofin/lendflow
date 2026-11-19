@@ -48,7 +48,7 @@ export function CredentialsForm({ mode }: Props) {
   }
 
   return (
-    <form onSubmit={submit} className="flex max-w-sm flex-col gap-4" noValidate>
+    <form onSubmit={submit} className="flex flex-col gap-4" noValidate>
       {!isRegister && sessionEndedMessage && (
         <p
           role="status"

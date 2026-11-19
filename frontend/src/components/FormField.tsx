@@ -26,6 +26,8 @@ export function FormField({ id, label, hint, children }: Props) {
 }
 
 export const inputClass =
-  "rounded border border-slate-400 px-3 py-2 text-base focus:outline-2 focus:outline-offset-2 focus:outline-blue-700";
+  "w-full rounded-xl border border-slate-300 bg-white px-3.5 py-2.5 text-base shadow-sm placeholder:text-slate-400 focus:border-blue-700 focus:outline-2 focus:outline-offset-0 focus:outline-blue-200";
 export const buttonClass =
-  "rounded bg-blue-800 px-4 py-2 font-medium text-white hover:bg-blue-900 focus:outline-2 focus:outline-offset-2 focus:outline-blue-700 disabled:cursor-not-allowed disabled:opacity-60";
+  "inline-flex items-center justify-center gap-2 rounded-xl bg-blue-700 px-5 py-2.5 font-semibold text-white shadow-sm transition hover:bg-blue-900 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-700 disabled:cursor-not-allowed disabled:opacity-60";
+export const secondaryButtonClass =
+  "inline-flex items-center justify-center gap-2 rounded-xl border border-slate-300 bg-white px-5 py-2.5 font-semibold text-slate-800 shadow-sm transition hover:bg-slate-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-700 disabled:cursor-not-allowed disabled:opacity-60";

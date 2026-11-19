@@ -8,22 +8,32 @@ export function TrackerPanel({ tracker }: { tracker: Tracker }) {
       <h2 id="tracker-heading" className="text-lg font-semibold">
         Progress
       </h2>
-      <ol className="mt-3 grid gap-3 sm:grid-cols-4">
-        {tracker.steps.map((step) => {
-          const style =
-            step.state === "done"
-              ? "border-green-700 bg-green-50"
-              : step.state === "current"
-                ? "border-blue-800 bg-blue-50 font-semibold"
-                : "border-slate-300 text-slate-600";
+      <ol className="mt-4 grid gap-3 sm:grid-cols-4">
+        {tracker.steps.map((step, index) => {
+          const done = step.state === "done";
+          const current = step.state === "current";
           return (
             <li
               key={step.label}
-              aria-current={step.state === "current" ? "step" : undefined}
+              aria-current={current ? "step" : undefined}
               data-state={step.state}
-              className={`rounded border-2 p-3 ${style}`}
+              className={`rounded-xl border p-3 ${
+                done
+                  ? "border-emerald-200 bg-emerald-50"
+                  : current
+                    ? "border-blue-700 bg-blue-50 ring-2 ring-blue-200"
+                    : "border-slate-200 text-slate-500"
+              }`}
             >
-              <span className="block">{step.label}</span>
+              <span
+                aria-hidden="true"
+                className={`mb-2 grid h-6 w-6 place-items-center rounded-full text-xs font-bold ${
+                  done ? "bg-emerald-600 text-white" : current ? "bg-blue-700 text-white" : "bg-slate-200 text-slate-600"
+                }`}
+              >
+                {done ? "✓" : index + 1}
+              </span>
+              <span className={`block ${current ? "font-semibold" : "font-medium"}`}>{step.label}</span>
               <span className="block text-sm font-normal">
                 {step.state === "done" && "Done"}
                 {step.state === "current" && "In progress"}
@@ -41,7 +51,7 @@ export function TrackerPanel({ tracker }: { tracker: Tracker }) {
       </ol>
       {/* A request for information is shown in the needs-info panel instead. */}
       {tracker.decision && tracker.decision.outcome !== "request_info" && (
-        <div className="mt-4 rounded border border-slate-300 p-3" data-testid="decision">
+        <div className="mt-4 rounded-xl border border-slate-200 bg-slate-50 p-4" data-testid="decision">
           <p className="font-medium">
             {tracker.decision.outcome === "approve" ? "Approved" : "Not approved"}
           </p>
