@@ -12,7 +12,7 @@ async function Summary({ params }: { params: Promise<{ id: string }> }) {
 
 export default function ApplicationPage({ params }: { params: Promise<{ id: string }> }) {
   return (
-    <main className="mx-auto w-full max-w-5xl flex-1 px-4 py-10">
+    <main className="mx-auto w-full max-w-6xl flex-1 px-4 py-10">
       <h1 className="mb-6 text-2xl font-semibold">Your application</h1>
       <RequireRole roles={["borrower"]}>
         <Suspense fallback={<p>Loading…</p>}>

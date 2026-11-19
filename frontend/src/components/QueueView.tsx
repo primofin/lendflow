@@ -10,7 +10,7 @@ import type { QueuePage } from "@/lib/api/types";
 import { formatVnd } from "@/lib/loan/money";
 
 import { FormError } from "./FormError";
-import { buttonClass, inputClass } from "./FormField";
+import { buttonClass, inputClass, secondaryButtonClass } from "./FormField";
 
 const PAGE_SIZE = 50;
 
@@ -63,7 +63,7 @@ export function QueueView() {
 
   return (
     <div className="flex flex-col gap-4">
-      <div className="flex flex-wrap items-end gap-4">
+      <div className="flex flex-wrap items-end gap-4 rounded-2xl bg-white p-4 shadow-card ring-1 ring-slate-200/70">
         <label className="flex flex-col gap-1 text-sm font-medium">
           Status
           <select
@@ -108,49 +108,65 @@ export function QueueView() {
       </div>
 
       <FormError message={error} />
-      {!page && !error && <p>Loading…</p>}
+      {!page && !error && (
+        <div className="flex flex-col gap-2" aria-busy="true">
+          <p className="sr-only">Loading…</p>
+          {[0, 1, 2].map((n) => (
+            <div key={n} className="h-12 animate-pulse rounded-xl bg-white/70" aria-hidden="true" />
+          ))}
+        </div>
+      )}
 
       {page && page.items.length === 0 && (
-        <p data-testid="queue-empty">{page.message ?? "No applications waiting"}</p>
+        <p
+          data-testid="queue-empty"
+          className="rounded-2xl bg-white p-8 text-center text-slate-600 shadow-card ring-1 ring-slate-200/70"
+        >
+          {page.message ?? "No applications waiting"}
+        </p>
       )}
 
       {page && page.items.length > 0 && (
         <>
+          <div className="overflow-x-auto rounded-2xl bg-white shadow-card ring-1 ring-slate-200/70">
           <table className="w-full text-left">
             <caption className="sr-only">Applications waiting for review</caption>
             <thead>
-              <tr className="border-b border-slate-300">
-                <th scope="col" className="py-2 pr-4">Applicant</th>
-                <th scope="col" className="py-2 pr-4">Amount</th>
-                <th scope="col" className="py-2 pr-4">Term</th>
-                <th scope="col" className="py-2 pr-4">Flags</th>
-                <th scope="col" className="py-2">Waiting</th>
+              <tr className="border-b border-slate-200 bg-slate-50 text-xs uppercase tracking-wide">
+                <th scope="col" className="px-4 py-3">Applicant</th>
+                <th scope="col" className="px-4 py-3">Amount</th>
+                <th scope="col" className="px-4 py-3">Term</th>
+                <th scope="col" className="px-4 py-3">Flags</th>
+                <th scope="col" className="px-4 py-3">Waiting</th>
               </tr>
             </thead>
             <tbody>
               {page.items.map((item) => (
-                <tr key={item.id} className="border-b border-slate-200">
-                  <td className="py-2 pr-4">
-                    <Link href={`/review/${item.id}`} className="text-blue-800 underline">
+                <tr key={item.id} className="border-b border-slate-100 last:border-0 hover:bg-blue-50/50">
+                  <td className="px-4 py-3">
+                    <Link href={`/review/${item.id}`} className="font-semibold text-blue-800 hover:underline">
                       {item.applicant_name ?? "Unnamed applicant"}
                     </Link>
                   </td>
-                  <td className="py-2 pr-4">{formatVnd(item.amount_vnd)}</td>
-                  <td className="py-2 pr-4">{item.term_months} months</td>
-                  <td className="py-2 pr-4">
-                    {item.flags.map((f) => FLAG_LABELS[f] ?? f).join(", ") || "None"}
+                  <td className="px-4 py-3">{formatVnd(item.amount_vnd)}</td>
+                  <td className="px-4 py-3">{item.term_months} months</td>
+                  <td className="px-4 py-3">
+                    {item.flags.length === 0
+                      ? "None"
+                      : item.flags.map((f) => FLAG_LABELS[f] ?? f).join(", ")}
                   </td>
-                  <td className="py-2">{formatAge(item.age_hours)}</td>
+                  <td className="px-4 py-3">{formatAge(item.age_hours)}</td>
                 </tr>
               ))}
             </tbody>
           </table>
+          </div>
           <div className="flex items-center gap-4">
             <button
               type="button"
               disabled={offset === 0}
               onClick={() => setOffset(Math.max(0, offset - PAGE_SIZE))}
-              className={buttonClass}
+              className={secondaryButtonClass}
             >
               Previous
             </button>
@@ -161,7 +177,7 @@ export function QueueView() {
               type="button"
               disabled={offset + page.items.length >= page.total}
               onClick={() => setOffset(offset + PAGE_SIZE)}
-              className={buttonClass}
+              className={secondaryButtonClass}
             >
               Next
             </button>

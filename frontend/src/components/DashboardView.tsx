@@ -150,7 +150,7 @@ export function DashboardView() {
 
 function Tile({ label, value, note, id }: { label: string; value: string; note: string; id: string }) {
   return (
-    <div className="viz-root rounded-lg border border-[var(--viz-grid)] bg-[var(--viz-surface)] p-4" data-testid={`tile-${id}`}>
+    <div className="viz-root rounded-2xl border border-[var(--viz-grid)] bg-[var(--viz-surface)] p-5 shadow-card" data-testid={`tile-${id}`}>
       <p className="text-sm text-[var(--viz-text-2)]">{label}</p>
       <p className="mt-1 text-3xl font-semibold text-[var(--viz-text)]" data-testid={`value-${id}`}>
         {value}
@@ -167,7 +167,7 @@ function StatusChart({ data, asTable, onToggle }: { data: Dashboard; asTable: bo
   return (
     <section
       aria-labelledby="status-heading"
-      className="viz-root rounded-lg border border-[var(--viz-grid)] bg-[var(--viz-surface)] p-4"
+      className="viz-root rounded-2xl border border-[var(--viz-grid)] bg-[var(--viz-surface)] p-5 shadow-card"
     >
       <div className="flex flex-wrap items-baseline justify-between gap-2">
         <div>
