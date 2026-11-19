@@ -86,8 +86,8 @@ export function DashboardView() {
             onClick={() => choosePreset(p.days)}
             className={`rounded border px-3 py-2 ${
               preset === p.days
-                ? "border-blue-800 bg-blue-800 font-medium text-white"
-                : "border-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800"
+                ? "border-blue-800 bg-brand font-medium text-white"
+                : "border-slate-400 hover:bg-slate-100"
             }`}
           >
             {p.label}
@@ -178,7 +178,7 @@ function StatusChart({ data, asTable, onToggle }: { data: Dashboard; asTable: bo
             {data.total_applications} applications created in this range, by their status now.
           </p>
         </div>
-        <button type="button" onClick={onToggle} aria-pressed={asTable} className="text-sm text-blue-800 underline dark:text-blue-300">
+        <button type="button" onClick={onToggle} aria-pressed={asTable} className="text-sm text-blue-800 underline">
           {asTable ? "Show as chart" : "Show as table"}
         </button>
       </div>

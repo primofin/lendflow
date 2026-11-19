@@ -6,6 +6,8 @@ import { usePathname, useRouter } from "next/navigation";
 
 import { useAuth } from "@/lib/auth/AuthProvider";
 
+import { ThemeToggle } from "./ThemeToggle";
+
 function NavLink({ href, children }: { href: string; children: string }) {
   const pathname = usePathname();
   const active = href === "/" ? pathname === "/" : pathname.startsWith(href);
@@ -32,10 +34,10 @@ export function SiteHeader() {
   }
 
   return (
-    <header className="sticky top-0 z-20 border-b border-slate-200/80 bg-white/90 backdrop-blur">
+    <header className="sticky top-0 z-20 border-b border-slate-200/80 bg-surface/90 backdrop-blur">
       <div className="mx-auto flex max-w-6xl flex-wrap items-center gap-x-3 gap-y-1 px-4 py-2.5">
         <Link href="/" className="mr-auto flex items-center md:mr-2 gap-2 text-lg font-bold tracking-tight">
-          <span className="grid h-8 w-8 place-items-center rounded-lg bg-blue-700 text-white">
+          <span className="grid h-8 w-8 place-items-center rounded-lg bg-brand text-white">
             <Landmark size={18} aria-hidden="true" />
           </span>
           LendFlow
@@ -59,6 +61,7 @@ export function SiteHeader() {
             </>
           )}
         </nav>
+        <ThemeToggle />
         {status === "anonymous" && (
           <div className="flex items-center gap-2">
             <Link href="/login" className="rounded-full px-3.5 py-1.5 text-sm font-semibold hover:bg-slate-100">
@@ -66,7 +69,7 @@ export function SiteHeader() {
             </Link>
             <Link
               href="/register"
-              className="rounded-full bg-blue-700 px-4 py-1.5 text-sm font-semibold text-white hover:bg-blue-900"
+              className="rounded-full bg-brand px-4 py-1.5 text-sm font-semibold text-white hover:bg-brand-hover"
             >
               Register
             </Link>

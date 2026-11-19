@@ -89,7 +89,7 @@ export function CalculatorForm() {
     <div className="grid items-start gap-6 md:grid-cols-2">
       <form
         onSubmit={submit}
-        className="flex flex-col gap-4 rounded-2xl bg-white p-6 shadow-card ring-1 ring-slate-200/70"
+        className="flex flex-col gap-4 rounded-2xl bg-surface p-6 shadow-card ring-1 ring-slate-200/70"
         noValidate
       >
         <FormField id="amount" label="Loan amount (VND)">

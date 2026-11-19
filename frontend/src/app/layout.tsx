@@ -3,6 +3,7 @@ import { Suspense } from "react";
 import { Geist } from "next/font/google";
 
 import { SiteHeader } from "@/components/SiteHeader";
+import { THEME_SCRIPT } from "@/components/ThemeToggle";
 import { AuthProvider } from "@/lib/auth/AuthProvider";
 
 import "./globals.css";
@@ -17,7 +18,10 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html lang="en" className={`${geist.variable} h-full antialiased`}>
+    <html lang="en" className={`${geist.variable} h-full antialiased`} suppressHydrationWarning>
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: THEME_SCRIPT }} />
+      </head>
       <body className="flex min-h-full flex-col text-slate-900">
         <p
           className="bg-brand-ink px-4 py-1.5 text-center text-xs text-indigo-100"
@@ -27,7 +31,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
           personal information.
         </p>
         <AuthProvider>
-          <Suspense fallback={<div className="h-[3.75rem] border-b border-slate-200 bg-white" />}>
+          <Suspense fallback={<div className="h-[3.75rem] border-b border-slate-200 bg-surface" />}>
             <SiteHeader />
           </Suspense>
           {children}

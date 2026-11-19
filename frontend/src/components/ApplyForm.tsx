@@ -236,7 +236,7 @@ function Form({
               aria-hidden="true"
               className={`grid h-6 w-6 shrink-0 place-items-center rounded-full text-xs font-bold ${
                 index === step
-                  ? "bg-blue-700 text-white"
+                  ? "bg-brand text-white"
                   : index < step
                     ? "bg-emerald-600 text-white"
                     : "bg-slate-200 text-slate-600"

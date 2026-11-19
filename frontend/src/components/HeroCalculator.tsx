@@ -33,11 +33,11 @@ export function HeroCalculator() {
     };
   }, [amount, term]);
 
-  if (!terms) return <div className="h-80 animate-pulse rounded-3xl bg-white/60" aria-hidden="true" />;
+  if (!terms) return <div className="h-80 animate-pulse rounded-3xl bg-surface/60" aria-hidden="true" />;
   const apply = new URLSearchParams({ amount: String(amount), term: String(term) });
 
   return (
-    <div className="rounded-3xl bg-white p-6 shadow-card ring-1 ring-slate-200/70" data-testid="hero-calculator">
+    <div className="rounded-3xl bg-surface p-6 shadow-card ring-1 ring-slate-200/70" data-testid="hero-calculator">
       <p className="text-sm font-medium text-slate-500">Quick estimate</p>
       <p className="mt-1 text-4xl font-bold tracking-tight">{formatVnd(amount)}</p>
       <input
@@ -58,7 +58,7 @@ export function HeroCalculator() {
             aria-pressed={term === months}
             onClick={() => setTerm(months)}
             className={`rounded-full px-4 py-1.5 text-sm font-semibold transition ${
-              term === months ? "bg-blue-700 text-white" : "bg-slate-100 text-slate-700 hover:bg-slate-200"
+              term === months ? "bg-brand text-white" : "bg-slate-100 text-slate-700 hover:bg-slate-200"
             }`}
           >
             {months} mo

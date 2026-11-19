@@ -52,7 +52,7 @@ function Landing() {
         <h2 className="text-2xl font-bold tracking-tight">How it works</h2>
         <ol className="mt-5 grid gap-4 md:grid-cols-3">
           {STEPS.map(({ icon: Icon, title, text }, index) => (
-            <li key={title} className="rounded-2xl bg-white p-5 shadow-card ring-1 ring-slate-200/70">
+            <li key={title} className="rounded-2xl bg-surface p-5 shadow-card ring-1 ring-slate-200/70">
               <span className="grid h-10 w-10 place-items-center rounded-xl bg-blue-50 text-blue-700">
                 <Icon size={20} aria-hidden="true" />
               </span>

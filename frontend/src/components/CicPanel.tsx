@@ -79,7 +79,7 @@ export function CicPanel({ applicationId, status }: { applicationId: string; sta
             aria-valuenow={check.progress_pct}
             className="h-3 w-full overflow-hidden rounded bg-slate-200"
           >
-            <div className="h-full bg-blue-700" style={{ width: `${check.progress_pct}%` }} />
+            <div className="h-full bg-brand" style={{ width: `${check.progress_pct}%` }} />
           </div>
           <p className="mt-2" data-testid="cic-remaining">
             {check.seconds_remaining === null
