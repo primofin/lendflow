@@ -68,6 +68,11 @@ class Settings(BaseSettings):
     cic_attempt_timeout_seconds: int = 60
     cic_max_attempts: int = 2
 
+    # LF-020 / C-07: disbursements above this need a (simulated) face match; the token is
+    # single-use and short-lived. Illustrative, configurable (docs/05).
+    biometric_threshold_vnd: int = 10_000_000
+    face_match_ttl_minutes: int = 5
+
     ai_mode: str = "mock"
 
 
