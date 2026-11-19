@@ -33,7 +33,7 @@ export function SiteHeader() {
 
   return (
     <header className="sticky top-0 z-20 border-b border-slate-200/80 bg-white/90 backdrop-blur">
-      <div className="mx-auto flex max-w-5xl flex-wrap items-center gap-x-3 gap-y-1 px-4 py-2.5">
+      <div className="mx-auto flex max-w-6xl flex-wrap items-center gap-x-3 gap-y-1 px-4 py-2.5">
         <Link href="/" className="mr-auto flex items-center md:mr-2 gap-2 text-lg font-bold tracking-tight">
           <span className="grid h-8 w-8 place-items-center rounded-lg bg-blue-700 text-white">
             <Landmark size={18} aria-hidden="true" />
@@ -74,7 +74,7 @@ export function SiteHeader() {
         )}
         {user && (
           <div className="flex items-center gap-3">
-            <span className="hidden text-sm text-slate-600 sm:inline">
+            <span className="hidden text-sm text-slate-600 xl:inline">
               {user.email} ({user.role})
             </span>
             <button

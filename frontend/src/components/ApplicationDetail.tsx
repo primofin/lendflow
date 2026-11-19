@@ -17,6 +17,7 @@ import { formatVnd } from "@/lib/loan/money";
 
 import { FormError } from "./FormError";
 import { buttonClass } from "./FormField";
+import { StatusBadge } from "./StatusBadge";
 import { ScheduleTable } from "./ScheduleTable";
 import { TrackerPanel } from "./TrackerPanel";
 import { UploadControl } from "./UploadControl";
@@ -104,9 +105,11 @@ export function ApplicationDetail({ id }: { id: string }) {
         <h2 id="summary-heading" className="text-lg font-semibold">
           Application summary
         </h2>
-        <dl className="mt-3 grid max-w-md grid-cols-[1fr_auto] gap-x-4 gap-y-1">
+        <dl className="mt-3 grid grid-cols-[auto_1fr] gap-x-6 gap-y-2 [&>dt]:text-slate-500 [&>dd]:text-right">
           <dt>Status</dt>
-          <dd data-testid="status">{application.status}</dd>
+          <dd>
+            <StatusBadge status={application.status} testId="status" />
+          </dd>
           <dt>Amount</dt>
           <dd>{formatVnd(application.amount_vnd)}</dd>
           <dt>Term</dt>

@@ -12,6 +12,7 @@ import { formatVnd } from "@/lib/loan/money";
 
 import { CicPanel } from "./CicPanel";
 import { DisbursementPanel } from "./DisbursementPanel";
+import { StatusBadge } from "./StatusBadge";
 import { DecisionPanel } from "./DecisionPanel";
 import { FormError } from "./FormError";
 import { buttonClass } from "./FormField";
@@ -98,17 +99,21 @@ export function ReviewView({ id }: { id: string }) {
   const canDeclare = isOfficer && ["SUBMITTED", "IN_REVIEW"].includes(review.status);
 
   return (
-    <div className="flex flex-col gap-8">
+    <div className="flex flex-col gap-6">
       <FormError message={error} />
       <FormError message={actionError} />
 
+      <div className="grid items-start gap-6 lg:grid-cols-[minmax(0,1fr)_24rem]">
+      <div className="flex flex-col gap-6">
       <section aria-labelledby="loan-heading">
         <h2 id="loan-heading" className="text-lg font-semibold">
           Loan
         </h2>
-        <dl className="mt-3 grid max-w-lg grid-cols-[1fr_auto] gap-x-4 gap-y-1">
+        <dl className="mt-3 grid grid-cols-[auto_1fr] gap-x-6 gap-y-2 [&>dt]:text-slate-500 [&>dd]:text-right">
           <dt>Status</dt>
-          <dd data-testid="status">{review.status}</dd>
+          <dd>
+            <StatusBadge status={review.status} testId="status" />
+          </dd>
           <dt>Amount</dt>
           <dd>{formatVnd(review.amount_vnd)}</dd>
           <dt>Term</dt>
@@ -153,7 +158,7 @@ export function ReviewView({ id }: { id: string }) {
         <h2 id="applicant-heading" className="text-lg font-semibold">
           Applicant
         </h2>
-        <dl className="mt-3 grid max-w-lg grid-cols-[1fr_auto] gap-x-4 gap-y-1">
+        <dl className="mt-3 grid grid-cols-[auto_1fr] gap-x-6 gap-y-2 [&>dt]:text-slate-500 [&>dd]:text-right">
           <dt>Name</dt>
           <dd>{a.full_name}</dd>
           <dt>Date of birth</dt>
@@ -254,6 +259,8 @@ export function ReviewView({ id }: { id: string }) {
         )}
       </section>
 
+      </div>
+      <aside className="flex flex-col gap-6 lg:sticky lg:top-20" aria-label="Actions">
       {user && <CicPanel applicationId={id} status={review.status} />}
 
       {user && review.status === "APPROVED" && <DisbursementPanel applicationId={id} />}
@@ -267,6 +274,8 @@ export function ReviewView({ id }: { id: string }) {
           onChanged={() => setVersion((n) => n + 1)}
         />
       )}
+      </aside>
+      </div>
     </div>
   );
 }
