@@ -138,4 +138,4 @@ Notes:
 
 ## Author
 
-**Vy**: frontend developer moving into fullstack and product-focused roles.
+**Vy**
