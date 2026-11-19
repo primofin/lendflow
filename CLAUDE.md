@@ -19,7 +19,7 @@ LendFlow is a **fictional** digital lending app (portfolio project). Borrowers a
 backend/app/{api,core,models,schemas,services,agents}
 backend/tests/
 frontend/src/{app,components,lib}
-evals/               # AI evaluation set and runner
+evals/               # AI evaluation set and runner (empty placeholder; AI deferred, D-026)
 docs/                # BA documents (source of truth for requirements)
 ```
 
@@ -52,8 +52,7 @@ cd frontend && npm run typecheck
 cd frontend && npm run test:e2e
 cd frontend && npm run gen:api           # regenerate API types after the backend schema changes
 
-# AI evals
-cd evals && uv run python run_evals.py --mode mock
+# AI evals: no runner exists yet (AI deferred, D-026). Add the command here when LF-006/LF-009 resume.
 ```
 
 ## Working rules
