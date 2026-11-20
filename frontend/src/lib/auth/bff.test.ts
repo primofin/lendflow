@@ -7,9 +7,17 @@ import { POST as refresh } from "@/app/api/auth/refresh/route";
 import { POST as register } from "@/app/api/auth/register/route";
 
 const fetchMock = vi.fn<typeof fetch>();
-const pair = { access_token: "access-1", refresh_token: "refresh-1", token_type: "bearer" };
+const pair = {
+  access_token: "access-1",
+  refresh_token: "refresh-1",
+  token_type: "bearer",
+};
 
-function post(url: string, body?: unknown, headers: Record<string, string> = {}): Request {
+function post(
+  url: string,
+  body?: unknown,
+  headers: Record<string, string> = {},
+): Request {
   return new Request(`http://localhost:3000${url}`, {
     method: "POST",
     headers: { "Content-Type": "application/json", ...headers },
@@ -26,7 +34,9 @@ describe("login", () => {
   it("puts the refresh token in an httpOnly cookie and keeps it out of the body", async () => {
     fetchMock.mockResolvedValueOnce(Response.json(pair));
 
-    const response = await login(post("/api/auth/login", { email: "a@example.com", password: "x" }));
+    const response = await login(
+      post("/api/auth/login", { email: "a@example.com", password: "x" }),
+    );
 
     expect(response.status).toBe(200);
     expect(await response.json()).toEqual({ access_token: "access-1" });
@@ -43,20 +53,29 @@ describe("login", () => {
       Response.json({ detail: "Incorrect email or password" }, { status: 401 }),
     );
 
-    const response = await login(post("/api/auth/login", { email: "a@example.com", password: "x" }));
+    const response = await login(
+      post("/api/auth/login", { email: "a@example.com", password: "x" }),
+    );
 
     expect(response.status).toBe(401);
-    expect(await response.json()).toEqual({ detail: "Incorrect email or password" });
+    expect(await response.json()).toEqual({
+      detail: "Incorrect email or password",
+    });
     expect(response.headers.get("set-cookie")).toContain("Max-Age=0"); // stale cookie cleared
     expect(response.headers.get("set-cookie")).not.toContain("refresh-1");
   });
 
   it("passes an account lock (423) through with its message", async () => {
     fetchMock.mockResolvedValueOnce(
-      Response.json({ detail: "Account locked. Try again in 15 minutes." }, { status: 423 }),
+      Response.json(
+        { detail: "Account locked. Try again in 15 minutes." },
+        { status: 423 },
+      ),
     );
 
-    const response = await login(post("/api/auth/login", { email: "a@example.com", password: "x" }));
+    const response = await login(
+      post("/api/auth/login", { email: "a@example.com", password: "x" }),
+    );
 
     expect(response.status).toBe(423);
     expect((await response.json()).detail).toContain("15 minutes");
@@ -67,10 +86,17 @@ describe("register", () => {
   it("returns 201 with the same cookie handling", async () => {
     fetchMock.mockResolvedValueOnce(Response.json(pair, { status: 201 }));
 
-    const response = await register(post("/api/auth/register", { email: "a@example.com", password: "long-enough-1" }));
+    const response = await register(
+      post("/api/auth/register", {
+        email: "a@example.com",
+        password: "long-enough-1",
+      }),
+    );
 
     expect(response.status).toBe(201);
-    expect(response.headers.get("set-cookie")).toContain("lf_refresh=refresh-1");
+    expect(response.headers.get("set-cookie")).toContain(
+      "lf_refresh=refresh-1",
+    );
     expect(await response.json()).toEqual({ access_token: "access-1" });
   });
 });
@@ -85,20 +111,37 @@ describe("refresh", () => {
 
   it("sends the cookie's token to the backend and stores the rotated one", async () => {
     fetchMock.mockResolvedValueOnce(
-      Response.json({ ...pair, access_token: "access-2", refresh_token: "refresh-2" }),
+      Response.json({
+        ...pair,
+        access_token: "access-2",
+        refresh_token: "refresh-2",
+      }),
     );
 
-    const response = await refresh(post("/api/auth/refresh", undefined, { Cookie: "lf_refresh=refresh-1" }));
+    const response = await refresh(
+      post("/api/auth/refresh", undefined, { Cookie: "lf_refresh=refresh-1" }),
+    );
 
-    expect(JSON.parse(fetchMock.mock.calls[0][1]?.body as string)).toEqual({ refresh_token: "refresh-1" });
+    expect(JSON.parse(fetchMock.mock.calls[0][1]?.body as string)).toEqual({
+      refresh_token: "refresh-1",
+    });
     expect(await response.json()).toEqual({ access_token: "access-2" });
-    expect(response.headers.get("set-cookie")).toContain("lf_refresh=refresh-2");
+    expect(response.headers.get("set-cookie")).toContain(
+      "lf_refresh=refresh-2",
+    );
   });
 
   it("clears the cookie when the backend rejects the token (reuse or expiry)", async () => {
-    fetchMock.mockResolvedValueOnce(Response.json({ detail: "Not authenticated. Log in again." }, { status: 401 }));
+    fetchMock.mockResolvedValueOnce(
+      Response.json(
+        { detail: "Not authenticated. Log in again." },
+        { status: 401 },
+      ),
+    );
 
-    const response = await refresh(post("/api/auth/refresh", undefined, { Cookie: "a=b; lf_refresh=stale" }));
+    const response = await refresh(
+      post("/api/auth/refresh", undefined, { Cookie: "a=b; lf_refresh=stale" }),
+    );
 
     expect(response.status).toBe(401);
     expect(response.headers.get("set-cookie")).toContain("Max-Age=0");
@@ -109,19 +152,58 @@ describe("logout", () => {
   it("ends the backend session with the bearer token and clears the cookie", async () => {
     fetchMock.mockResolvedValueOnce(new Response(null, { status: 204 }));
 
-    const response = await logout(post("/api/auth/logout", undefined, { Authorization: "Bearer access-1" }));
+    const response = await logout(
+      post("/api/auth/logout", undefined, { Authorization: "Bearer access-1" }),
+    );
 
     expect(response.status).toBe(204);
     expect(response.headers.get("set-cookie")).toContain("Max-Age=0");
-    expect((fetchMock.mock.calls[0][1]?.headers as Record<string, string>).Authorization).toBe("Bearer access-1");
+    expect(
+      (fetchMock.mock.calls[0][1]?.headers as Record<string, string>)
+        .Authorization,
+    ).toBe("Bearer access-1");
   });
 
   it("clears the cookie even if the backend is down", async () => {
     fetchMock.mockRejectedValueOnce(new Error("connect ECONNREFUSED"));
 
-    const response = await logout(post("/api/auth/logout", undefined, { Authorization: "Bearer access-1" }));
+    const response = await logout(
+      post("/api/auth/logout", undefined, { Authorization: "Bearer access-1" }),
+    );
 
     expect(response.status).toBe(204);
     expect(response.headers.get("set-cookie")).toContain("Max-Age=0");
+  });
+});
+
+describe("client address forwarding", () => {
+  it("passes the proxy's client IP to the API so audit entries show the visitor", async () => {
+    fetchMock.mockResolvedValueOnce(Response.json(pair));
+
+    await login(
+      post(
+        "/api/auth/login",
+        { email: "a@example.com", password: "x" },
+        { "Fly-Client-IP": "203.0.113.9" },
+      ),
+    );
+
+    const init = fetchMock.mock.calls[0][1] as {
+      headers: Record<string, string>;
+    };
+    expect(init.headers["fly-client-ip"]).toBe("203.0.113.9");
+  });
+
+  it("sends no client IP header when the proxy set none", async () => {
+    fetchMock.mockResolvedValueOnce(Response.json(pair));
+
+    await login(
+      post("/api/auth/login", { email: "a@example.com", password: "x" }),
+    );
+
+    const init = fetchMock.mock.calls[0][1] as {
+      headers: Record<string, string>;
+    };
+    expect(init.headers["fly-client-ip"]).toBeUndefined();
   });
 });

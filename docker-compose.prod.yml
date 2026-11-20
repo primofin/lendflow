@@ -1,0 +1,63 @@
+# Production-shaped stack for a local smoke test of the images that ship to Fly (docs/deploy.md).
+#   export JWT_SECRET=$(python3 -c "import secrets; print(secrets.token_urlsafe(48))")
+#   export DB_OWNER_PASSWORD=... APP_DB_PASSWORD=...   # APP_DB_PASSWORD: 16+ characters
+#   docker compose -f docker-compose.prod.yml up --build -d --wait   # then open http://localhost:3100
+# Synthetic data only. Not for real deployments: Fly runs these same images with its own config.
+name: lendflow-prod
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: lendflow_owner
+      POSTGRES_PASSWORD: ${DB_OWNER_PASSWORD:?set DB_OWNER_PASSWORD}
+      POSTGRES_DB: lendflow
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U lendflow_owner -d lendflow"]
+      interval: 2s
+      timeout: 3s
+      retries: 15
+
+  migrate:
+    build: ./backend
+    entrypoint: []
+    command: ["sh", "-c", "alembic upgrade head && python -m scripts.provision_app_role"]
+    environment:
+      JWT_SECRET: ${JWT_SECRET:?set JWT_SECRET}
+      MIGRATION_DATABASE_URL: postgresql+psycopg://lendflow_owner:${DB_OWNER_PASSWORD}@db:5432/lendflow
+      APP_DB_PASSWORD: ${APP_DB_PASSWORD:?set APP_DB_PASSWORD}
+    depends_on:
+      db: {condition: service_healthy}
+
+  api:
+    build: ./backend
+    environment:
+      JWT_SECRET: ${JWT_SECRET}
+      DATABASE_URL: postgresql+psycopg://lendflow_app:${APP_DB_PASSWORD}@db:5432/lendflow
+      APP_BASE_URL: http://localhost:3100
+      API_HOST: 0.0.0.0
+      CLIENT_IP_HEADER: ${CLIENT_IP_HEADER:-}
+    volumes:
+      - uploads:/data
+    depends_on:
+      migrate: {condition: service_completed_successfully}
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request as u; u.urlopen('http://localhost:8000/health')"]
+      interval: 3s
+      timeout: 3s
+      retries: 15
+
+  web:
+    build:
+      context: ./frontend
+      args:
+        BACKEND_URL: http://api:8000
+    ports:
+      - "3100:3000"
+    depends_on:
+      api: {condition: service_healthy}
+
+volumes:
+  pgdata:
+  uploads:
