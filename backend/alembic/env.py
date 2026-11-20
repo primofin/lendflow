@@ -1,3 +1,4 @@
+import os
 from logging.config import fileConfig
 
 from alembic import context
@@ -16,7 +17,12 @@ target_metadata = Base.metadata
 
 def _url() -> str:
     # Tests pass an explicit URL via config attributes; otherwise use settings.
-    return config.attributes.get("database_url") or get_settings().database_url
+    # In production the API runs as a restricted role; migrations need the owner (D-005).
+    return (
+        config.attributes.get("database_url")
+        or os.environ.get("MIGRATION_DATABASE_URL")
+        or get_settings().database_url
+    )
 
 
 def run_migrations_offline() -> None:
