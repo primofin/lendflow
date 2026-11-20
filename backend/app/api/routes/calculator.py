@@ -2,12 +2,15 @@
 
 from typing import Annotated
 
-from fastapi import APIRouter, Query
+from fastapi import APIRouter, Depends, Query
 
+from app.core.rate_limit import limit_calculator
 from app.schemas.calculator import CalculatorParams, CalculatorQuoteOut
 from app.services import calculator_service
 
-router = APIRouter(prefix="/calculator", tags=["calculator"])
+router = APIRouter(
+    prefix="/calculator", tags=["calculator"], dependencies=[Depends(limit_calculator)]
+)
 
 
 @router.get("")
