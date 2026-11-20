@@ -19,8 +19,9 @@ def owner_and_app(engine: Engine):
     app_url = engine.url.set(
         drivername="postgresql", username=ROLE, password=PASSWORD
     ).render_as_string(hide_password=False)
-    app = psycopg.connect(app_url, autocommit=True)
+    app = psycopg.connect(app_url)  # never committed: audit rows cannot be deleted afterwards
     yield owner, app
+    app.rollback()
     app.close()
     owner.execute(f"DROP OWNED BY {ROLE}")
     owner.execute(f"DROP ROLE {ROLE}")
