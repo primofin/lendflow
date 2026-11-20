@@ -73,6 +73,12 @@ class Settings(BaseSettings):
     biometric_threshold_vnd: int = 10_000_000
     face_match_ttl_minutes: int = 5
 
+    # Deployment: header a trusted proxy sets to the real client address (e.g. Fly-Client-IP).
+    # Leave empty when the API is reachable directly, or the header could be forged.
+    client_ip_header: str = ""
+    # LF-003 / D-005: public calculator requests per client IP per minute; 0 disables.
+    calculator_rate_limit_per_minute: int = 60
+
     ai_mode: str = "mock"
 
 

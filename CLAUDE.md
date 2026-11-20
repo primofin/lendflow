@@ -52,6 +52,10 @@ cd frontend && npm run typecheck
 cd frontend && npm run test:e2e
 cd frontend && npm run gen:api           # regenerate API types after the backend schema changes
 
+# deploy (Fly.io; see docs/deploy.md and D-034)
+docker compose -f docker-compose.prod.yml up --build -d --wait   # local smoke test of the production images
+cd backend && APP_DB_PASSWORD=... uv run python -m scripts.provision_app_role   # least-privilege API role; run after each migration
+
 # AI evals: no runner exists yet (AI deferred, D-026). Add the command here when LF-006/LF-009 resume.
 ```
 

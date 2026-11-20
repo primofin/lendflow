@@ -21,12 +21,14 @@ from app.api.routes import (
     users,
 )
 from app.core.errors import register_error_handlers
+from app.core.rate_limit import RateLimiter
 from app.core.request_limits import RequestSizeLimitMiddleware
 
 
 def create_app() -> FastAPI:
     app = FastAPI(title="LendFlow API", version="0.1.0")
     register_error_handlers(app)
+    app.state.calculator_limiter = RateLimiter()
     app.add_middleware(RequestSizeLimitMiddleware)
     app.include_router(auth.router)
     app.include_router(users.router)

@@ -406,3 +406,16 @@ Short records of choices, so a reader can see *why*, not just *what*. Format: co
   - The repayment schedule (D-032) still starts on the approval date; moving it to the disbursement date is a later, separate choice.
   - A disbursement cannot be reversed or corrected in this release. A payments story would need that.
   - Nothing moves real money; this is a record only.
+
+## D-034: Deployment on Fly.io and pre-deployment hardening
+- **Context:** D-005 (calculator rate limit) and D-012 (audit-log role) were marked "before any real deployment". The brief asks for free-tier-friendly hosting.
+- **Decision:**
+  - **Fly.io, two apps:** `lendflow-web` (Next.js, public) and `lendflow-api` (FastAPI, private on Fly's `.internal` network, one machine, uploads on a volume at `/data`). Postgres is a separate Fly or external Postgres 16. Images are built from `backend/Dockerfile` and `frontend/Dockerfile`. Steps are in `docs/deploy.md`.
+  - **Rate limit:** `GET /calculator` allows `CALCULATOR_RATE_LIMIT_PER_MINUTE` (60) requests per client IP, then returns 429 with `Retry-After`. Counters are in memory, so they are per process.
+  - **Client IP:** `CLIENT_IP_HEADER` names a header a trusted proxy sets (`Fly-Client-IP`). It is empty by default, because trusting it when the API is reachable directly would let anyone forge an IP. The Next.js login, register and refresh handlers forward it, so audit entries show the visitor, not the web server.
+  - **Database roles:** migrations run as the table owner (`MIGRATION_DATABASE_URL`). `scripts/provision_app_role.py` creates `lendflow_app`, which can read and write ordinary tables but only `SELECT` and `INSERT` on `audit_logs` and `decisions`. The API's `DATABASE_URL` uses that role. The owner URL is passed only to a one-off migration machine, never stored as an API secret.
+- **Consequences:**
+  - The in-memory limiter is only correct with one API instance, which the single upload volume already requires. Scaling out needs a shared store and object storage for uploads.
+  - The provisioning script must run after every migration (the deploy workflow does this); default privileges cover new tables for the owner role only.
+  - **Not done:** virus scanning of uploads (D-010 stays open), login-specific IP rate limiting (account lockout still applies), backups beyond what the Postgres provider offers, and a custom domain.
+  - The Fly config and `deploy.yml` were written without access to Fly, so they are untested. The images, the migrate-then-run flow and the role were verified locally with `docker-compose.prod.yml`.

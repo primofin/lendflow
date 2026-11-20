@@ -1,0 +1,35 @@
+# Manual deploy to Fly.io (docs/deploy.md). Secrets needed in the repository settings:
+#   FLY_API_TOKEN, DB_OWNER_URL (owner DSN, postgresql+psycopg://...), APP_DB_PASSWORD
+# The owner DSN is passed only to the one-off migration machine, never stored on the API app.
+name: Deploy
+on:
+  workflow_dispatch:
+
+concurrency: deploy
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    env:
+      FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
+      IMAGE: registry.fly.io/lendflow-api:${{ github.sha }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: superfly/flyctl-actions/setup-flyctl@master
+
+      - name: Build and push the API image
+        run: flyctl deploy --config backend/fly.toml --build-only --push --depot=false --image-label ${{ github.sha }} backend
+
+      - name: Migrate and refresh the API database role (one-off machine)
+        run: >
+          flyctl machine run "$IMAGE" --app lendflow-api --rm --restart no
+          --env MIGRATION_DATABASE_URL="${{ secrets.DB_OWNER_URL }}"
+          --env APP_DB_PASSWORD="${{ secrets.APP_DB_PASSWORD }}"
+          --env JWT_SECRET=migration-only-not-used-by-the-app-0000
+          --entrypoint /bin/sh -- -c "alembic upgrade head && python -m scripts.provision_app_role"
+
+      - name: Deploy the API
+        run: flyctl deploy --config backend/fly.toml --image "$IMAGE" --ha=false
+
+      - name: Deploy the web app
+        run: flyctl deploy --config frontend/fly.toml --remote-only frontend

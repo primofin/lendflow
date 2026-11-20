@@ -8,6 +8,7 @@ from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from sqlalchemy.orm import Session
 
 from app.core.clock import Clock, get_clock
+from app.core.config import get_settings
 from app.core.db import get_db
 from app.core.errors import Forbidden, NotAuthenticated
 from app.models.user import Role
@@ -21,6 +22,11 @@ _bearer = HTTPBearer(auto_error=False)
 
 
 def client_ip(request: Request) -> str | None:
+    """Client address. Behind a trusted proxy (Fly), CLIENT_IP_HEADER names the header that
+    the proxy sets and clients cannot forge (Fly-Client-IP); otherwise use the socket peer."""
+    header = get_settings().client_ip_header
+    if header and (value := request.headers.get(header)):
+        return value.split(",")[0].strip()[:45]
     return request.client.host if request.client else None
 
 
