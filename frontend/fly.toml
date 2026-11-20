@@ -1,0 +1,26 @@
+# LendFlow web (Next.js) on Fly.io. Proxies /api to the private lendflow-api app.
+app = "lendflow-web"
+primary_region = "sin"
+
+[build]
+  dockerfile = "Dockerfile"
+  [build.args]
+    # Baked into the /api rewrite at build time.
+    BACKEND_URL = "http://lendflow-api.internal:8000"
+
+[http_service]
+  internal_port = 3000
+  force_https = true
+  auto_stop_machines = "stop"
+  auto_start_machines = true
+  min_machines_running = 1
+  [[http_service.checks]]
+    method = "GET"
+    path = "/"
+    interval = "15s"
+    timeout = "5s"
+    grace_period = "15s"
+
+[[vm]]
+  size = "shared-cpu-1x"
+  memory = "512mb"

@@ -1,0 +1,33 @@
+# LendFlow API on Fly.io. Private: no public service; only lendflow-web reaches it over 6PN.
+# Fly app names are global: if "lendflow-api" is taken, rename it here, in frontend/fly.toml
+# (BACKEND_URL) and in docs/deploy.md.
+app = "lendflow-api"
+primary_region = "sin"
+
+[build]
+  dockerfile = "Dockerfile"
+
+[env]
+  # Fly's proxy sets Fly-Client-IP and overwrites client-sent values; the API is not public.
+  CLIENT_IP_HEADER = "Fly-Client-IP"
+  APP_BASE_URL = "https://lendflow-web.fly.dev"
+  STORAGE_DIR = "/data/storage"
+  AI_MODE = "mock"
+
+# Uploads live on one volume, so run exactly one machine (docs/deploy.md).
+[mounts]
+  source = "lendflow_data"
+  destination = "/data"
+
+[checks.health]
+  type = "http"
+  port = 8000
+  path = "/health"
+  method = "GET"
+  interval = "15s"
+  timeout = "3s"
+  grace_period = "20s"
+
+[[vm]]
+  size = "shared-cpu-1x"
+  memory = "512mb"
